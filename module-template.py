@@ -7,6 +7,9 @@ class YourModuleName(wpilib.IterativeRobot):
     
     def robotInit(self):
         # when the robot code starts (only once, not each time it's enabled)
+        # Declare Gamepads and CANTalons here.
+        # Don't access encoder values here; do that in teleopInit or
+        # autonomousInit.
         pass
 
     def teleopInit(self):
