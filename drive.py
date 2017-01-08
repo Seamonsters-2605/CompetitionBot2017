@@ -2,6 +2,7 @@ __author__ = "seamonsters"
 
 import wpilib
 from seamonsters.wpilib_sim import simulate
+from seamonsters.modularRobot import Module
 
 from seamonsters.drive import DriveInterface
 from seamonsters.gamepad import Gamepad
@@ -13,7 +14,7 @@ from seamonsters.holonomicDrive import HolonomicDrive
 from robotpy_ext.common_drivers.navx import AHRS
 import math
 
-class DriveBot(wpilib.IterativeRobot):
+class DriveBot(Module):
 
     def robotInit(self):
         self.gamepad = Gamepad(port = 0)

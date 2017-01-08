@@ -2,8 +2,9 @@ __author__ = "seamonsters"
 
 import wpilib
 from seamonsters.wpilib_sim import simulate
+from seamonsters.modularRobot import Module
 
-class YourModuleName(wpilib.IterativeRobot):
+class YourModuleName(Module):
     
     def robotInit(self):
         # when the robot code starts (only once, not each time it's enabled)
