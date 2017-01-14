@@ -43,7 +43,7 @@ local.properties
 *.suo
 *.user
 *.sln.docstates
-launch.json
+.vscode/
 
 # Build results
 
