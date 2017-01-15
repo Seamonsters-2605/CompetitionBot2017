@@ -1,7 +1,7 @@
-seamonsters.joystick
-====================
+seamonsters.path
+================
 
-.. automodule:: seamonsters.joystick
+.. automodule:: seamonsters.path
     :members:
     :special-members: __init__
     :undoc-members:
