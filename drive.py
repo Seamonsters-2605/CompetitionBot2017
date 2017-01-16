@@ -45,11 +45,11 @@ class DriveBot(Module):
         # the motor gear has 18 teeth and the wheel has 187 teeth
         # 187 / 18 * 400 = 4155.5556 = ~4156
         # TODO: recalculate ticks per rotation
-        self.drive = HolonomicDrive(fl, fr, bl, br, 4156)
-        self.drive.invertDrive(True)
-        self.drive.setWheelOffset(math.radians(22.5)) #angle of rollers
+        self.holoDrive = HolonomicDrive(fl, fr, bl, br, 4156)
+        self.holoDrive.invertDrive(True)
+        self.holoDrive.setWheelOffset(math.radians(22.5)) #angle of rollers
         
-        self.drive = AccelerationFilterDrive(self.drive)
+        self.drive = AccelerationFilterDrive(self.holoDrive)
         
         self.ahrs = AHRS.create_spi() # the NavX
         self.drive = FieldOrientedDrive(self.drive, self.ahrs, offset=math.pi/2)
@@ -66,6 +66,7 @@ class DriveBot(Module):
     def teleopInit(self):
         print("Left Bumper: Slower")
         print("Left Trigger: Faster")
+        self.holoDrive.zeroEncoderTargets()
         
     def teleopPeriodic(self):
         # change drive mode with A, B, and X
