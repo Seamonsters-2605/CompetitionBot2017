@@ -11,6 +11,7 @@ from seamonsters.drive import DriveInterface
 from seamonsters.drive import AccelerationFilterDrive
 from seamonsters.drive import FieldOrientedDrive
 from seamonsters.holonomicDrive import HolonomicDrive
+from seamonsters.logging import LogState
 
 from robotpy_ext.common_drivers.navx import AHRS
 import math
@@ -30,9 +31,12 @@ class DriveBot(Module):
             talon.setFeedbackDevice(wpilib.CANTalon.FeedbackDevice.QuadEncoder)
         
         self.currentPID = None
-        self.normalPID = (10.0, 0.0, 3.0, 0.0)
+        self.fastPID = (3.0, 0.0, 3.0, 0.0)
+        self.fastPIDScale = 0.1
         self.slowPID = (30.0, 0.0, 3.0, 0.0)
-        self._setPID(self.normalPID)
+        self.slowPIDScale = 0.01
+        self.pidLog = LogState("Drive PID")
+        self._setPID(self.fastPID)
         
         # 4156 ticks per wheel rotation
         # encoder has 100 raw ticks -- with a QuadEncoder that makes 400 ticks
@@ -77,22 +81,40 @@ class DriveBot(Module):
             scale = self.fastScale
         if self.gamepad.getRawButton(Gamepad.LB): # slower button
             scale = self.slowScale
-            self._setPID(self.slowPID)
-        else:
-            self._setPID(self.normalPID)
         
         turn = self._joystickPower(-self.gamepad.getRX()) * (scale / 2)
         magnitude = self._joystickPower(self.gamepad.getLMagnitude()) * scale
         direction = self.gamepad.getLDirection()
+
+        driveScale = max(magnitude, abs(turn))
+        self._setPID(self._lerpPID(driveScale))
         
         self.drive.drive(magnitude, direction, turn)
         
     def _setPID(self, pid):
+        self.pidLog.update(pid)
         if pid == self.currentPID:
             return
         self.currentPID = pid
         for talon in self.talons:
             talon.setPID(pid[0], pid[1], pid[2], pid[3])
+
+    def _lerpPID(self, magnitude):
+        if magnitude <= self.slowPIDScale:
+            return self.slowPID
+        elif magnitude >= self.fastPIDScale:
+            return self.fastPID
+        else:
+            # 0 - 1
+            scale = (magnitude - self.slowPIDScale) / \
+                    (self.fastPIDScale - self.slowPIDScale)
+            pidList = [ ]
+            for i in range(0, 4):
+                slowValue = self.slowPID[i]
+                fastValue = self.fastPID[i]
+                value = (fastValue - slowValue) * scale + slowValue
+                pidList.append(value)
+            return tuple(pidList)
 
     def _joystickPower(self, value):
         newValue = float(abs(value)) ** float(self.joystickExponent)
