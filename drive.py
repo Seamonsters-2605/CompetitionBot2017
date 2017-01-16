@@ -86,7 +86,7 @@ class DriveBot(Module):
         magnitude = self._joystickPower(self.gamepad.getLMagnitude()) * scale
         direction = self.gamepad.getLDirection()
 
-        driveScale = max(magnitude, abs(turn))
+        driveScale = max(magnitude, abs(turn * 2))
         self._setPID(self._lerpPID(driveScale))
         
         self.drive.drive(magnitude, direction, turn)
