@@ -53,6 +53,8 @@ class DriveBot(Module):
         self.normalScale = 0.3
         self.fastScale = 0.5
         self.slowScale = 0.05
+
+        self.joystickExponent = 2
         
     def teleopInit(self):
         print("Left Bumper: Slower")
@@ -79,9 +81,8 @@ class DriveBot(Module):
         else:
             self._setPID(self.normalPID)
         
-        turn = -self.gamepad.getRX() * abs(self.gamepad.getRX()) \
-            * (scale / 2)
-        magnitude = self.gamepad.getLMagnitude()**2 * scale
+        turn = self._joystickPower(-self.gamepad.getRX()) * (scale / 2)
+        magnitude = self._joystickPower(self.gamepad.getLMagnitude()) * scale
         direction = self.gamepad.getLDirection()
         
         self.drive.drive(magnitude, direction, turn)
@@ -92,6 +93,12 @@ class DriveBot(Module):
         self.currentPID = pid
         for talon in self.talons:
             talon.setPID(pid[0], pid[1], pid[2], pid[3])
+
+    def _joystickPower(self, value):
+        newValue = float(abs(value)) ** float(self.joystickExponent)
+        if value < 0:
+            newValue = -newValue
+        return newValue
 
 if __name__ == "__main__":
     wpilib.run(DriveBot)
