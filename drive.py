@@ -29,6 +29,8 @@ class DriveBot(Module):
         
         for talon in self.talons:
             talon.setFeedbackDevice(wpilib.CANTalon.FeedbackDevice.QuadEncoder)
+
+        self.driveModeLog = LogState("Drive mode")
         
         self.currentPID = None
         self.fastPID = (3.0, 0.0, 3.0, 0.0)
@@ -67,14 +69,12 @@ class DriveBot(Module):
     def teleopPeriodic(self):
         # change drive mode with A, B, and X
         if   self.gamepad.getRawButton(Gamepad.A):
-            print("Voltage mode!")
             self.drive.setDriveMode(DriveInterface.DriveMode.VOLTAGE)
         elif self.gamepad.getRawButton(Gamepad.B):
-            print("Speed mode!")
             self.drive.setDriveMode(DriveInterface.DriveMode.SPEED)
         elif self.gamepad.getRawButton(Gamepad.X):
-            print("Position mode!")
             self.drive.setDriveMode(DriveInterface.DriveMode.POSITION)
+        self.driveModeLog.update(self._driveModeName(self.drive.getDriveMode()))
         
         scale = self.normalScale
         if self.gamepad.getRawButton(Gamepad.LT): # faster button
@@ -90,6 +90,15 @@ class DriveBot(Module):
         self._setPID(self._lerpPID(driveScale))
         
         self.drive.drive(magnitude, direction, turn)
+
+    def _driveModeName(self, driveMode):
+        if driveMode == DriveInterface.DriveMode.VOLTAGE:
+            return "Voltage"
+        if driveMode == DriveInterface.DriveMode.SPEED:
+            return "Speed"
+        if driveMode == DriveInterface.DriveMode.POSITION:
+            return "Position"
+        return "Unknown"
         
     def _setPID(self, pid):
         self.pidLog.update(pid)
