@@ -5,7 +5,6 @@ import seamonsters.fix2017
 from seamonsters.wpilib_sim import simulate
 from seamonsters.modularRobot import Module
 
-from seamonsters.drive import DriveInterface
 from seamonsters.gamepad import Gamepad
 from seamonsters.drive import DriveInterface
 from seamonsters.drive import AccelerationFilterDrive
