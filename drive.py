@@ -78,9 +78,9 @@ class DriveBot(Module):
         self.driveModeLog.update(self._driveModeName(self.drive.getDriveMode()))
         
         scale = self.normalScale
-        if self.gamepad.getRawButton(Gamepad.LT): # faster button
+        if self.gamepad.getRawButton(Gamepad.RT): # faster button
             scale = self.fastScale
-        if self.gamepad.getRawButton(Gamepad.LB): # slower button
+        if self.gamepad.getRawButton(Gamepad.LT): # slower button
             scale = self.slowScale
         
         turn = self._joystickPower(-self.gamepad.getRX()) * (scale / 2)
