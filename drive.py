@@ -50,9 +50,9 @@ class DriveBot(Module):
         
         self.drive = AccelerationFilterDrive(self.holoDrive)
         
-        self.ahrs = AHRS.create_spi() # the NavX
-        self.drive = FieldOrientedDrive(self.drive, self.ahrs, offset=math.pi/2)
-        self.drive.zero()
+        #self.ahrs = AHRS.create_spi() # the NavX
+        #self.drive = FieldOrientedDrive(self.drive, self.ahrs, offset=math.pi/2)
+        #self.drive.zero()
         
         self.drive.setDriveMode(DriveInterface.DriveMode.POSITION)
         
