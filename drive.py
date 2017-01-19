@@ -78,8 +78,11 @@ class DriveBot(Module):
         self.drive.setDriveMode(DriveInterface.DriveMode.POSITION)
         
     def teleopInit(self):
-        print("Left Bumper: Slower")
-        print("Left Trigger: Faster")
+        print("Left Trigger: Slower")
+        print("Right Trigger: Faster")
+        print("A: Voltage mode")
+        print("B: Speed mode")
+        print("X: Position mode")
         self.holoDrive.zeroEncoderTargets()
         
     def teleopPeriodic(self):
@@ -93,9 +96,9 @@ class DriveBot(Module):
         self.driveModeLog.update(self._driveModeName(self.drive.getDriveMode()))
         
         scale = self.normalScale
-        if self.gamepad.getRawButton(Gamepad.LT): # faster button
+        if self.gamepad.getRawButton(Gamepad.RT): # faster button
             scale = self.fastScale
-        if self.gamepad.getRawButton(Gamepad.LB): # slower button
+        if self.gamepad.getRawButton(Gamepad.LT): # slower button
             scale = self.slowScale
         
         turn = self._joystickPower(-self.gamepad.getRX()) * (scale / 2)
