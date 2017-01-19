@@ -14,51 +14,36 @@ class DebugMode(Module):
 
     def testInit(self):
         print("--- Debug Mode ---")
-        print("Each joystick Y axis controls a motor")
-        print("Each directional buttons axis controls a motor")
-        print("X flips the motors joysticks and buttons control")
+        print("Each joystick Y axis controls a front motor")
+        print("Each trigger controls a back motor")
+        print("Use bumpers to switch direction of triggers")
+
+        self.ltriggerforward = True
+        self.rtriggerforward = True
 
     def testPeriodic(self):
-        # if true, joysticks control front motors
-        # if false, joysticks control back motors
-        testModeJoysticksFront = True
+        self.driveBot.talons[0].set(self.driveBot.gamepad.getLY())
+        self.driveBot.talons[1].set(self.driveBot.gamepad.getRY())
 
-        # switches joysticks and dir buttons
-        if self.driveBot.gamepad.getRawButton(Gamepad.Y):
-            if testModeJoysticksFront:
-                print("Joysticks control rear motors")
-                testModeJoysticksFront = False
-            else:
-                print("Joysticks control front motors")
-                testModeJoysticksFront = True
+        if self.driveBot.gamepad.buttonPressed(Gamepad.LB):
+            self.ltriggerforward = not self.ltriggerforward
+        if self.driveBot.gamepad.buttonPressed(Gamepad.RB):
+            self.rtriggerforward = not self.rtriggerforward
 
-        # get values -1 to 1
-        joystickLeft = self.driveBot.gamepad.getLY()
-        joystickRight = self.driveBot.gamepad.getRY()
+        ltrigger = self.driveBot.gamepad.getLTrigger()
+        rtrigger = self.driveBot.gamepad.getRTrigger()
 
-        directionalVertical = 0
-        if self.driveBot.gamepad.getRawButton(Gamepad.UP):
-            directionalVertical = 1
-        elif self.driveBot.gamepad.getRawButton(Gamepad.DOWN):
-            directionalVertical = -1
-
-        directionalHorizontal = 0
-        if self.driveBot.gamepad.getRawButton(Gamepad.RIGHT):
-            directionalHorizontal = 1
-        elif self.driveBot.gamepad.getRawButton(Gamepad.LEFT):
-            directionalHorizontal = -1
-
-        # sets motors
-        if testModeJoysticksFront:
-            self.driveBot.talons[0].set(joystickLeft)
-            self.driveBot.talons[1].set(joystickRight)
-            self.driveBot.talons[2].set(directionalVertical)
-            self.driveBot.talons[3].set(directionalHorizontal)
+        if self.ltriggerforward:
+            self.driveBot.talons[2].set(ltrigger)
         else:
-            self.driveBot.talons[0].set(directionalVertical)
-            self.driveBot.talons[1].set(directionalHorizontal)
-            self.driveBot.talons[2].set(joystickLeft)
-            self.driveBot.talons[3].set(joystickRight)
+            self.driveBot.talons[2].set(-1 * ltrigger)
+
+        if self.rtriggerforward:
+            self.driveBot.talons[3].set(rtrigger)
+        else:
+            self.driveBot.talons[3].set(-1 * rtrigger)
+
+        self.driveBot.gamepad.updateButtons()
 
 if __name__ == "__main__":
-    wpilib.run(DebugMode)
+    wpilib.run(DebugMode, physics_enabled=True)

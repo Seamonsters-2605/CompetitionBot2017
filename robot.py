@@ -17,5 +17,5 @@ class CompetitionBot2017(Module):
         self.addModule(DebugMode(robot))
 
 if __name__ == "__main__":
-    wpilib.run(CompetitionBot2017)
+    wpilib.run(CompetitionBot2017, physics_enabled=True)
 
