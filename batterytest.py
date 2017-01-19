@@ -22,9 +22,14 @@ class BatteryTest(wpilib.IterativeRobot):
         if self.count < 250:
             self.allMotors(1)
         elif self.count < 500:
+            self.allMotors(-1)
+        elif self.count < 750:
             self.allMotors(0.5)
+        elif self.count < 1000:
+            self.allMotors(-0.5)
         else:
             self.allMotors(0)
+
 
     def allMotors(self,speed):
         for talon in self.talons:
