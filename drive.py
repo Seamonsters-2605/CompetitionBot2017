@@ -18,6 +18,31 @@ import math
 class DriveBot(Module):
 
     def robotInit(self):
+        ### CONSTANTS ###
+
+        # normal speed scale, out of 1:
+        self.normalScale = 0.3
+        # speed scale when fast button is pressed:
+        self.fastScale = 0.5
+        # speed scale when slow button is pressed:
+        self.slowScale = 0.05
+
+        self.joystickExponent = 2
+
+        # rate of increase of velocity per 1/50th of a second:
+        accelerationRate = .08
+
+        # PIDF values for fast driving:
+        self.fastPID = (3.0, 0.0, 3.0, 0.0)
+        # speed at which fast PID's should be used:
+        self.fastPIDScale = 0.1
+        # PIDF values for slow driving:
+        self.slowPID = (30.0, 0.0, 3.0, 0.0)
+        # speed at which slow PID's should be used:
+        self.slowPIDScale = 0.01
+
+        ### END OF CONSTANTS ###
+
         self.gamepad = Gamepad(port = 0)
         
         fl = wpilib.CANTalon(2)
@@ -32,10 +57,6 @@ class DriveBot(Module):
         self.driveModeLog = LogState("Drive mode")
         
         self.currentPID = None
-        self.fastPID = (3.0, 0.0, 3.0, 0.0)
-        self.fastPIDScale = 0.1
-        self.slowPID = (30.0, 0.0, 3.0, 0.0)
-        self.slowPIDScale = 0.01
         self.pidLog = LogState("Drive PID")
         self._setPID(self.fastPID)
         
@@ -48,19 +69,13 @@ class DriveBot(Module):
         self.holoDrive.invertDrive(True)
         self.holoDrive.setWheelOffset(math.radians(22.5)) #angle of rollers
         
-        self.drive = AccelerationFilterDrive(self.holoDrive)
+        self.drive = AccelerationFilterDrive(self.holoDrive, accelerationRate)
         
         #self.ahrs = AHRS.create_spi() # the NavX
         #self.drive = FieldOrientedDrive(self.drive, self.ahrs, offset=math.pi/2)
         #self.drive.zero()
         
         self.drive.setDriveMode(DriveInterface.DriveMode.POSITION)
-        
-        self.normalScale = 0.3
-        self.fastScale = 0.5
-        self.slowScale = 0.05
-
-        self.joystickExponent = 2
         
     def teleopInit(self):
         print("Left Bumper: Slower")
