@@ -5,34 +5,30 @@ import seamonsters.fix2017
 from seamonsters.wpilib_sim import simulate
 from seamonsters.modularRobot import Module
 
-class BatteryTest(Module):
-    
+class BatteryTest(wpilib.IterativeRobot):
+
     def robotInit(self):
-        fl = wpilib.CANTalon(2)
-        fr = wpilib.CANTalon(1)
-        bl = wpilib.CANTalon(0)
-        br = wpilib.CANTalon(3)
-        self.talons = [fl,fr,bl,br]
+        bl = wpilib.CANTalon(1)
+        fl = wpilib.CANTalon(3)
+        fr = wpilib.CANTalon(0)
+        br = wpilib.CANTalon(2)
+        self.talons = [bl,fl,fr,br]
 
     def autonomousInit(self):
-        # when autonomous mode starts
-        self.time = 0
+        self.count = 0
 
     def autonomousPeriodic(self):
+        self.count = self.count + 1
+        if self.count < 250:
+            self.allMotors(1)
+        else:
+            self.allMotors(0)
 
-        self.time = self.time + 1
-        self.talons[0].set(1)
-        self.talons[1].set(1)
-        self.talons[2].set(1)
-        self.talons[3].set(1)
-        if self.time == 10:
-            self.talons
-
-
-
+    def allMotors(self,speed):
+        for talon in self.talons:
+            talon.set(speed)
 
 if __name__ == "__main__":
     wpilib.run(BatteryTest)
-
 
 
