@@ -19,15 +19,15 @@ class BatteryTest(Module):
         self.time = 0
 
     def autonomousPeriodic(self):
-
         self.time = self.time + 1
-        self.talons[0].set(1)
-        self.talons[1].set(1)
-        self.talons[2].set(1)
-        self.talons[3].set(1)
+        self.allTalons(self, 1)
         if self.time == 10:
-            self.talons
+            self.allTalons(self,0)
+        if self.time
 
+    def allTalons(self, speed):
+        for talons in self.talons:
+            talon.set(speed)
 
 if __name__ == "__main__":
     wpilib.run(BatteryTest)
