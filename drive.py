@@ -30,12 +30,12 @@ class DriveBot(Module):
         self.joystickExponent = 2
 
         # rate of increase of velocity per 1/50th of a second:
-        accelerationRate = .08
+        accelerationRate = .04
 
         # PIDF values for fast driving:
-        self.fastPID = (3.0, 0.0, 3.0, 0.0)
+        self.fastPID = (1.0, 0.0, 3.0, 0.0)
         # speed at which fast PID's should be used:
-        self.fastPIDScale = 0.1
+        self.fastPIDScale = 0.3
         # PIDF values for slow driving:
         self.slowPID = (30.0, 0.0, 3.0, 0.0)
         # speed at which slow PID's should be used:
@@ -69,11 +69,14 @@ class DriveBot(Module):
         self.holoDrive.invertDrive(True)
         self.holoDrive.setWheelOffset(math.radians(22.5)) #angle of rollers
         
-        self.drive = AccelerationFilterDrive(self.holoDrive, accelerationRate)
+        self.filterDrive = AccelerationFilterDrive(self.holoDrive,
+                                                   accelerationRate)
         
         #self.ahrs = AHRS.create_spi() # the NavX
         #self.drive = FieldOrientedDrive(self.drive, self.ahrs, offset=math.pi/2)
         #self.drive.zero()
+
+        self.drive = self.filterDrive
         
         self.drive.setDriveMode(DriveInterface.DriveMode.POSITION)
         
@@ -104,11 +107,12 @@ class DriveBot(Module):
         turn = self._joystickPower(-self.gamepad.getRX()) * (scale / 2)
         magnitude = self._joystickPower(self.gamepad.getLMagnitude()) * scale
         direction = self.gamepad.getLDirection()
-
-        driveScale = max(magnitude, abs(turn * 2))
-        self._setPID(self._lerpPID(driveScale))
         
         self.drive.drive(magnitude, direction, turn)
+
+        driveScale = max(self.filterDrive.getFilteredMagnitude(),
+                         abs(self.filterDrive.getFilteredTurn() * 2))
+        self._setPID(self._lerpPID(driveScale))
 
     def _driveModeName(self, driveMode):
         if driveMode == DriveInterface.DriveMode.VOLTAGE:
