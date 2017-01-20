@@ -14,19 +14,17 @@ class BatteryTest(wpilib.IterativeRobot):
         br = wpilib.CANTalon(2)
         self.talons = [bl,fl,fr,br]
         self.pdp = wpilib.PowerDistributionPanel()
+
     def autonomousInit(self):
         self.count = 0
 
     def autonomousPeriodic(self):
-        self.allTalons(1)
         print("Voltage: {}, Power: {}".format(self.pdp.getVoltage(),
                                               self.pdp.getTotalPower()))
-        self.allTalons(0)
 
-    def allTalons(self, speed):
-        for talons in self.talons:
-            self.count = self.count + 1
-        if self.count < 200: #every 4 seconds
+        self.count = self.count + 1
+
+        if self.count < 200: # for 4 seconds
             self.allMotors(1)
         elif self.count < 400:
             self.allMotors(-1)
@@ -44,7 +42,6 @@ class BatteryTest(wpilib.IterativeRobot):
             self.allMotors(speed)
         else:
             self.allMotors(0)
-
 
 
     def allMotors(self,speed):
