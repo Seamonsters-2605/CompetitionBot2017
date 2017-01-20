@@ -13,12 +13,14 @@ class BatteryTest(wpilib.IterativeRobot):
         fr = wpilib.CANTalon(0)
         br = wpilib.CANTalon(2)
         self.talons = [bl,fl,fr,br]
-
+        self.pdp = wpilib.PowerDistributionPanel()
     def autonomousInit(self):
         self.count = 0
 
     def autonomousPeriodic(self):
         self.allTalons(1)
+        print("Voltage: {}, Power: {}".format(self.pdp.getVoltage(),
+                                              self.pdp.getTotalPower()))
         self.allTalons(0)
 
     def allTalons(self, speed):
