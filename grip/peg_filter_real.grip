@@ -65,8 +65,8 @@
   </steps>
   <connections>
     <edu.wpi.grip.core.Connection>
-      <edu.wpi.grip.core.sockets.OutputSocketImpl step="2" socket="0" previewed="true"/>
-      <edu.wpi.grip.core.sockets.InputSocketImpl step="3" socket="0"/>
+      <edu.wpi.grip.core.sockets.OutputSocketImpl step="1" socket="0" previewed="true"/>
+      <edu.wpi.grip.core.sockets.InputSocketImpl step="2" socket="0"/>
     </edu.wpi.grip.core.Connection>
     <edu.wpi.grip.core.Connection>
       <edu.wpi.grip.core.sockets.OutputSocketImpl step="0" socket="0" previewed="true"/>
@@ -77,8 +77,8 @@
       <edu.wpi.grip.core.sockets.InputSocketImpl step="0" socket="0"/>
     </edu.wpi.grip.core.Connection>
     <edu.wpi.grip.core.Connection>
-      <edu.wpi.grip.core.sockets.OutputSocketImpl step="1" socket="0" previewed="true"/>
-      <edu.wpi.grip.core.sockets.InputSocketImpl step="2" socket="0"/>
+      <edu.wpi.grip.core.sockets.OutputSocketImpl step="2" socket="0" previewed="true"/>
+      <edu.wpi.grip.core.sockets.InputSocketImpl step="3" socket="0"/>
     </edu.wpi.grip.core.Connection>
   </connections>
   <settings>
@@ -91,10 +91,10 @@
     <deployJvmOptions>-Xmx50m -XX:-OmitStackTraceInFastThrow -XX:+HeapDumpOnOutOfMemoryError -XX:MaxNewSize=16m</deployJvmOptions>
   </settings>
   <codeGenerationSettings>
-    <language>Java</language>
-    <className>GripPipeline</className>
+    <language>Python</language>
+    <className>Gpegfilter</className>
     <implementWpilibPipeline>false</implementWpilibPipeline>
-    <saveDir>C:\Users\Tad\GRIP</saveDir>
+    <saveDir>C:\Users\Tad\Desktop\FRC2605\CompetitionBot2017\grip</saveDir>
     <packageName></packageName>
     <moduleName>grip</moduleName>
   </codeGenerationSettings>
