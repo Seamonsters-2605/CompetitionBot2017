@@ -59,6 +59,7 @@ class DriveBot(Module):
         self.currentPID = None
         self.pidLog = LogState("Drive PID")
         self._setPID(self.fastPID)
+        self.driveScales = [0.0 for i in range(0,10)]
         
         # 4156 ticks per wheel rotation
         # encoder has 100 raw ticks -- with a QuadEncoder that makes 400 ticks
@@ -112,7 +113,9 @@ class DriveBot(Module):
 
         driveScale = max(self.filterDrive.getFilteredMagnitude(),
                          abs(self.filterDrive.getFilteredTurn() * 2))
-        self._setPID(self._lerpPID(driveScale))
+        self.driveScales.append(driveScale)
+        self.driveScales.pop(0)
+        self._setPID(self._lerpPID(max(self.driveScales)))
 
     def _driveModeName(self, driveMode):
         if driveMode == DriveInterface.DriveMode.VOLTAGE:
