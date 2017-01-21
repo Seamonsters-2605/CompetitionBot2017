@@ -32,28 +32,33 @@ void settings() {
 
 void setup() {
   background(255,255,255);
-  strokeWeight(3);
   colorMode(HSB);
   
   // draw axes
   stroke(0);
+  strokeWeight(3);
   line(0, valueToPixelY(0), width, valueToPixelY(0));
   line(valueToPixelX(0), 0, valueToPixelX(0), height);
+  
+  fill(0);
+  strokeWeight(1);
+  
+  textAlign(LEFT, CENTER);
   for(float y = yMin; y < yMax; y += yScale) {
-    line(valueToPixelX(0) - 8, valueToPixelY(y), valueToPixelX(0) + 8, valueToPixelY(y));
+    stroke(0);
+    line(0, valueToPixelY(y), width, valueToPixelY(y));
+    noStroke();
+    text(y, valueToPixelX(0) + 12, valueToPixelY(y));
   }
   textAlign(CENTER, TOP);
-  fill(0);
   for(float x = xMin; x < xMax; x += xScale) {
     stroke(0);
-    line(valueToPixelX(x), valueToPixelY(0) - 8, valueToPixelX(x), valueToPixelY(0) + 8);
+    line(valueToPixelX(x), 0, valueToPixelX(x), height);
     noStroke();
     text(x, valueToPixelX(x), valueToPixelY(0) + 12);
   }
   
   graphs = new GraphData[10];
-  
-  strokeWeight(1);
   
   selectInput("Choose a log file", "fileSelected");
 }
@@ -101,6 +106,7 @@ float valueToPixelY(float y) {
 void draw() {
   if(newGraph) {
     stroke(hue, 255, 191);
+    strokeWeight(1);
     
     if(TEST_MODE)
       noiseSeed(int(random(65535)));
@@ -121,6 +127,7 @@ void draw() {
       prevY = y;
     }
     
+    strokeWeight(3);
     line(width - 96, 8 + (numGraphs - 1) * 16, width - 32, 8 + (numGraphs - 1) * 16);
     
     newGraph = false;
