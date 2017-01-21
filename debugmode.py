@@ -16,7 +16,7 @@ class DebugMode(Module):
         print("--- Debug Mode ---")
         print("Each joystick Y axis controls a front motor")
         print("Each trigger controls a back motor")
-        print("Use bumpers to switch direction of triggers")
+        print("Use UP and Y to switch direction of triggers")
 
         self.ltriggerforward = True
         self.rtriggerforward = True
@@ -25,9 +25,9 @@ class DebugMode(Module):
         self.driveBot.talons[0].set(self.driveBot.gamepad.getLY())
         self.driveBot.talons[1].set(self.driveBot.gamepad.getRY())
 
-        if self.driveBot.gamepad.buttonPressed(Gamepad.LB):
+        if self.driveBot.gamepad.buttonPressed(Gamepad.UP):
             self.ltriggerforward = not self.ltriggerforward
-        if self.driveBot.gamepad.buttonPressed(Gamepad.RB):
+        if self.driveBot.gamepad.buttonPressed(Gamepad.Y):
             self.rtriggerforward = not self.rtriggerforward
 
         ltrigger = self.driveBot.gamepad.getLTrigger()
