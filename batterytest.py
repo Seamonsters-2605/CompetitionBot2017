@@ -24,7 +24,7 @@ class BatteryTest(wpilib.IterativeRobot):
     def autonomousPeriodic(self):
         if self.logFile is not None:
             self.logFile.write(str(self.count) + " " +
-                               str(self.pdp.getVoltage()))
+                               str(self.pdp.getVoltage()) + "\n")
 
         if self.count < 200: # for 4 seconds
             self.allMotors(0.75)
@@ -59,7 +59,7 @@ class BatteryTest(wpilib.IterativeRobot):
                 self.allMotors(-0.5)
         else:
             self.allMotors(0)
-            if logFile is not None:
+            if self.logFile is not None:
                 self.logFile.close()
                 self.logFile = None
                 print("Battery test complete.")
