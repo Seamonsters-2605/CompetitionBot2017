@@ -45,6 +45,16 @@ class BatteryTest(wpilib.IterativeRobot):
                 self.allMotors(0.5)
             else:
                 self.allMotors(-0.5)
+        elif self.count < 1800:
+            if self.count%10 < 5:
+                self.allMotors(0.5)
+            else:
+                self.allMotors(-0.5)
+        elif self.count < 2000:
+            if self.count%5 < 2.5:
+                self.allMotors(0.5)
+            else:
+                self.allMotors(-0.5)
         else:
             self.allMotors(0)
 
