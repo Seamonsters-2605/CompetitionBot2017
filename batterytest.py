@@ -59,9 +59,10 @@ class BatteryTest(wpilib.IterativeRobot):
                 self.allMotors(-0.5)
         else:
             self.allMotors(0)
-            self.logFile.close()
-            self.logFile = None
-            print("Battery test complete.")
+            if logFile is not None:
+                self.logFile.close()
+                self.logFile = None
+                print("Battery test complete.")
 
         self.count = self.count + 1
 
