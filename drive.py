@@ -28,6 +28,8 @@ class DriveBot(Module):
         self.slowScale = 0.05
 
         self.joystickExponent = 2
+        self.fastJoystickExponent = .5
+        self.slowJoystickExponent = 4
 
         # rate of increase of velocity per 1/50th of a second:
         accelerationRate = .04
@@ -100,13 +102,15 @@ class DriveBot(Module):
         self.driveModeLog.update(self._driveModeName(self.drive.getDriveMode()))
         
         scale = self.normalScale
+        exponent = self.joystickExponent
         if self.gamepad.getRawButton(Gamepad.RT): # faster button
             scale = self.fastScale
+            exponent = self.fastJoystickExponent
         if self.gamepad.getRawButton(Gamepad.LT): # slower button
             scale = self.slowScale
-        
-        turn = self._joystickPower(-self.gamepad.getRX()) * (scale / 2)
-        magnitude = self._joystickPower(self.gamepad.getLMagnitude()) * scale
+            exponent = self.slowJoystickExponent
+        turn = self._joystickPower(-self.gamepad.getRX(), exponent) * (scale / 2)
+        magnitude = self._joystickPower(self.gamepad.getLMagnitude(), exponent) * scale
         direction = self.gamepad.getLDirection()
         
         self.drive.drive(magnitude, direction, turn)
@@ -151,8 +155,8 @@ class DriveBot(Module):
                 pidList.append(value)
             return tuple(pidList)
 
-    def _joystickPower(self, value):
-        newValue = float(abs(value)) ** float(self.joystickExponent)
+    def _joystickPower(self, value, exponent):
+        newValue = float(abs(value)) ** float(exponent)
         if value < 0:
             newValue = -newValue
         return newValue
