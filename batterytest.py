@@ -15,13 +15,16 @@ class BatteryTest(wpilib.IterativeRobot):
         self.talons = [bl,fl,fr,br]
         self.pdp = wpilib.PowerDistributionPanel()
 
+        self.logFile = open("battery-test-log.txt", 'w')
+
     def autonomousInit(self):
         self.count = 0
+        print("Battery test running...")
+    
     def autonomousPeriodic(self):
-        print("Voltage: {}, Power: {}, Temperature: {}, Current: {}, Energy: {}".format(self.pdp.getVoltage(),
-                                              self.pdp.getTotalPower(), self.pdp.getTemperature(), self.pdp.getTotalCurrent(), self.pdp.getTotalEnergy()))
-
-        self.count = self.count + 1
+        if self.logFile is not None:
+            self.logFile.write(str(self.count) + " " +
+                               str(self.pdp.getVoltage()))
 
         if self.count < 200: # for 4 seconds
             self.allMotors(0.75)
@@ -56,6 +59,11 @@ class BatteryTest(wpilib.IterativeRobot):
                 self.allMotors(-0.5)
         else:
             self.allMotors(0)
+            self.logFile.close()
+            self.logFile = None
+            print("Battery test complete.")
+
+        self.count = self.count + 1
 
 
     def allMotors(self,speed):
