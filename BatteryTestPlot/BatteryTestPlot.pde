@@ -2,7 +2,7 @@ import java.util.*;
 
 final boolean TEST_MODE = false;
 
-float xMin = -50;
+float xMin = 0;
 float xMax = 2000;
 float xScale = 100;
 float yMin = -1;
@@ -42,11 +42,18 @@ void setup() {
   for(float y = yMin; y < yMax; y += yScale) {
     line(valueToPixelX(0) - 8, valueToPixelY(y), valueToPixelX(0) + 8, valueToPixelY(y));
   }
+  textAlign(CENTER, TOP);
+  fill(0);
   for(float x = xMin; x < xMax; x += xScale) {
+    stroke(0);
     line(valueToPixelX(x), valueToPixelY(0) - 8, valueToPixelX(x), valueToPixelY(0) + 8);
+    noStroke();
+    text(x, valueToPixelX(x), valueToPixelY(0) + 12);
   }
   
   graphs = new GraphData[10];
+  
+  strokeWeight(1);
   
   selectInput("Choose a log file", "fileSelected");
 }
@@ -83,6 +90,10 @@ float valueToPixelX(float x) {
   return (x - xMin) / (xMax - xMin) * float(width);
 }
 
+float pixelXToValue(float x) {
+  return x / float(width) * (xMax - xMin) + xMin;
+}
+
 float valueToPixelY(float y) {
   return height - (y - yMin) / (yMax - yMin) * float(height);
 }
@@ -110,12 +121,21 @@ void draw() {
       prevY = y;
     }
     
-    line(width - 96, 8 + numGraphs * 8, width - 32, 8 + numGraphs * 8);
+    line(width - 96, 8 + (numGraphs - 1) * 16, width - 32, 8 + (numGraphs - 1) * 16);
     
     newGraph = false;
     hue += hueIncrement;
     if(hue > 255)
       hue -= 255.0;
     selectInput("Choose a log file", "fileSelected");
+  }
+  
+  textAlign(RIGHT, CENTER);
+  fill(0,0,255);
+  noStroke();
+  rect(width - 256, 0, 160, 128);
+  for(int i = 0; i < numGraphs; i++) {
+    fill(0);
+    text(graphs[i].yCoords[int(pixelXToValue(mouseX))], width - 96, 8 + i * 16);
   }
 }
