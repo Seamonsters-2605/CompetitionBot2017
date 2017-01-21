@@ -9,14 +9,25 @@ float yMin = -1;
 float yMax = 13;
 float yScale = 1;
 
-int graphNumber = 0;
 float hue = 0;
 float hueIncrement = (sqrt(5.0) - 1) / 2 * 255.0;
 
-String[] lines;
+GraphData[] graphs;
+int numGraphs = 0;
+boolean newGraph = false;
+
+class GraphData {
+  float[] xCoords;
+  float[] yCoords;
+  
+  GraphData(int numCoords) {
+    xCoords = new float[numCoords];
+    yCoords = new float[numCoords];
+  }
+}
 
 void settings() {
-  size(1800, 480);
+  size(1800, 900);
 }
 
 void setup() {
@@ -35,6 +46,8 @@ void setup() {
     line(valueToPixelX(x), valueToPixelY(0) - 8, valueToPixelX(x), valueToPixelY(0) + 8);
   }
   
+  graphs = new GraphData[10];
+  
   selectInput("Choose a log file", "fileSelected");
 }
 
@@ -42,7 +55,27 @@ void fileSelected(File selection) {
   if(selection == null)
     return;
   else {
-    lines = loadStrings(selection);
+    String[] lines = loadStrings(selection);
+    GraphData data = new GraphData(lines.length);
+    
+    int i = 0;
+    for(String line : lines) {
+      String[] words = line.split(" ");
+      float x = float(words[0]);
+      float y;
+      if(!TEST_MODE)
+        y = float(words[1]);
+      else
+        y = noise(x / 100.0) * (yMax - yMin) + yMin;
+      
+      data.xCoords[i] = x;
+      data.yCoords[i] = y;
+      i++;
+    }
+    
+    graphs[numGraphs] = data;
+    numGraphs++;
+    newGraph = true;
   }
 }
 
@@ -55,7 +88,7 @@ float valueToPixelY(float y) {
 }
 
 void draw() {
-  if(lines != null) {
+  if(newGraph) {
     stroke(hue, 255, 191);
     
     if(TEST_MODE)
@@ -64,14 +97,10 @@ void draw() {
     boolean first = true;
     float prevX = 0;
     float prevY = 0;
-    for(String line : lines) {
-      String[] words = line.split(" ");
-      float x = float(words[0]);
-      float y;
-      if(!TEST_MODE)
-        y = float(words[1]);
-      else
-        y = noise(x / 100.0) * (yMax - yMin) + yMin;
+    GraphData data = graphs[numGraphs - 1];
+    for(int i = 0; i < data.xCoords.length; i++) {
+      float x = data.xCoords[i];
+      float y = data.yCoords[i];
       
       if(first)
         first = false;
@@ -81,10 +110,9 @@ void draw() {
       prevY = y;
     }
     
-    line(width - 96, 16 + graphNumber * 8, width - 32, 16 + graphNumber * 8);
+    line(width - 96, 8 + numGraphs * 8, width - 32, 8 + numGraphs * 8);
     
-    lines = null;
-    graphNumber++;
+    newGraph = false;
     hue += hueIncrement;
     if(hue > 255)
       hue -= 255.0;
