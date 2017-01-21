@@ -1,8 +1,8 @@
 import java.util.*;
 
-final boolean TEST_MODE = true;
+final boolean TEST_MODE = false;
 
-float xMin = -100;
+float xMin = -50;
 float xMax = 2000;
 float xScale = 100;
 float yMin = -1;
@@ -16,7 +16,7 @@ float hueIncrement = (sqrt(5.0) - 1) / 2 * 255.0;
 String[] lines;
 
 void settings() {
-  size(640, 480);
+  size(1800, 480);
 }
 
 void setup() {

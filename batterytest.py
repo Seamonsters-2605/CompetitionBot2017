@@ -15,10 +15,9 @@ class BatteryTest(wpilib.IterativeRobot):
         self.talons = [bl,fl,fr,br]
         self.pdp = wpilib.PowerDistributionPanel()
 
-        self.logFile = open("battery-test-log.txt", 'w')
-
     def autonomousInit(self):
         self.count = 0
+        self.logFile = open("/home/lvuser/battery-test-log.txt", 'w')
         print("Battery test running...")
     
     def autonomousPeriodic(self):
