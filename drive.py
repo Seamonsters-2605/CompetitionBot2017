@@ -43,6 +43,8 @@ class DriveBot(Module):
         # speed at which slow PID's should be used:
         self.slowPIDScale = 0.01
 
+        pidLookBackRange = 10
+
         ### END OF CONSTANTS ###
 
         self.gamepad = Gamepad(port = 0)
@@ -61,7 +63,7 @@ class DriveBot(Module):
         self.currentPID = None
         self.pidLog = LogState("Drive PID")
         self._setPID(self.fastPID)
-        self.driveScales = [0.0 for i in range(0,10)]
+        self.driveScales = [0.0 for i in range(0, pidLookBackRange)]
         
         # 4156 ticks per wheel rotation
         # encoder has 100 raw ticks -- with a QuadEncoder that makes 400 ticks
