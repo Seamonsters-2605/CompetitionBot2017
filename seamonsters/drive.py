@@ -109,12 +109,6 @@ class AccelerationFilterDrive(DriveInterface):
     
     # returns an tuple of: (magnitude, direction, turn)
     def _accelerationFilter(self, magnitude, direction, turn):
-        if magnitude == 0 and turn == 0:
-            self.previousX = 0
-            self.previousY = 0
-            self.previousTurn = 0
-            return magnitude, direction, turn
-
         if abs(self.previousTurn - turn) <= self.accelerationRate:
             newTurn = turn
         else:
