@@ -17,7 +17,6 @@ class BatteryTest(wpilib.IterativeRobot):
 
     def autonomousInit(self):
         self.count = 0
-
     def autonomousPeriodic(self):
         print("Voltage: {}, Power: {}".format(self.pdp.getVoltage(),
                                               self.pdp.getTotalPower()))
@@ -51,7 +50,7 @@ class BatteryTest(wpilib.IterativeRobot):
             else:
                 self.allMotors(-0.5)
         elif self.count < 2000:
-            if self.count%5 < 2.5:
+            if self.count%6 < 3:
                 self.allMotors(0.5)
             else:
                 self.allMotors(-0.5)
