@@ -35,7 +35,7 @@ class DriveBot(Module):
         # PIDF values for fast driving:
         self.fastPID = (1.0, 0.0, 3.0, 0.0)
         # speed at which fast PID's should be used:
-        self.fastPIDScale = 0.3
+        self.fastPIDScale = 0.1
         # PIDF values for slow driving:
         self.slowPID = (30.0, 0.0, 3.0, 0.0)
         # speed at which slow PID's should be used:
