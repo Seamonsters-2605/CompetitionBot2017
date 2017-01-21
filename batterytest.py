@@ -18,8 +18,8 @@ class BatteryTest(wpilib.IterativeRobot):
     def autonomousInit(self):
         self.count = 0
     def autonomousPeriodic(self):
-        print("Voltage: {}, Power: {}".format(self.pdp.getVoltage(),
-                                              self.pdp.getTotalPower()))
+        print("Voltage: {}, Power: {}, Temperature: {}, Current: {}, Energy: {}".format(self.pdp.getVoltage(),
+                                              self.pdp.getTotalPower(), self.pdp.getTemperature(), self.pdp.getTotalCurrent(), self.pdp.getTotalEnergy()))
 
         self.count = self.count + 1
 
