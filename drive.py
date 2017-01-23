@@ -67,10 +67,10 @@ class DriveBot(Module):
         
         # 4156 ticks per wheel rotation
         # encoder has 100 raw ticks -- with a QuadEncoder that makes 400 ticks
-        # the motor gear has 18 teeth and the wheel has 187 teeth
-        # 187 / 18 * 400 = 4155.5556 = ~4156
-        # TODO: recalculate ticks per rotation
-        self.holoDrive = HolonomicDrive(fl, fr, bl, br, 4156)
+        # the motor gear has 12 teeth and the wheel has 85 teeth
+        # 85 / 12 * 400 = 2833.333 = ~2833
+        # TODO: test this value
+        self.holoDrive = HolonomicDrive(fl, fr, bl, br, 2833)
         self.holoDrive.invertDrive(True)
         self.holoDrive.setWheelOffset(math.radians(22.5)) #angle of rollers
         
