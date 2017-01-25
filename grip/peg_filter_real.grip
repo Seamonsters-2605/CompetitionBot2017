@@ -81,7 +81,7 @@
     <grip:Step name="NTPublish ContoursReport">
       <grip:Input step="4" socket="0"/>
       <grip:Input step="4" socket="1">
-        <value>contourcenters</value>
+        <value>peg_contours</value>
       </grip:Input>
       <grip:Input step="4" socket="2">
         <value>true</value>
