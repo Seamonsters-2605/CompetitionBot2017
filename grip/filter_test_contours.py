@@ -6,8 +6,13 @@ def main(pipeline, outputName):
     table = NetworkTables.getTable("contours")
     
     cam = cv2.VideoCapture(0)
-    os.system('v4l2-ctl -c exposure_auto=1 -c exposure_absolute=0'
-              '-c brightness=0 -c contrast=100 -c saturation=47')
+    os.system('v4l2-ctl '
+              '-c brightness=0 '
+              '-c contrast=100 '
+              '-c saturation=47 '
+              '-c backlight_compensation=0 '
+              '-c exposure_auto=1 '
+              '-c exposure_absolute=0')
     current_time = time.time()
     print("Press escape to exit")
     while True:
@@ -25,15 +30,17 @@ def main(pipeline, outputName):
             out = getattr(pipeline, outputName)
             cv2.imshow('camera', img)
 
+            xCoords = [ ]
+            yCoords = [ ]
             if len(out) > 0:
                 out = out[0]
-                xCoords = [ ]
-                yCoords = [ ]
                 for point in out:
                     point = point[0]
                     xCoords.append(point[0])
                     yCoords.append(point[1])
-                print(xCoords, yCoords)
+            table.putNumberArray('x', xCoords)
+            table.putNumberArray('y', yCoords)
+            print(xCoords, yCoords)
 
             if cv2.waitKey(1) == 27:
                     break
