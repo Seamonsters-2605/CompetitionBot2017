@@ -1,13 +1,10 @@
-import cv2
-import numpy
-import math
-import importlib
-import inspect
-import sys
-import os
-import time
+import cv2, numpy, math, importlib, inspect, sys, os, time
+from networktables import NetworkTables
 
 def main(pipeline, outputName):
+    NetworkTables.initialize(server="roborio-2605-frc.local")
+    table = NetworkTables.getTable("contours")
+    
     cam = cv2.VideoCapture(0)
     os.system('v4l2-ctl -c exposure_auto=1 -c exposure_absolute=0'
               '-c brightness=0 -c contrast=100 -c saturation=47')
@@ -27,7 +24,16 @@ def main(pipeline, outputName):
             pipeline.process(img)
             out = getattr(pipeline, outputName)
             cv2.imshow('camera', img)
-            cv2.imshow('filter', out)
+
+            if len(out) > 0:
+                out = out[0]
+                xCoords = [ ]
+                yCoords = [ ]
+                for point in out:
+                    point = point[0]
+                    xCoords.append(point[0])
+                    yCoords.append(point[1])
+                print(xCoords, yCoords)
 
             if cv2.waitKey(1) == 27:
                     break
