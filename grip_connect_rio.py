@@ -8,7 +8,7 @@ class NetworkTablesTestRobot(wpilib.IterativeRobot):
         self.testTable = NetworkTables.getTable('test-table')
 
     def teleopPeriodic(self):
-        print(self.testTable.putNumber('testNumber', 1234))
+        print(self.testTable.getNumber('testNumber'))
 
 if __name__ == "__main__":
     wpilib.run(NetworkTablesTestRobot)
