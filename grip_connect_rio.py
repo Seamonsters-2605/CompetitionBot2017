@@ -5,10 +5,11 @@ import wpilib
 class NetworkTablesTestRobot(wpilib.IterativeRobot):
 
     def robotInit(self):
-        self.testTable = NetworkTables.getTable('test-table')
+        self.contoursTable = NetworkTables.getTable('contours')
 
     def teleopPeriodic(self):
-        print(self.testTable.getNumber('testNumber'))
+        print(self.contoursTable.getNumberArray('x'),
+              self.contoursTable.getNumberArray('y'))
 
 if __name__ == "__main__":
     wpilib.run(NetworkTablesTestRobot)
