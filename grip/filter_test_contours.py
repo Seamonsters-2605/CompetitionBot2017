@@ -6,13 +6,16 @@ def main(pipeline, outputName):
     table = NetworkTables.getTable("contours")
     
     cam = cv2.VideoCapture(0)
+    # use the raw_* values!
     os.system('v4l2-ctl '
-              '-c brightness=0 '
-              '-c contrast=100 '
-              '-c saturation=47 '
+              '-c brightness=30 '
+              '-c contrast=10 '
+              '-c saturation=94 '
+			  '-c white_balance_temperature=4500 '
+			  '-c sharpness=25 '
               '-c backlight_compensation=0 '
               '-c exposure_auto=1 '
-              '-c exposure_absolute=0')
+              '-c exposure_absolute=5')
     current_time = time.time()
     print("Press escape to exit")
     while True:
