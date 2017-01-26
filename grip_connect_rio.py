@@ -44,13 +44,22 @@ class NetworkTablesTestRobot(wpilib.IterativeRobot):
         """
         if len(contour) == 0:
             return None
-        totalX = 0
-        totalY = 0
+        minX = contour[0][0]
+        maxX = contour[0][0]
+        minY = contour[0][1]
+        maxY = contour[0][1]
         for point in contour:
-            totalX += point[0]
-            totalY += point[1]
-        numPoints = len(contour)
-        return totalX / float(numPoints), totalY / float(numPoints)
+            x = point[0]
+            y = point[1]
+            if x < minX:
+                minX = x
+            if x > maxX:
+                maxX = x
+            if y < minY:
+                minY = y
+            if y > maxY:
+                maxY = y
+        return (maxX + minX) / 2.0, (maxY + minY) / 2.0
 
     def readContours(self, xCoords, yCoords):
         """
