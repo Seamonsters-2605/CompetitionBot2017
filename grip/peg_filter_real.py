@@ -12,7 +12,7 @@ class PegFilter:
         """initializes all values to presets or None if need to be set
         """
 
-        self.__hsl_threshold_hue = [45.323743322770376, 76.87662380091074]
+        self.__hsl_threshold_hue = [40.4676282148567, 99.60389652818347]
         self.__hsl_threshold_saturation = [210.97122165474954, 255.0]
         self.__hsl_threshold_luminance = [40.512597217834255, 147.67676767676767]
 
@@ -25,16 +25,16 @@ class PegFilter:
 
         self.__filter_contours_contours = self.find_contours_output
         self.__filter_contours_min_area = 1.0
-        self.__filter_contours_min_perimeter = 0
+        self.__filter_contours_min_perimeter = 0.0
         self.__filter_contours_min_width = 5.0
-        self.__filter_contours_max_width = 1000
+        self.__filter_contours_max_width = 1000.0
         self.__filter_contours_min_height = 5.0
-        self.__filter_contours_max_height = 1000
+        self.__filter_contours_max_height = 1000.0
         self.__filter_contours_solidity = [0, 100]
-        self.__filter_contours_max_vertices = 1000000
-        self.__filter_contours_min_vertices = 0
-        self.__filter_contours_min_ratio = 0
-        self.__filter_contours_max_ratio = 1000
+        self.__filter_contours_max_vertices = 1000000.0
+        self.__filter_contours_min_vertices = 0.0
+        self.__filter_contours_min_ratio = 0.0
+        self.__filter_contours_max_ratio = 1000.0
 
         self.filter_contours_output = None
 
