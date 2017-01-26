@@ -10,7 +10,21 @@ class NetworkTablesTestRobot(wpilib.IterativeRobot):
     def teleopPeriodic(self):
         contours = self.readContours(self.contoursTable.getNumberArray('x'),
                                      self.contoursTable.getNumberArray('y'))
-        print(contours)
+        for contour in contours:
+            print(self.centerPoint(contour))
+        print("----")
+
+    def centerPoint(self, contour):
+        """
+        Given a contour list, find the center point. Return a tuple.
+        """
+        totalX = 0
+        totalY = 0
+        for point in contour:
+            totalX += point[0]
+            totalY += point[1]
+        numPoints = len(contour)
+        return totalX / float(numPoints), totalY / float(numPoints)
 
     def readContours(self, xCoords, yCoords):
         """
