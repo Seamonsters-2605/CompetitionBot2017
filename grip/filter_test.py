@@ -9,8 +9,13 @@ import time
 
 def main(pipeline, outputName):
     cam = cv2.VideoCapture(0)
-    os.system('v4l2-ctl -c exposure_auto=1 -c exposure_absolute=0'
-              '-c brightness=0 -c contrast=100 -c saturation=47')
+    os.system('v4l2-ctl '
+              '-c brightness=0 '
+              '-c contrast=100 '
+              '-c saturation=47 '
+              '-c backlight_compensation=0 '
+              '-c exposure_auto=1 '
+              '-c exposure_absolute=0')
     current_time = time.time()
     print("Press escape to exit")
     while True:
