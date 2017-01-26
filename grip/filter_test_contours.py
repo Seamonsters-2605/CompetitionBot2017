@@ -34,12 +34,14 @@ def main(pipeline, outputName):
 
             xCoords = [ ]
             yCoords = [ ]
-            if len(out) > 0:
-                out = out[0]
-                for point in out:
+            print(len(out), "contours")
+            for contour in out:
+                for point in contour:
                     point = point[0]
                     xCoords.append(point[0])
                     yCoords.append(point[1])
+                xCoords.append(-1)
+                yCoords.append(-1)
             table.putNumberArray('x', xCoords)
             table.putNumberArray('y', yCoords)
             print(xCoords, yCoords)
