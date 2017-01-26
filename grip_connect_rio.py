@@ -8,9 +8,7 @@ class NetworkTablesTestRobot(wpilib.IterativeRobot):
 
     def teleopPeriodic(self):
         contours = self.vision.getContours()
-        for contour in Vision.findTargetContours(contours):
-            print(Vision.centerPoint(contour), Vision.dimensions(contour))
-        print("----")
+        print(Vision.targetCenter(contours), Vision.targetDimensions(contours))
 
 if __name__ == "__main__":
     wpilib.run(NetworkTablesTestRobot)

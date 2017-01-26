@@ -3,12 +3,41 @@ from networktables import NetworkTables
 
 class Vision:
 
+    WIDTH = 640
+    HEIGHT = 480
+
     def __init__(self):
         self.contoursTable = NetworkTables.getTable('contours')
 
     def getContours(self):
         return Vision.readContours(self.contoursTable.getNumberArray('x'),
                                    self.contoursTable.getNumberArray('y'))
+
+    def targetCenter(contours):
+        """
+        Get the center point of the target, as a tuple.
+        """
+        if len(contours) == 0:
+            return None
+        if len(contours) == 1:
+            return Vision.centerPoint(contours[0])
+        contours = Vision.findTargetContours(contours)
+        center1 = Vision.centerPoint(contours[0])
+        center2 = Vision.centerPoint(contours[1])
+        return ((center1[0] + center2[0]) / 2.0,
+                (center1[1] + center2[1]) / 2.0)
+
+    def targetDimensions(contours):
+        """
+        Find the total dimensions of the target, as a tuple.
+        """
+        if len(contours) == 0:
+            return (0, 0)
+        contours = Vision.findTargetContours(contours)
+        combinedContour = [ ] # a single "contour" with all the points
+        for contour in contours:
+            combinedContour += contour
+        return Vision.dimensions(contour)
 
     def findTargetContours(contours):
         """
@@ -89,7 +118,7 @@ class Vision:
                 minY = y
             if y > maxY:
                 maxY = y
-        return (maxX + minX) / 2.0, (maxY + minY) / 2.0
+        return ((maxX + minX) / 2.0, (maxY + minY) / 2.0)
 
     def readContours(xCoords, yCoords):
         """
