@@ -72,7 +72,7 @@ class DriveBot(Module):
         # TODO: test this value
         self.holoDrive = HolonomicDrive(fl, fr, bl, br, 2833)
         self.holoDrive.invertDrive(True)
-        self.holoDrive.setWheelOffset(math.radians(-22.5)) #angle of rollers
+        self.holoDrive.setWheelOffset(math.radians(22.5)) #angle of rollers
         
         self.filterDrive = AccelerationFilterDrive(self.holoDrive,
                                                    accelerationRate)
