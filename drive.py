@@ -21,11 +21,11 @@ class DriveBot(Module):
         ### CONSTANTS ###
 
         # normal speed scale, out of 1:
-        self.normalScale = 0.3
+        self.normalScale = 0.44
         # speed scale when fast button is pressed:
-        self.fastScale = 0.5
+        self.fastScale = 0.73
         # speed scale when slow button is pressed:
-        self.slowScale = 0.05
+        self.slowScale = 0.07
 
         self.joystickExponent = 2
         self.fastJoystickExponent = .5
@@ -37,7 +37,7 @@ class DriveBot(Module):
         # PIDF values for fast driving:
         self.fastPID = (1.0, 0.0, 3.0, 0.0)
         # speed at which fast PID's should be used:
-        self.fastPIDScale = 0.1
+        self.fastPIDScale = 0.15
         # PIDF values for slow driving:
         self.slowPID = (30.0, 0.0, 3.0, 0.0)
         # speed at which slow PID's should be used:
