@@ -11,8 +11,7 @@ def main(pipeline, outputName):
               '-c brightness=30 '
               '-c contrast=10 '
               '-c saturation=94 '
-			  '-c white_balance_temperature=4500 '
-			  '-c sharpness=25 '
+              '-c sharpness=25 '
               '-c backlight_compensation=0 '
               '-c exposure_auto=1 '
               '-c exposure_absolute=5')
