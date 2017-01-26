@@ -1,15 +1,14 @@
-from networktables import NetworkTables
 import wpilib
-
+from vision import Vision
 
 class NetworkTablesTestRobot(wpilib.IterativeRobot):
 
     def robotInit(self):
-        self.contoursTable = NetworkTables.getTable('contours')
+        self.vision = Vision()
 
     def teleopPeriodic(self):
-        print(self.contoursTable.getNumberArray('x'),
-              self.contoursTable.getNumberArray('y'))
+        contours = self.vision.getContours()
+        print(Vision.targetCenter(contours), Vision.targetDimensions(contours))
 
 if __name__ == "__main__":
     wpilib.run(NetworkTablesTestRobot)
