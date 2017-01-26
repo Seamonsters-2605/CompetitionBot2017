@@ -11,13 +11,39 @@ class NetworkTablesTestRobot(wpilib.IterativeRobot):
         contours = self.readContours(self.contoursTable.getNumberArray('x'),
                                      self.contoursTable.getNumberArray('y'))
         for contour in contours:
-            print(self.centerPoint(contour))
+            print(self.dimensions(contour))
         print("----")
+
+    def dimensions(self, contour):
+        """
+        Given a contour list, find the width and height. Return a tuple of
+        (width, height).
+        """
+        if len(contour) <= 1:
+            return (0, 0)
+        minX = contour[0][0]
+        maxX = contour[0][0]
+        minY = contour[0][1]
+        maxY = contour[0][1]
+        for point in contour:
+            x = point[0]
+            y = point[1]
+            if x < minX:
+                minX = x
+            if x > maxX:
+                maxX = x
+            if y < minY:
+                minY = y
+            if y > maxY:
+                maxY = y
+        return maxX - minX, maxY - minY
 
     def centerPoint(self, contour):
         """
         Given a contour list, find the center point. Return a tuple.
         """
+        if len(contour) == 0:
+            return None
         totalX = 0
         totalY = 0
         for point in contour:
