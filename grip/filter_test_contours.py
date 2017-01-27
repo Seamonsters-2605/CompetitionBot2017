@@ -1,6 +1,10 @@
 import cv2, numpy, math, importlib, inspect, sys, os, time
+from networktables import NetworkTables
 
 def main(pipeline, outputName):
+    NetworkTables.initialize(server="roborio-2605-frc.local")
+    table = NetworkTables.getTable("contours")
+    
     cam = cv2.VideoCapture(0)
     # use the raw_* values!
     os.system('v4l2-ctl '
@@ -27,7 +31,20 @@ def main(pipeline, outputName):
             pipeline.process(img)
             out = getattr(pipeline, outputName)
             cv2.imshow('camera', img)
-            cv2.imshow('filter', out)
+
+            xCoords = [ ]
+            yCoords = [ ]
+            print(len(out), "contours")
+            for contour in out:
+                for point in contour:
+                    point = point[0]
+                    xCoords.append(point[0])
+                    yCoords.append(point[1])
+                xCoords.append(-1)
+                yCoords.append(-1)
+            table.putNumberArray('x', xCoords)
+            table.putNumberArray('y', yCoords)
+            print(xCoords, yCoords)
 
             if cv2.waitKey(1) == 27:
                     break

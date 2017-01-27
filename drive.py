@@ -21,15 +21,19 @@ class DriveBot(Module):
         ### CONSTANTS ###
 
         # normal speed scale, out of 1:
-        self.normalScale = 0.3
+        self.normalScale = 0.44
         # speed scale when fast button is pressed:
-        self.fastScale = 0.5
+        self.fastScale = 0.73
         # speed scale when slow button is pressed:
-        self.slowScale = 0.05
+        self.slowScale = 0.07
 
         self.joystickExponent = 2
         self.fastJoystickExponent = .5
         self.slowJoystickExponent = 4
+
+        # if the joystick direction is within this number of radians on either
+        # side of straight up, left, down, or right, it will be rounded
+        self.driveDirectionDeadZone = math.radians(10)
 
         # rate of increase of velocity per 1/50th of a second:
         accelerationRate = .04
@@ -37,7 +41,7 @@ class DriveBot(Module):
         # PIDF values for fast driving:
         self.fastPID = (1.0, 0.0, 3.0, 0.0)
         # speed at which fast PID's should be used:
-        self.fastPIDScale = 0.1
+        self.fastPIDScale = 0.15
         # PIDF values for slow driving:
         self.slowPID = (30.0, 0.0, 3.0, 0.0)
         # speed at which slow PID's should be used:
@@ -65,11 +69,10 @@ class DriveBot(Module):
         self._setPID(self.fastPID)
         self.driveScales = [0.0 for i in range(0, pidLookBackRange)]
         
-        # 4156 ticks per wheel rotation
+        # 2833 ticks per wheel rotation
         # encoder has 100 raw ticks -- with a QuadEncoder that makes 400 ticks
         # the motor gear has 12 teeth and the wheel has 85 teeth
         # 85 / 12 * 400 = 2833.333 = ~2833
-        # TODO: test this value
         self.holoDrive = HolonomicDrive(fl, fr, bl, br, 2833)
         self.holoDrive.invertDrive(True)
         self.holoDrive.setWheelOffset(math.radians(22.5)) #angle of rollers
@@ -114,6 +117,16 @@ class DriveBot(Module):
         turn = self._joystickPower(-self.gamepad.getRX(), exponent) * (scale / 2)
         magnitude = self._joystickPower(self.gamepad.getLMagnitude(), exponent) * scale
         direction = self.gamepad.getLDirection()
+        # constrain direction to be between 0 and 2pi
+        if direction < 0:
+            circles = math.ceil(-direction / (math.pi*2))
+            direction += circles * math.pi*2
+        direction %= math.pi*2
+        direction = self.roundDirection(direction, 0)
+        direction = self.roundDirection(direction, math.pi/2.0)
+        direction = self.roundDirection(direction, math.pi)
+        direction = self.roundDirection(direction, 3.0*math.pi/2.0)
+        direction = self.roundDirection(direction, math.pi*2)
         
         self.drive.drive(magnitude, direction, turn)
 
@@ -162,6 +175,12 @@ class DriveBot(Module):
         if value < 0:
             newValue = -newValue
         return newValue
+
+    def roundDirection(self, value, target):
+        if abs(value - target) <= self.driveDirectionDeadZone:
+            return target
+        else:
+            return value
 
 if __name__ == "__main__":
     wpilib.run(DriveBot)
