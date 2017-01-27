@@ -31,6 +31,10 @@ class DriveBot(Module):
         self.fastJoystickExponent = .5
         self.slowJoystickExponent = 4
 
+        # if the joystick direction is within this number of radians on either
+        # side of straight up, left, down, or right, it will be rounded
+        self.driveDirectionDeadZone = math.radians(10)
+
         # rate of increase of velocity per 1/50th of a second:
         accelerationRate = .04
 
@@ -114,6 +118,16 @@ class DriveBot(Module):
         turn = self._joystickPower(-self.gamepad.getRX(), exponent) * (scale / 2)
         magnitude = self._joystickPower(self.gamepad.getLMagnitude(), exponent) * scale
         direction = self.gamepad.getLDirection()
+        # constrain direction to be between 0 and 2pi
+        if direction < 0:
+            circles = math.ceil(-direction / (math.pi*2))
+            direction += circles * math.pi*2
+        direction %= math.pi*2
+        direction = self.roundDirection(direction, 0)
+        direction = self.roundDirection(direction, math.pi/2.0)
+        direction = self.roundDirection(direction, math.pi)
+        direction = self.roundDirection(direction, 3.0*math.pi/2.0)
+        direction = self.roundDirection(direction, math.pi*2)
         
         self.drive.drive(magnitude, direction, turn)
 
@@ -162,6 +176,12 @@ class DriveBot(Module):
         if value < 0:
             newValue = -newValue
         return newValue
+
+    def roundDirection(self, value, target):
+        if abs(value - target) <= self.driveDirectionDeadZone:
+            return target
+        else:
+            return value
 
 if __name__ == "__main__":
     wpilib.run(DriveBot)
