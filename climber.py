@@ -39,18 +39,20 @@ class Climber(Module):
 
     def teleopPeriodic(self):
         if self.gamepad.getRawButton(Gamepad.UP):
-            self.lockmode = True
-            print("Lock mode enabled")
+            if not self.lockmode:
+                self.lockmode = True
+                print("Lock mode enabled")
 
         if self.gamepad.getRawButton(Gamepad.DOWN):
-            self.lockmode = False
-            print("Lock mode disabled")
+            if self.lockmode:
+                self.lockmode = False
+                print("Lock mode disabled")
 
         if self.gamepad.getLY()==0 and self.lockmode:
             self.lock()
         else:
             self.unlock()
-            self.cm.set(self.gamepad.getLY())
+            self.cm.set(self.gamepad.getLY() * -.5)
 
     def disabledInit(self):
         pass
