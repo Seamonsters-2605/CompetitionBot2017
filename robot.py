@@ -8,6 +8,7 @@ from seamonsters.modularRobot import Module
 from drive import DriveBot
 from debugmode import DebugMode
 from climber import Climber
+from shooter import Shooter
 
 class CompetitionBot2017(Module):
     
@@ -17,6 +18,7 @@ class CompetitionBot2017(Module):
         self.addModule(robot)
         self.addModule(DebugMode(robot))
         self.addModule(Climber(initSuper=False))
+        self.addModule(Shooter(initSuper=False))
 
 if __name__ == "__main__":
     wpilib.run(CompetitionBot2017, physics_enabled=True)
