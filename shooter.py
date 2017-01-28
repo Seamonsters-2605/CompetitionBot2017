@@ -27,9 +27,9 @@ class Shooter (Module):
             self.sh.set(0)
 
         if self.gamepad.getRawButton(Gamepad.B):
-            self.it.set(0.1)
+            self.it.set(0.2)
         elif self.gamepad.getRawButton(Gamepad.X):
-            self.it.set(-0.1)
+            self.it.set(-0.2)
         else:
             self.it.set(0)
 
