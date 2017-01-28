@@ -13,16 +13,23 @@ class Shooter (Module):
 
         self.sh = wpilib.CANTalon(5)
         self.it = wpilib.CANTalon(6)
+
+    def teleopInit(self):
+        print("A is Flywheel")
+        print("B is Intake")
+        print("X is Outtake")
+
     def teleopPeriodic(self):
+
         if self.gamepad.getRawButton(Gamepad.A):
-            self.sh.set(1)
+            self.sh.set(-0.8)
         else:
             self.sh.set(0)
 
         if self.gamepad.getRawButton(Gamepad.B):
-            self.it.set(0.3)
+            self.it.set(0.1)
         elif self.gamepad.getRawButton(Gamepad.X):
-            self.it.set(-0.3)
+            self.it.set(-0.1)
         else:
             self.it.set(0)
 
