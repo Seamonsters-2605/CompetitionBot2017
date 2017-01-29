@@ -51,6 +51,13 @@ class DriveBot(Module):
 
         ### END OF CONSTANTS ###
 
+        ### FLAGS ###
+        fieldOriented = False
+        self.pidLogEnabled = False
+        self.currentLogEnabled = True
+
+        ### END OF FLAGS ###
+
         self.gamepad = Gamepad(port = 0)
         
         fl = wpilib.CANTalon(2)
@@ -79,14 +86,19 @@ class DriveBot(Module):
         
         self.filterDrive = AccelerationFilterDrive(self.holoDrive,
                                                    accelerationRate)
-        
-        #self.ahrs = AHRS.create_spi() # the NavX
-        #self.drive = FieldOrientedDrive(self.drive, self.ahrs, offset=math.pi/2)
-        #self.drive.zero()
 
-        self.drive = self.filterDrive
+        if fieldOriented:
+            self.ahrs = AHRS.create_spi() # the NavX
+            self.drive = FieldOrientedDrive(self.drive, self.ahrs,
+                                            offset=math.pi/2)
+            self.drive.zero()
+        else:
+            self.drive = self.filterDrive
         
         self.drive.setDriveMode(DriveInterface.DriveMode.POSITION)
+
+        self.pdp = wpilib.PowerDistributionPanel()
+        self.currentLog = LogState("Current")
         
     def teleopInit(self):
         print("DRIVE GAMEPAD:")
@@ -108,14 +120,16 @@ class DriveBot(Module):
         self.driveModeLog.update(self._driveModeName(self.drive.getDriveMode()))
         
         scale = self.normalScale
+        turnScale = self.normalScale
         exponent = self.joystickExponent
         if self.gamepad.getRawButton(Gamepad.RT): # faster button
             scale = self.fastScale
             exponent = self.fastJoystickExponent
         if self.gamepad.getRawButton(Gamepad.LT): # slower button
             scale = self.slowScale
+            turnScale = self.slowScale
             exponent = self.slowJoystickExponent
-        turn = self._joystickPower(-self.gamepad.getRX(), exponent) * scale
+        turn = self._joystickPower(-self.gamepad.getRX(), exponent) * turnScale
         magnitude = self._joystickPower(self.gamepad.getLMagnitude(), exponent) * scale
         direction = self.gamepad.getLDirection()
         # constrain direction to be between 0 and 2pi
@@ -137,6 +151,14 @@ class DriveBot(Module):
         self.driveScales.pop(0)
         self._setPID(self._lerpPID(max(self.driveScales)))
 
+        if self.currentLogEnabled:
+            self.currentLog.update(self.pdp.getCurrent(12) + # drive motors
+                                   self.pdp.getCurrent(13) +
+                                   self.pdp.getCurrent(14) +
+                                   self.pdp.getCurrent(15) +
+                                   self.pdp.getCurrent(3) # climber
+                                   )
+
     def _driveModeName(self, driveMode):
         if driveMode == DriveInterface.DriveMode.VOLTAGE:
             return "Voltage"
@@ -147,7 +169,8 @@ class DriveBot(Module):
         return "Unknown"
         
     def _setPID(self, pid):
-        self.pidLog.update(pid)
+        if self.pidLogEnabled:
+            self.pidLog.update(pid)
         if pid == self.currentPID:
             return
         self.currentPID = pid
