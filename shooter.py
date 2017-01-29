@@ -22,7 +22,7 @@ class Shooter (Module):
     def teleopPeriodic(self):
 
         if self.gamepad.getRawButton(Gamepad.A):
-            self.sh.set(-0.8)
+            self.sh.set(-0.9)
         else:
             self.sh.set(0)
 

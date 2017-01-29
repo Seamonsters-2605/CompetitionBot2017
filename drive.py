@@ -23,7 +23,7 @@ class DriveBot(Module):
         # normal speed scale, out of 1:
         self.normalScale = 0.44
         # speed scale when fast button is pressed:
-        self.fastScale = 0.73
+        self.fastScale = 0.9
         # speed scale when slow button is pressed:
         self.slowScale = 0.07
 
@@ -39,11 +39,11 @@ class DriveBot(Module):
         accelerationRate = .04
 
         # PIDF values for fast driving:
-        self.fastPID = (1.0, 0.0, 3.0, 0.0)
+        self.fastPID = (1.0, 0.0009, 3.0, 0.0)
         # speed at which fast PID's should be used:
         self.fastPIDScale = 0.15
         # PIDF values for slow driving:
-        self.slowPID = (30.0, 0.0, 3.0, 0.0)
+        self.slowPID = (30.0, 0.0009, 3.0, 0.0)
         # speed at which slow PID's should be used:
         self.slowPIDScale = 0.01
 
@@ -114,7 +114,7 @@ class DriveBot(Module):
         if self.gamepad.getRawButton(Gamepad.LT): # slower button
             scale = self.slowScale
             exponent = self.slowJoystickExponent
-        turn = self._joystickPower(-self.gamepad.getRX(), exponent) * (scale / 2)
+        turn = self._joystickPower(-self.gamepad.getRX(), exponent) * scale
         magnitude = self._joystickPower(self.gamepad.getLMagnitude(), exponent) * scale
         direction = self.gamepad.getLDirection()
         # constrain direction to be between 0 and 2pi
