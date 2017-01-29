@@ -30,10 +30,11 @@ class Climber(Module):
         #cm stands for climb motor
 
     def teleopInit(self):
-        print("Left Joystick up: Climb")
-        print("Left Joystick down: Descend")
-        print("Up Dpad: Lock motor")
-        print("Down Dpad: Unlock motor")
+        print("SPECIAL GAMEPAD")
+        print("  Left Joystick up: Climb")
+        print("  Left Joystick down: Descend")
+        print("  Up Dpad: Lock motor")
+        print("  Down Dpad: Unlock motor")
         self.locked = False
         self.lockmode = False
 

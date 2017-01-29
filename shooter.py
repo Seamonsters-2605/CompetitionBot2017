@@ -18,9 +18,9 @@ class Shooter (Module):
         self.flywheelSpeedLog = LogState("Flywheel speed")
 
     def teleopInit(self):
-        print("A is Flywheel")
-        print("B is Intake")
-        print("X is Outtake")
+        print("  A: Flywheel")
+        print("  B: Intake")
+        print("  X: Outtake")
 
         self.flywheelSpeed = .76
         self.flywheelSpeedLog.update(self.flywheelSpeed)

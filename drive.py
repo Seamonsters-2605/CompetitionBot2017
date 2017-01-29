@@ -89,11 +89,12 @@ class DriveBot(Module):
         self.drive.setDriveMode(DriveInterface.DriveMode.POSITION)
         
     def teleopInit(self):
-        print("Left Trigger: Slower")
-        print("Right Trigger: Faster")
-        print("A: Voltage mode")
-        print("B: Speed mode")
-        print("X: Position mode")
+        print("DRIVE GAMEPAD:")
+        print("  Left Trigger: Slower")
+        print("  Right Trigger: Faster")
+        print("  A: Voltage mode")
+        print("  B: Speed mode")
+        print("  X: Position mode")
         self.holoDrive.zeroEncoderTargets()
         
     def teleopPeriodic(self):
