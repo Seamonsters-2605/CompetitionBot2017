@@ -52,7 +52,7 @@ class DriveBot(Module):
         ### END OF CONSTANTS ###
 
         ### FLAGS ###
-        fieldOriented = True
+        self.fieldOriented = True
         self.pidLogEnabled = False
         self.currentLogEnabled = True
 
@@ -87,11 +87,10 @@ class DriveBot(Module):
         self.filterDrive = AccelerationFilterDrive(self.holoDrive,
                                                    accelerationRate)
 
-        if fieldOriented:
+        if self.fieldOriented:
             self.ahrs = AHRS.create_spi() # the NavX
             self.drive = FieldOrientedDrive(self.filterDrive, self.ahrs,
                                             offset=0)
-            self.drive.zero()
         else:
             self.drive = self.filterDrive
         
@@ -108,6 +107,13 @@ class DriveBot(Module):
         print("  B: Speed mode")
         print("  X: Position mode")
         self.holoDrive.zeroEncoderTargets()
+        if self.fieldOriented:
+            self.drive.zero()
+
+    def autonomousInit(self):
+        self.holoDrive.zeroEncoderTargets()
+        if self.fieldOriented:
+            self.drive.zero()
         
     def teleopPeriodic(self):
         # change drive mode with A, B, and X
