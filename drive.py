@@ -75,7 +75,7 @@ class DriveBot(Module):
         # 85 / 12 * 400 = 2833.333 = ~2833
         self.holoDrive = HolonomicDrive(fl, fr, bl, br, 2833)
         self.holoDrive.invertDrive(True)
-        self.holoDrive.setWheelOffset(math.radians(22.5)) #angle of rollers
+        self.holoDrive.setWheelOffset(math.radians(45.0)) #angle of rollers
         
         self.filterDrive = AccelerationFilterDrive(self.holoDrive,
                                                    accelerationRate)
