@@ -52,7 +52,7 @@ class DriveBot(Module):
         ### END OF CONSTANTS ###
 
         ### FLAGS ###
-        fieldOriented = False
+        fieldOriented = True
         self.pidLogEnabled = False
         self.currentLogEnabled = True
 
