@@ -138,6 +138,23 @@ class DriveBot(Module):
         turn = self._joystickPower(-self.gamepad.getRX(), exponent) * turnScale
         magnitude = self._joystickPower(self.gamepad.getLMagnitude(), exponent) * scale
         direction = self.gamepad.getLDirection()
+
+        loop_count = 0
+        while self.count < 51:
+            if self.gamepad.getRawButton(Gamepad.LEFT):
+                magnitude = 0.5
+                direction = 6
+            elif self.gamepad.getRawButton(Gamepad.RIGHT):
+                magnitude = 0.5
+                direction = 2
+            elif self.gamepad.getRawButton(Gamepad.UP):
+                magnitude = 0.5
+                direction = 0
+            elif self.gamepad.getRawButton(Gamepad.DOWN):
+                magnitude = 0.5
+                direction = 4
+            loop_count += 1
+
         # constrain direction to be between 0 and 2pi
         if direction < 0:
             circles = math.ceil(-direction / (math.pi*2))
@@ -211,6 +228,8 @@ class DriveBot(Module):
             return target
         else:
             return value
+
+
 
 if __name__ == "__main__":
     wpilib.run(DriveBot)
