@@ -109,6 +109,12 @@ class DriveBot(Module):
         self.holoDrive.zeroEncoderTargets()
         if self.fieldOriented:
             self.drive.zero()
+        self.dPadCount = 1000
+        #booleans for DPad steering
+        self.upPad = False
+        self.rightPad = False
+        self.downPad = False
+        self.leftPad = False
 
     def autonomousInit(self):
         self.holoDrive.zeroEncoderTargets()
@@ -139,21 +145,34 @@ class DriveBot(Module):
         magnitude = self._joystickPower(self.gamepad.getLMagnitude(), exponent) * scale
         direction = self.gamepad.getLDirection()
 
-        loop_count = 0
-        while self.count < 51:
-            if self.gamepad.getRawButton(Gamepad.LEFT):
-                magnitude = 0.5
-                direction = 6
-            elif self.gamepad.getRawButton(Gamepad.RIGHT):
-                magnitude = 0.5
-                direction = 2
-            elif self.gamepad.getRawButton(Gamepad.UP):
-                magnitude = 0.5
-                direction = 0
-            elif self.gamepad.getRawButton(Gamepad.DOWN):
-                magnitude = 0.5
-                direction = 4
-            loop_count += 1
+        #check if DPad is pressed
+        if self.gamepad.getRawButton(Gamepad.UP):
+            self.upPad = True
+            self.dPadCount = 0
+        elif self.gamepad.getRawButton(Gamepad.RIGHT):
+            self.rightPad = True
+            self.dPadCount = 0
+        elif self.gamepad.getRawButton(Gamepad.DOWN):
+            self.downPad = True
+            self.dPadCount = 0
+        elif self.gamepad.getRawButton(Gamepad.LEFT):
+            self.leftPad = True
+            self.dPadCount = 0
+
+        if(self.dPadCount < 10):
+            magnitude = 0.1
+            self.dPadCount += 1
+        else:
+            self.upPad = self.rightPad = self.downPad = self.leftPad = False
+
+        if(self.upPad):
+            direction = math.pi/2.0
+        elif(self.rightPad):
+            direction = 0
+        elif(self.downPad):
+            direction = 3.0*math.pi/2.0
+        elif(self.leftPad):
+            direction = math.pi
 
         # constrain direction to be between 0 and 2pi
         if direction < 0:
