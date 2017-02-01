@@ -27,6 +27,27 @@ class Vision:
         return ((center1[0] + center2[0]) / 2.0,
                 (center1[1] + center2[1]) / 2.0)
 
+    def findCentersXDistance(contours):
+        # Gets x distance between centers of contours
+        if len(contours) < 2:
+            print("Borked")
+            return None
+        contours = Vision.findTargetContours(contours)
+        center1 = Vision.centerPoint(contours[0])
+        center2 = Vision.centerPoint(contours[1])
+        return (abs(center1[0] - center2[0]))
+
+    def findCentersYDistance(contours):
+        # Gets y distance between centers of contours
+        if len(contours) < 2:
+            print("Borked")
+            return None
+        contours = Vision.findTargetContours(contours)
+        center1 = Vision.centerPoint(contours[0])
+        center2 = Vision.centerPoint(contours[1])
+        return (abs(center1[1] - center2[1]))
+
+
     def targetDimensions(contours):
         """
         Find the total dimensions of the target, as a tuple.
