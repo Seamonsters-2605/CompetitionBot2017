@@ -130,7 +130,11 @@ class DriveBot(Module):
         elif self.gamepad.getRawButton(Gamepad.X):
             self.drive.setDriveMode(DriveInterface.DriveMode.POSITION)
         self.driveModeLog.update(self._driveModeName(self.drive.getDriveMode()))
-        
+
+        #reset field orientation
+        if(self.gamepad.getRawButton(Gamepad.START) and self.fieldOriented):
+            self.drive.zero()
+
         scale = self.normalScale
         turnScale = self.normalScale
         exponent = self.joystickExponent
