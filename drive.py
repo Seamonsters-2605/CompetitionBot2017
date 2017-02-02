@@ -1,6 +1,7 @@
 __author__ = "seamonsters"
 
 import wpilib
+import wpilib.command
 import seamonsters.fix2017
 from seamonsters.wpilib_sim import simulate
 from seamonsters.modularRobot import Module
@@ -11,6 +12,8 @@ from seamonsters.drive import AccelerationFilterDrive
 from seamonsters.drive import FieldOrientedDrive
 from seamonsters.holonomicDrive import HolonomicDrive
 from seamonsters.logging import LogState
+
+import auto_commands
 
 from robotpy_ext.common_drivers.navx import AHRS
 import math
@@ -76,17 +79,18 @@ class DriveBot(Module):
         self._setPID(self.fastPID)
         self.driveScales = [0.0 for i in range(0, pidLookBackRange)]
         
-        # 2833 ticks per wheel rotation
         # encoder has 100 raw ticks -- with a QuadEncoder that makes 400 ticks
         # the motor gear has 12 teeth and the wheel has 85 teeth
         # 85 / 12 * 400 = 2833.333 = ~2833
-        self.holoDrive = HolonomicDrive(fl, fr, bl, br, 2833)
+        ticksPerWheelRotation = 2833
+        self.holoDrive = HolonomicDrive(fl, fr, bl, br, ticksPerWheelRotation)
         self.holoDrive.invertDrive(True)
         self.holoDrive.setWheelOffset(math.radians(45.0)) #angle of rollers
         
         self.filterDrive = AccelerationFilterDrive(self.holoDrive,
                                                    accelerationRate)
 
+        self.ahrs = None
         if self.fieldOriented:
             self.ahrs = AHRS.create_spi() # the NavX
             self.drive = FieldOrientedDrive(self.filterDrive, self.ahrs,
@@ -95,6 +99,11 @@ class DriveBot(Module):
             self.drive = self.filterDrive
         
         self.drive.setDriveMode(DriveInterface.DriveMode.POSITION)
+
+        self.tankFieldMovement = \
+            auto_commands.TankFieldMovement(fl, fr, bl, br,
+                                            ticksPerWheelRotation, 6 * math.pi,
+                                            ahrs=self.ahrs, invertDrive=True)
 
         self.pdp = wpilib.PowerDistributionPanel()
         self.currentLog = LogState("Current")
@@ -114,6 +123,9 @@ class DriveBot(Module):
         self.holoDrive.zeroEncoderTargets()
         if self.fieldOriented:
             self.drive.zero()
+        scheduler = wpilib.command.Scheduler.getInstance()
+        scheduler.add(self.tankFieldMovement.turnCommand(math.pi/2.0, 100))
+        self._setPID((5.0, 0.0009, 3.0, 0.0))
         
     def teleopPeriodic(self):
         # change drive mode with A, B, and X
