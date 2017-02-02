@@ -20,8 +20,6 @@ class Shooter (Module):
         print("  B: Intake")
         print("  X: Outtake")
 
-        self.flywheelSpeed = .76
-
     def teleopPeriodic(self):
 
         if self.gamepad.getRawButton(Gamepad.A):
