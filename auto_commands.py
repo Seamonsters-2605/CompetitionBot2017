@@ -173,5 +173,20 @@ class FlywheelsCommand(wpilib.command.Command):
     def end(self):
         self.flywheels.stopFlywheels()
 
+class FlywheelsWaitCommand(wpilib.command.Command):
+
+    def __init__(self):
+        super().__init__()
+        self.count = 0
+
+    def execute(self):
+        self.count = self.count + 1
+
+    def isFinished(self):
+        return self.count >= 100
+
+
+
+
 
 
