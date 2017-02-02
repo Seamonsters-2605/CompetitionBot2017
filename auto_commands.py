@@ -8,7 +8,7 @@ from seamonsters.holonomicDrive import HolonomicDrive
 
 class TemplateCommand(wpilib.command.Command):
 
-    def __init__(self, args.....):
+    def __init__(self, args):
         # start of autonomous
         pass
 
