@@ -5,6 +5,36 @@ import wpilib.command
 
 from seamonsters.holonomicDrive import HolonomicDrive
 
+class TemplateCommand(wpilib.command.Command):
+
+    def __init__(self, args.....):
+        # start of autonomous
+        pass
+
+    # OPTIONAL, usually needed
+    def initialize(self):
+        # immediately before command runs
+        pass
+
+    def execute(self):
+        # 50 times per second while the command runs
+        pass
+
+    def isFinished(self):
+        # return True or False if the command is complete or not
+        return True
+
+    # OPTIONAL
+    def interrupted(self):
+        # if the command was interrupted before it finished
+        pass
+
+    # OPTIONAL
+    def end(self):
+        # after the command completes
+        pass
+
+
 class TankFieldMovement:
 
     def __init__(self, fl, fr, bl, br, ticksPerWheelRotation,
@@ -125,3 +155,5 @@ class TankTurnCommand(wpilib.command.Command):
         if self.invert:
             radians = -radians
         return radians
+
+
