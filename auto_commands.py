@@ -3,6 +3,7 @@ __author__ = "seamonsters"
 import wpilib
 import wpilib.command
 import math
+from shooter import Flywheels
 
 from seamonsters.holonomicDrive import HolonomicDrive
 
@@ -156,5 +157,21 @@ class TankTurnCommand(wpilib.command.Command):
         if self.invert:
             radians = -radians
         return radians
+
+class FlywheelsCommand(wpilib.command.Command):
+
+    def __init__(self):
+        super().__init__()
+        self.flywheels = Flywheels()
+
+    def execute(self):
+        self.flywheels.spinFlywheels()
+
+    def isFinished(self):
+        return False
+
+    def end(self):
+        self.flywheels.stopFlywheels()
+
 
 

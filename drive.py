@@ -14,6 +14,7 @@ from seamonsters.holonomicDrive import HolonomicDrive
 from seamonsters.logging import LogState
 
 import auto_commands
+from auto_commands import FlywheelsCommand
 
 from robotpy_ext.common_drivers.navx import AHRS
 import math
@@ -124,7 +125,7 @@ class DriveBot(Module):
         if self.fieldOriented:
             self.drive.zero()
         scheduler = wpilib.command.Scheduler.getInstance()
-        scheduler.add(self.tankFieldMovement.turnCommand(math.pi/2.0, 100))
+        scheduler.add(FlywheelsCommand())
         self._setPID((5.0, 0.0009, 3.0, 0.0))
         
     def teleopPeriodic(self):

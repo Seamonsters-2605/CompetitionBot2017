@@ -12,10 +12,8 @@ class Shooter (Module):
     def robotInit(self):
         self.gamepad = Gamepad(port=1)
 
-        self.sh = wpilib.CANTalon(5)
+        self.flywheels = Flywheels()
         self.it = wpilib.CANTalon(6)
-
-        self.flywheelSpeedLog = LogState("Flywheel speed")
 
     def teleopInit(self):
         print("  A: Flywheel")
@@ -23,20 +21,13 @@ class Shooter (Module):
         print("  X: Outtake")
 
         self.flywheelSpeed = .76
-        self.flywheelSpeedLog.update(self.flywheelSpeed)
 
     def teleopPeriodic(self):
 
-        if self.gamepad.buttonPressed(Gamepad.BACK):
-            self.flywheelSpeed -= .01
-        if self.gamepad.buttonPressed(Gamepad.START):
-            self.flywheelSpeed += .01
-        self.flywheelSpeedLog.update(self.flywheelSpeed)
-
         if self.gamepad.getRawButton(Gamepad.A):
-            self.sh.set(-self.flywheelSpeed)
+            self.flywheels.spinFlywheels()
         else:
-            self.sh.set(0)
+            self.flywheels.stopFlywheels()
 
         if self.gamepad.getRawButton(Gamepad.B):
             self.it.set(0.2)
@@ -45,7 +36,23 @@ class Shooter (Module):
         else:
             self.it.set(0)
 
-        self.gamepad.updateButtons()
+class Flywheels:
+
+    def __init__(self):
+        self.flywheelmotor = wpilib.CANTalon(5)
+        self.speed = .76
+
+    def spinFlywheels(self):
+        self.flywheelmotor.set(-self.speed)
+
+    def stopFlywheels(self):
+        self.flywheelmotor.set(0)
+
+    def reverseFlywheels(self):
+        self.flywheelmotor.set(self.speed)
+
+    def setFlywheelspeed(self,speed):
+        self.speed = speed
 
 if __name__ == "__main__":
     wpilib.run(Shooter)
