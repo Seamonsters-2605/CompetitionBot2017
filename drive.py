@@ -58,6 +58,8 @@ class DriveBot(Module):
 
         ### END OF FLAGS ###
 
+        self.firstTimeEnable = True
+
         self.gamepad = Gamepad(port = 0)
         
         fl = wpilib.CANTalon(2)
@@ -98,6 +100,16 @@ class DriveBot(Module):
 
         self.pdp = wpilib.PowerDistributionPanel()
         self.currentLog = LogState("Current")
+
+    def robotEnable(self):
+        if self.firstTimeEnable:
+            self.firstTimeEnable = False
+            print("Robot enabled")
+            if self.fieldOriented:
+                self.drive.zero()
+
+    def disabledInit(self):
+        self.firstTimeEnable = True
         
     def teleopInit(self):
         print("DRIVE GAMEPAD:")
@@ -107,8 +119,6 @@ class DriveBot(Module):
         print("  B: Speed mode")
         print("  X: Position mode")
         self.holoDrive.zeroEncoderTargets()
-        if self.fieldOriented:
-            self.drive.zero()
         self.dPadCount = 1000
         #booleans for DPad steering
         self.upPad = False
@@ -117,9 +127,8 @@ class DriveBot(Module):
         self.leftPad = False
 
     def autonomousInit(self):
+        self.robotEnable()
         self.holoDrive.zeroEncoderTargets()
-        if self.fieldOriented:
-            self.drive.zero()
         
     def teleopPeriodic(self):
         # change drive mode with A, B, and X
