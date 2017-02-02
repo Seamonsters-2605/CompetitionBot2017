@@ -112,6 +112,7 @@ class DriveBot(Module):
         self.firstTimeEnable = True
         
     def teleopInit(self):
+        self.robotEnable()
         print("DRIVE GAMEPAD:")
         print("  Left Trigger: Slower")
         print("  Right Trigger: Faster")
