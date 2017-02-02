@@ -2,6 +2,7 @@ __author__ = "seamonsters"
 
 import wpilib
 import wpilib.command
+import math
 
 from seamonsters.holonomicDrive import HolonomicDrive
 
