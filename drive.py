@@ -119,6 +119,8 @@ class DriveBot(Module):
         print("  A: Voltage mode")
         print("  B: Speed mode")
         print("  X: Position mode")
+        print("  Dpad: Move in small increments")
+        print("  Start: Reset field orientation")
         self.holoDrive.zeroEncoderTargets()
         self.dPadCount = 1000
         #booleans for DPad steering
