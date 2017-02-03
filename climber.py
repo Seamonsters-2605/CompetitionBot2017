@@ -29,6 +29,8 @@ class Climber(Module):
         self.cm = wpilib.CANTalon(4)
         #cm stands for climb motor
 
+        self.pdp = wpilib.PowerDistributionPanel()
+
     def teleopInit(self):
         print("SPECIAL GAMEPAD")
         print("  Left Joystick up: Climb")
@@ -37,6 +39,7 @@ class Climber(Module):
         print("  Down Dpad: Unlock motor")
         self.locked = False
         self.lockmode = False
+        self.enabled = True
 
     def teleopPeriodic(self):
         if self.gamepad.getRawButton(Gamepad.UP):
@@ -51,10 +54,16 @@ class Climber(Module):
 
         if self.gamepad.getLY()==0 and self.lockmode:
             self.lock()
-        else:
+        elif self.enabled:
             self.unlock()
             self.cm.set(self.gamepad.getLY() * -.5)
 
+        print(self.pdp.getCurrent(3))
+        if self.pdp.getCurrent(3) >= 15:
+            self.lock()
+            self.enabled = False
+            print("Disabled climber")
+            
     def disabledInit(self):
         pass
 
