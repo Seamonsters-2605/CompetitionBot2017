@@ -125,7 +125,6 @@ class DriveBot(Module):
         if self.fieldOriented:
             self.drive.zero()
         scheduler = wpilib.command.Scheduler.getInstance()
-        scheduler.add(FlywheelsCommand())
         self._setPID((5.0, 0.0009, 3.0, 0.0))
         
     def teleopPeriodic(self):
