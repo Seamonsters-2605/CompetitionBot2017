@@ -4,6 +4,7 @@ import wpilib
 import wpilib.command
 import math
 from shooter import Flywheels
+import vision
 
 from seamonsters.holonomicDrive import HolonomicDrive
 
@@ -71,6 +72,8 @@ class TankFieldMovement:
         return TankTurnCommand(self.wheelMotors, speed, amount, self.ahrs,
                                self.invertDrive)
 
+    def strafeAlignCommand(self):
+        return StrafeAlignCommand(self.wheelMotors)
 
 class TankDriveCommand(wpilib.command.Command):
     
@@ -184,6 +187,46 @@ class FlywheelsWaitCommand(wpilib.command.Command):
 
     def isFinished(self):
         return self.count >= 100
+
+class StrafeAlignCommand(wpilib.command.Command):
+    """
+    Requires robot to be roughly facing vision target
+    Strafes robot until peg is centered based on vision targets
+    Maintains rotation with NavX (TODO)
+    """
+
+    def __int__(self, wheelMotors):
+        super().__init__()
+        self.visionary = vision.Vision()
+        self.wheelMotors = wheelMotors
+
+
+    def execute(self):
+        contours = self.visionary.getContours()
+        self.center = vision.Vision.targetCenter(contours)
+
+        # TODO COMPLETELY UNTESTED, GUESSED ON DIRECTIONS
+        if self.center[0] < 315:
+            print("DEBUG: GOING LEFT")
+            # move left
+            self.wheelMotors[0].set(-.2)
+            self.wheelMotors[3].set(-.2)
+            self.wheelMotors[1].set(.2)
+            self.wheelMotors[2].set(.2)
+
+        elif self.center[0] > 325:
+            print("DEBUG: GOING RIGHT")
+            # move right
+            self.wheelMotors[0].set(.2)
+            self.wheelMotors[3].set(.2)
+            self.wheelMotors[1].set(-.2)
+            self.wheelMotors[2].set(-.2)
+
+        # TODO maintain rotation with NavX
+
+    def isFinished(self):
+        # when peg within 5 pixels of center (on x axis)
+        return (self.center[0] >= 315 and self.center[0] <= 325)
 
 
 
