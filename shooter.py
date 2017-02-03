@@ -13,7 +13,7 @@ class Shooter (Module):
         self.gamepad = Gamepad(port=1)
 
         self.flywheels = Flywheels()
-        self.it = wpilib.CANTalon(6)
+        self.intake = wpilib.CANTalon(6)
 
     def teleopInit(self):
         print("  A: Flywheel")
@@ -28,26 +28,44 @@ class Shooter (Module):
             self.flywheels.stopFlywheels()
 
         if self.gamepad.getRawButton(Gamepad.B):
-            self.it.set(0.2)
+            self.intake.set(0.2)
         elif self.gamepad.getRawButton(Gamepad.X):
-            self.it.set(-0.2)
+            self.intake.set(-0.2)
         else:
-            self.it.set(0)
+            self.intake.set(0)
 
 class Flywheels:
 
     def __init__(self):
         self.flywheelmotor = wpilib.CANTalon(5)
-        self.speed = .76
+        self.speedVoltage = .76
+        self.speedSpeed = 3500
+        self.switchSpeedMode()
+
+    def switchSpeedMode(self):
+        self.speedmodeEnabled = True
+        self.flywheelmotor.setPID(1,0.0009,1,0)
+        self.flywheelmotor.setFeedbackDevice(wpilib.CANTalon.FeedbackDevice.QuadEncoder)
+        self.flywheelmotor.changeControlMode(wpilib.CANTalon.ControlMode.Speed)
+
+    def switchVoltageMode(self):
+        self.speedmodeEnabled = False
+        self.flywheelmotor.changeControlMode(wpilib.CANTalon.ControlMode.PercentVbus)
 
     def spinFlywheels(self):
-        self.flywheelmotor.set(-self.speed)
+        if self.speedmodeEnabled:
+            self.flywheelmotor.set(-self.speedSpeed)
+        else:
+            self.flywheelmotor.set(-self.speedVoltage)
 
     def stopFlywheels(self):
         self.flywheelmotor.set(0)
 
     def reverseFlywheels(self):
-        self.flywheelmotor.set(self.speed)
+        if self.speedmodeEnabled:
+            self.flywheelmotor.set(self.speedSpeed)
+        else:
+            self.flywheelmotor.set(self.speedVoltage)
 
     def setFlywheelspeed(self,speed):
         self.speed = speed
