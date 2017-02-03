@@ -61,8 +61,6 @@ class DriveBot(Module):
 
         ### END OF FLAGS ###
 
-        self.firstTimeEnable = True
-
         self.gamepad = Gamepad(port = 0)
         
         fl = wpilib.CANTalon(2)
@@ -97,6 +95,7 @@ class DriveBot(Module):
             self.ahrs = AHRS.create_spi() # the NavX
             self.drive = FieldOrientedDrive(self.filterDrive, self.ahrs,
                                             offset=0)
+            self.drive.zero()
         else:
             self.drive = self.filterDrive
         
@@ -109,19 +108,8 @@ class DriveBot(Module):
 
         self.pdp = wpilib.PowerDistributionPanel()
         self.currentLog = LogState("Current")
-
-    def robotEnable(self):
-        if self.firstTimeEnable:
-            self.firstTimeEnable = False
-            print("Robot enabled")
-            if self.fieldOriented:
-                self.drive.zero()
-
-    def disabledInit(self):
-        self.firstTimeEnable = True
         
     def teleopInit(self):
-        self.robotEnable()
         print("DRIVE GAMEPAD:")
         print("  Left Trigger: Slower")
         print("  Right Trigger: Faster")
@@ -139,7 +127,8 @@ class DriveBot(Module):
         self.leftPad = False
 
     def autonomousInit(self):
-        self.robotEnable()
+        if self.fieldOriented:
+            self.drive.zero()
         self.holoDrive.zeroEncoderTargets()
         scheduler = wpilib.command.Scheduler.getInstance()
         self._setPID((5.0, 0.0009, 3.0, 0.0))
