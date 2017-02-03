@@ -37,6 +37,15 @@ class TemplateCommand(wpilib.command.Command):
         # after the command completes
         pass
 
+class GearWaitCommand(wpilib.command.Command):
+    def initialize(self):
+        self.proximitySensor=wpilib.AnalogInput(0)
+    def execute(self):
+        pass
+    def isFinished(self):
+        return self.proximitySensor.getVoltage()<2
+
+
 
 class TankFieldMovement:
 
