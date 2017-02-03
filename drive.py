@@ -14,7 +14,6 @@ from seamonsters.holonomicDrive import HolonomicDrive
 from seamonsters.logging import LogState
 
 import auto_commands
-from auto_commands import FlywheelsCommand
 
 from robotpy_ext.common_drivers.navx import AHRS
 import math
@@ -142,8 +141,6 @@ class DriveBot(Module):
     def autonomousInit(self):
         self.robotEnable()
         self.holoDrive.zeroEncoderTargets()
-        if self.fieldOriented:
-            self.drive.zero()
         scheduler = wpilib.command.Scheduler.getInstance()
         self._setPID((5.0, 0.0009, 3.0, 0.0))
         
