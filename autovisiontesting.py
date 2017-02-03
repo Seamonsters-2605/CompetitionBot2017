@@ -22,7 +22,7 @@ class AutoVisionTesting(Module):
         self.counter = 0
         self.xSum = 0
         self.ySum = 0
-        self.time = 250
+        self.sampleTime = 250
         pass
 
     def autonomousPeriodic(self):
@@ -39,16 +39,19 @@ class AutoVisionTesting(Module):
         self.xSum += xDist
         self.ySum += yDist
 
-        if self.counter < self.time:
+        if self.counter < self.sampleTime:
             print(self.counter)
             print("X Difference: " + str(xDist))
             print("Y Difference: " + str(yDist))
-        elif self.counter == self.time:
-            avgX = self.xSum / self.time
-            avgY = self.ySum / self.time
+        elif self.counter == self.sampleTime:
+            avgX = self.xSum / self.sampleTime
+            avgY = self.ySum / self.sampleTime
             print("Average X Difference: " + str(avgX))
             print("Average Y Difference: " + str(avgY))
             print("Average Distance: " + str(math.sqrt(avgX ** 2 + avgY ** 2)))
+
+            center = vision.Vision.targetCenter(contours)
+            print("Current Center: (" + str(center[0]) + ", " + str(center[1]) + ")")
 
         self.counter += 1
         pass
