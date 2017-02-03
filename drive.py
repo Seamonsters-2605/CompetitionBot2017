@@ -58,6 +58,8 @@ class DriveBot(Module):
 
         ### END OF FLAGS ###
 
+        self.firstTimeEnable = True
+
         self.gamepad = Gamepad(port = 0)
         
         fl = wpilib.CANTalon(2)
@@ -98,22 +100,38 @@ class DriveBot(Module):
 
         self.pdp = wpilib.PowerDistributionPanel()
         self.currentLog = LogState("Current")
+
+    def robotEnable(self):
+        if self.firstTimeEnable:
+            self.firstTimeEnable = False
+            print("Robot enabled")
+            if self.fieldOriented:
+                self.drive.zero()
+
+    def disabledInit(self):
+        self.firstTimeEnable = True
         
     def teleopInit(self):
+        self.robotEnable()
         print("DRIVE GAMEPAD:")
         print("  Left Trigger: Slower")
         print("  Right Trigger: Faster")
         print("  A: Voltage mode")
         print("  B: Speed mode")
         print("  X: Position mode")
+        print("  Dpad: Move in small increments")
+        print("  Start: Reset field orientation")
         self.holoDrive.zeroEncoderTargets()
-        if self.fieldOriented:
-            self.drive.zero()
+        self.dPadCount = 1000
+        #booleans for DPad steering
+        self.upPad = False
+        self.rightPad = False
+        self.downPad = False
+        self.leftPad = False
 
     def autonomousInit(self):
+        self.robotEnable()
         self.holoDrive.zeroEncoderTargets()
-        if self.fieldOriented:
-            self.drive.zero()
         
     def teleopPeriodic(self):
         # change drive mode with A, B, and X
@@ -124,7 +142,11 @@ class DriveBot(Module):
         elif self.gamepad.getRawButton(Gamepad.X):
             self.drive.setDriveMode(DriveInterface.DriveMode.POSITION)
         self.driveModeLog.update(self._driveModeName(self.drive.getDriveMode()))
-        
+
+        #reset field orientation
+        if(self.gamepad.getRawButton(Gamepad.START) and self.fieldOriented):
+            self.drive.zero()
+
         scale = self.normalScale
         turnScale = self.normalScale
         exponent = self.joystickExponent
@@ -138,6 +160,36 @@ class DriveBot(Module):
         turn = self._joystickPower(-self.gamepad.getRX(), exponent) * turnScale
         magnitude = self._joystickPower(self.gamepad.getLMagnitude(), exponent) * scale
         direction = self.gamepad.getLDirection()
+
+        #check if DPad is pressed
+        if self.gamepad.getRawButton(Gamepad.UP):
+            self.upPad = True
+            self.dPadCount = 0
+        elif self.gamepad.getRawButton(Gamepad.RIGHT):
+            self.rightPad = True
+            self.dPadCount = 0
+        elif self.gamepad.getRawButton(Gamepad.DOWN):
+            self.downPad = True
+            self.dPadCount = 0
+        elif self.gamepad.getRawButton(Gamepad.LEFT):
+            self.leftPad = True
+            self.dPadCount = 0
+
+        if(self.dPadCount < 10):
+            magnitude = 0.1
+            self.dPadCount += 1
+        else:
+            self.upPad = self.rightPad = self.downPad = self.leftPad = False
+
+        if(self.upPad):
+            direction = math.pi/2.0
+        elif(self.rightPad):
+            direction = 0
+        elif(self.downPad):
+            direction = 3.0*math.pi/2.0
+        elif(self.leftPad):
+            direction = math.pi
+
         # constrain direction to be between 0 and 2pi
         if direction < 0:
             circles = math.ceil(-direction / (math.pi*2))
@@ -211,6 +263,8 @@ class DriveBot(Module):
             return target
         else:
             return value
+
+
 
 if __name__ == "__main__":
     wpilib.run(DriveBot)
