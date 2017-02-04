@@ -60,7 +60,6 @@ class Climber(Module):
             self.unlock()
             self.cm.set(self.gamepad.getLY() * -.5)
 
-        print(self.pdp.getCurrent(3))
         if self.pdp.getCurrent(3) >= 20:
             self.lock()
             self.enabled = False
