@@ -245,6 +245,7 @@ class StrafeAlignCommand(wpilib.command.Command):
         self.drive = drive
         self.visionary = vision
         self.ahrs = ahrs
+        self.tolerance = 2
 
     def initialize(self):
         self.initRotation = - math.radians(self.ahrs.getAngle())
@@ -259,17 +260,20 @@ class StrafeAlignCommand(wpilib.command.Command):
         # COMPLETELY UNTESTED
         rotation = (self.initRotation + math.radians(self.ahrs.getAngle())) / 15
 
-        if self.center[0] < 315:
+        if self.center[0] < (vision.Vision.WIDTH / 2 - self.tolerance):
             # move left
             self.drive.drive(.2, math.pi, rotation)
 
-        elif self.center[0] > 325:
+        elif self.center[0] > (vision.Vision.WIDTH / 2 + self.tolerance):
             # move right
             self.drive.drive(.2, 0, rotation)
 
     def isFinished(self):
-        # when peg within 5 pixels of center (on x axis)
-        return (self.center[0] >= 315 and self.center[0] <= 325)
+        # when peg within tolerance (2 pixels) of center (on x axis)
+        return abs(self.center[0] - vision.Vision.WIDTH / 2) < self.tolerance
+
+
+
 
 
 
