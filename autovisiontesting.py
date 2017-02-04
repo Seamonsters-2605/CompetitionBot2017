@@ -8,6 +8,10 @@ import vision
 import math
 
 class AutoVisionTesting(Module):
+
+    PEGFOCALDIST = 661.96
+    PEGREALTARGETSDIST = 8.25
+
     def robotInit(self):
         # when the robot code starts (only once, not each time it's enabled)
         # Declare Gamepads and CANTalons here.
