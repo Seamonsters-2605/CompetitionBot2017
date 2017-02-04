@@ -5,12 +5,13 @@ import seamonsters.fix2017
 from seamonsters.wpilib_sim import simulate
 from seamonsters.modularRobot import Module
 from seamonsters.gamepad import Gamepad
+import seamonsters.gamepad
 from seamonsters.logging import LogState
 
 class Shooter (Module):
     
     def robotInit(self):
-        self.gamepad = Gamepad(port=1)
+        self.gamepad = seamonsters.gamepad.globalGamepad(port=1)
 
         self.flywheels = Flywheels()
         self.intake = wpilib.CANTalon(6)

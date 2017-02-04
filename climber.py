@@ -5,6 +5,7 @@ import seamonsters.fix2017
 from seamonsters.wpilib_sim import simulate
 from seamonsters.modularRobot import Module
 from seamonsters.gamepad import Gamepad
+import seamonsters.gamepad
 
 class Climber(Module):
     def lock(self):
@@ -24,7 +25,7 @@ class Climber(Module):
             print("Unlocked")
 
     def robotInit(self):
-        self.gamepad = Gamepad(port = 1)
+        self.gamepad = seamonsters.gamepad.globalGamepad(port = 1)
 
         self.cm = wpilib.CANTalon(4)
         #cm stands for climb motor
