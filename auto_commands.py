@@ -81,9 +81,6 @@ class TankFieldMovement:
         return TankTurnCommand(self.wheelMotors, speed, amount, self.ahrs,
                                self.invertDrive)
 
-    def strafeAlignCommand(self):
-        return StrafeAlignCommand(self.wheelMotors)
-
 class TankDriveCommand(wpilib.command.Command):
     
     def __init__(self, wheelMotors, speed, ticks, ahrs):
@@ -240,43 +237,39 @@ class StrafeAlignCommand(wpilib.command.Command):
     """
     Requires robot to be roughly facing vision target
     Strafes robot until peg is centered based on vision targets
-    Maintains rotation with NavX (TODO)
+    Maintains rotation with NavX
     """
 
-    def __int__(self, wheelMotors):
+    def __int__(self, drive, vision, ahrs):
         super().__init__()
-        self.visionary = vision.Vision()
-        self.wheelMotors = wheelMotors
+        self.drive = drive
+        self.visionary = vision
+        self.ahrs = ahrs
 
+    def initialize(self):
+        self.initRotation = - math.radians(self.ahrs.getAngle())
 
     def execute(self):
         contours = self.visionary.getContours()
         self.center = vision.Vision.targetCenter(contours)
 
-        # TODO COMPLETELY UNTESTED, GUESSED ON DIRECTIONS
+        if self.center == None:
+            self.Cancel()
+
+        # COMPLETELY UNTESTED
+        rotation = (self.initRotation + math.radians(self.ahrs.getAngle())) / 15
+
         if self.center[0] < 315:
-            print("DEBUG: GOING LEFT")
             # move left
-            self.wheelMotors[0].set(-.2)
-            self.wheelMotors[3].set(-.2)
-            self.wheelMotors[1].set(.2)
-            self.wheelMotors[2].set(.2)
+            self.drive.drive(.2, math.pi, rotation)
 
         elif self.center[0] > 325:
-            print("DEBUG: GOING RIGHT")
             # move right
-            self.wheelMotors[0].set(.2)
-            self.wheelMotors[3].set(.2)
-            self.wheelMotors[1].set(-.2)
-            self.wheelMotors[2].set(-.2)
-
-        # TODO maintain rotation with NavX
+            self.drive.drive(.2, 0, rotation)
 
     def isFinished(self):
         # when peg within 5 pixels of center (on x axis)
         return (self.center[0] >= 315 and self.center[0] <= 325)
-
-
 
 
 
