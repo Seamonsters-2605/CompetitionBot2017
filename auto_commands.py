@@ -197,6 +197,45 @@ class FlywheelsWaitCommand(wpilib.command.Command):
     def isFinished(self):
         return self.count >= 100
 
+
+# NOT TESTED
+class TurnAlignCommand(wpilib.command.Command):
+    
+    def __init__(self, wheelMotors, vision, invert=False):
+        super().__init__()
+        self.wheelMotors = wheelMotors
+        self.vision = vision
+        self.invert = invert
+
+    def initialize(self):
+        for i in range(0, 4):
+            motor = self.wheelMotors[i]
+            motor.changeControlMode(wpilib.CANTalon.ControlMode.Position)
+    
+    def execute(self):
+        targetX = self._getTargetX()
+        turnAmount = 100.0 * abs(self._getTargetX() - 0.5)
+
+        if targetX < 0.5:
+            turnAmount = -turnAmount
+        if self.invert:
+            turnAmount = -turnAmount
+        
+        for i in range(0, 4):
+            motor = self.wheelMotors[i]
+            current = motor.getPosition()
+            motor.set(current + turnAmount)
+
+    def _getTargetX(self):
+        contours = self.vision.getContours()
+        targetCenter = vision.Vision.targetCenter(contours)
+        return float(targetCenter[0]) / float(vision.Vision.WIDTH)
+
+    def isFinished(self):
+        distance = abs(self._getTargetX() - 0.5)
+        return distance < 0.02
+
+
 class StrafeAlignCommand(wpilib.command.Command):
     """
     Requires robot to be roughly facing vision target
