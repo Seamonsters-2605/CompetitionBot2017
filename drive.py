@@ -134,14 +134,22 @@ class DriveBot(Module):
 
         # command mode...
         scheduler = wpilib.command.Scheduler.getInstance()
-        debugCommand = wpilib.command.PrintCommand("Print command!")
 
         # testing...
-        gearWaitCommand = auto_commands.GearWaitCommand()
-        flywheelsWaitCommand = auto_commands.FlywheelsWaitCommand()
 
-        _testCommand(gearWaitCommand)
-        _testCommand(flywheelsWaitCommand)
+        gearWaitCommandTestGroup = wpilib.command.CommandGroup()
+        gearWaitCommandTestGroup.addSequential(
+            auto_commands.GearWaitCommand())
+        gearWaitCommandTestGroup.addSequential(
+            wpilib.command.PrintCommand("Gear removed!"))
+        scheduler.add(gearWaitCommandTestGroup)
+
+        flywheelsWaitCommandTestGroup = wpilib.command.CommandGroup()
+        flywheelsWaitCommandTestGroup.addSequential(
+            auto_commands.FlywheelsWaitCommand())
+        flywheelsWaitCommandTestGroup.addSequential(
+            wpilib.command.PrintCommand("Flywheels ready!"))
+        scheduler.add(flywheelsWaitCommandTestGroup)
         
     def teleopPeriodic(self):
         # change drive mode with A, B, and X
