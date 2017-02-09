@@ -130,8 +130,18 @@ class DriveBot(Module):
         if self.fieldOriented:
             self.drive.zero()
         self.holoDrive.zeroEncoderTargets()
-        scheduler = wpilib.command.Scheduler.getInstance()
         self._setPID((5.0, 0.0009, 3.0, 0.0))
+
+        # command mode...
+        scheduler = wpilib.command.Scheduler.getInstance()
+        debugCommand = wpilib.command.PrintCommand("Print command!")
+
+        # testing...
+        gearWaitCommand = auto_commands.GearWaitCommand()
+        flywheelsWaitCommand = auto_commands.FlywheelsWaitCommand()
+
+        _testCommand(gearWaitCommand)
+        _testCommand(flywheelsWaitCommand)
         
     def teleopPeriodic(self):
         # change drive mode with A, B, and X
@@ -264,7 +274,14 @@ class DriveBot(Module):
         else:
             return value
 
-
+def _testCommand(command):
+    print("Testing command", type(command).__name__)
+    # make sure nothing crashes when these methods are called
+    command.initialize()
+    command.execute()
+    command.isFinished()
+    command.interrupted()
+    print("Done testing", type(command).__name__)
 
 if __name__ == "__main__":
     wpilib.run(DriveBot)
