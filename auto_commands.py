@@ -269,36 +269,46 @@ class StrafeAlignCommand(wpilib.command.Command):
     Maintains rotation with NavX
     """
 
-    def __int__(self, drive, vision, ahrs):
+    def __init__(self, drive, vision, ahrs):
         super().__init__()
         self.drive = drive
-        self.visionary = vision
+        self.vision = vision
         self.ahrs = ahrs
-        self.tolerance = 2 # pixels
+        self.tolerance = .02 # fraction of width
 
     def initialize(self):
         self.initRotation = - math.radians(self.ahrs.getAngle())
 
     def execute(self):
-        contours = self.visionary.getContours()
-        self.center = vision.Vision.targetCenter(contours)
+        targetX = self._getTargetX()
+        print(targetX)
 
-        if self.center == None:
-            self.Cancel()
+        if targetX == None:
+            print("No vision!!")
+            return
 
         rotation = (self.initRotation + math.radians(self.ahrs.getAngle())) / 15
 
-        if self.center[0] < (vision.Vision.WIDTH / 2 - self.tolerance):
+        if targetX > 0.5:
             # move left
-            self.drive.drive(.2, math.pi, rotation)
+            self.drive.drive(.05, math.pi, rotation)
 
-        elif self.center[0] > (vision.Vision.WIDTH / 2 + self.tolerance):
+        elif targetX < 0.5:
             # move right
-            self.drive.drive(.2, 0, rotation)
+            self.drive.drive(.05, 0, rotation)
 
     def isFinished(self):
         # when peg within tolerance (2 pixels) of center (on x axis)
-        return abs(self.center[0] - vision.Vision.WIDTH / 2) <= self.tolerance
+        #return abs(self.center[0] - vision.Vision.WIDTH / 2) <= self.tolerance
+        return False
+
+    def _getTargetX(self):
+        contours = self.vision.getContours()
+        targetCenter = vision.Vision.targetCenter(contours)
+        if targetCenter == None:
+            return None
+        else:
+            return float(targetCenter[0]) / float(vision.Vision.WIDTH)
 
 # UNTESTED
 class DriveToTargetDistanceCommand(wpilib.command.Command):
