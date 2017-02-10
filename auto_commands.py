@@ -221,9 +221,14 @@ class TurnAlignCommand(wpilib.command.Command):
     
     def execute(self):
         targetX = self._getTargetX()
-        turnAmount = self.speed * abs(self._getTargetX() - 0.5)
+        if targetX == None:
+            print("No vision!!")
+            return
+        else:
+            print(targetX)
+        turnAmount = self.speed * abs(targetX - 0.5) * 2
 
-        if targetX < 0.5:
+        if targetX > 0.5:
             turnAmount = -turnAmount
         if self.invert:
             turnAmount = -turnAmount
@@ -236,11 +241,18 @@ class TurnAlignCommand(wpilib.command.Command):
     def _getTargetX(self):
         contours = self.vision.getContours()
         targetCenter = vision.Vision.targetCenter(contours)
-        return float(targetCenter[0]) / float(vision.Vision.WIDTH)
+        if targetCenter == None:
+            return None
+        else:
+            return float(targetCenter[0]) / float(vision.Vision.WIDTH)
 
     def isFinished(self):
-        distance = abs(self._getTargetX() - 0.5)
+        targetX = self._getTargetX()
+        if targetX == None:
+            return False
+        distance = abs(targetX - 0.5)
         return distance < 0.02
+        #return False
 
 # UNTESTED
 class StrafeAlignCommand(wpilib.command.Command):
