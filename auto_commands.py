@@ -12,7 +12,7 @@ class TemplateCommand(wpilib.command.Command):
 
     def __init__(self, args):
         # start of autonomous
-        pass
+        super().__init__()
 
     # OPTIONAL, usually needed
     def initialize(self):
@@ -38,13 +38,16 @@ class TemplateCommand(wpilib.command.Command):
         pass
 
 class GearWaitCommand(wpilib.command.Command):
-    def initialize(self):
-        self.proximitySensor=wpilib.AnalogInput(0)
+
+    def __init__(self):
+        super().__init__()
+        self.proximitySensor = wpilib.AnalogInput(0)
+
     def execute(self):
         pass
-    def isFinished(self):
-        return self.proximitySensor.getVoltage()<2
 
+    def isFinished(self):
+        return self.proximitySensor.getVoltage() < 2.0
 
 
 class TankFieldMovement:
@@ -287,10 +290,11 @@ class DriveToTargetDistanceCommand(wpilib.command.Command):
     """
 
     def __init__(self, drive, vision, ahrs):
+        super().__init__()
         self.drive = drive
         self.visionary = vision
         self.ahrs = ahrs
-        self.buffer = 18 #inches
+        self.buffer = 21 #inches
 
         self.pegFocalDistance = 661.96
         self.pegRealTargetDistance = 8.25
@@ -315,8 +319,3 @@ class DriveToTargetDistanceCommand(wpilib.command.Command):
     def isFinished(self):
         # return True or False if the command is complete or not
         return self.distance < self.buffer
-
-
-
-
-
