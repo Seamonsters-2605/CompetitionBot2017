@@ -271,7 +271,7 @@ class StrafeAlignCommand(wpilib.command.Command):
         # when peg within tolerance (2 pixels) of center (on x axis)
         return abs(self.center[0] - vision.Vision.WIDTH / 2) <= self.tolerance
 
-# TODO, UNFINISHED
+# UNTESTED
 class DriveToTargetDistanceCommand(wpilib.command.Command):
     """
     Calculates distance to peg using vision
@@ -283,19 +283,26 @@ class DriveToTargetDistanceCommand(wpilib.command.Command):
         self.drive = drive
         self.visionary = vision
         self.ahrs = ahrs
-        self.buffer = 17
+        self.buffer = 18 #inches
+
+        self.pegFocalDistance = 661.96
+        self.pegRealTargetDistance = 8.25
 
     def initialize(self):
         self.initRotation = - math.radians(self.ahrs.getAngle())
-        self.initDistance # = find distance using vision
 
     def execute(self):
         # 50 times per second while the command runs
+
+        contours = self.visionary.getContours()
+        pixelDistance = math.sqrt(vision.Vision.findCentersXDistance()**2 + vision.Vision.findCentersYDistance()**2)
+
+        self.distance = self.pegFocalDistance * self.pegRealTargetDistance / pixelDistance
         pass
 
     def isFinished(self):
         # return True or False if the command is complete or not
-        return True
+        return self.distance < self.buffer
 
 
 
