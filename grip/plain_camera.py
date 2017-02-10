@@ -3,7 +3,7 @@ from networktables import NetworkTables
 
 def main():
     #do stuff
-    cam = cv2.VideoCapture(0) # use the 2nd camera
+    cam = cv2.VideoCapture(1) # use the 2nd camera
     while True:
         ret, frame = cam.read()
         #gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
