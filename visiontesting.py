@@ -7,7 +7,7 @@ from seamonsters.modularRobot import Module
 import vision
 import math
 
-class AutoVisionTesting(Module):
+class VisionTesting(Module):
 
     PEGFOCALDIST = 661.96
     PEGREALTARGETSDIST = 8.25
@@ -66,4 +66,4 @@ class AutoVisionTesting(Module):
 
 
 if __name__ == "__main__":
-    wpilib.run(AutoVisionTesting)
+    wpilib.run(VisionTesting)
