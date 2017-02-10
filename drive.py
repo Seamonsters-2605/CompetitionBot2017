@@ -1,6 +1,7 @@
 __author__ = "seamonsters"
 
 import wpilib
+import wpilib.command
 import seamonsters.fix2017
 from seamonsters.wpilib_sim import simulate
 from seamonsters.modularRobot import Module
@@ -11,6 +12,8 @@ from seamonsters.drive import AccelerationFilterDrive
 from seamonsters.drive import FieldOrientedDrive
 from seamonsters.holonomicDrive import HolonomicDrive
 from seamonsters.logging import LogState
+
+import auto_commands
 
 from robotpy_ext.common_drivers.navx import AHRS
 import math
@@ -76,25 +79,32 @@ class DriveBot(Module):
         self._setPID(self.fastPID)
         self.driveScales = [0.0 for i in range(0, pidLookBackRange)]
         
-        # 2833 ticks per wheel rotation
         # encoder has 100 raw ticks -- with a QuadEncoder that makes 400 ticks
         # the motor gear has 12 teeth and the wheel has 85 teeth
         # 85 / 12 * 400 = 2833.333 = ~2833
-        self.holoDrive = HolonomicDrive(fl, fr, bl, br, 2833)
+        ticksPerWheelRotation = 2833
+        self.holoDrive = HolonomicDrive(fl, fr, bl, br, ticksPerWheelRotation)
         self.holoDrive.invertDrive(True)
         self.holoDrive.setWheelOffset(math.radians(45.0)) #angle of rollers
         
         self.filterDrive = AccelerationFilterDrive(self.holoDrive,
                                                    accelerationRate)
 
+        self.ahrs = None
         if self.fieldOriented:
             self.ahrs = AHRS.create_spi() # the NavX
             self.drive = FieldOrientedDrive(self.filterDrive, self.ahrs,
                                             offset=0)
+            self.drive.zero()
         else:
             self.drive = self.filterDrive
         
         self.drive.setDriveMode(DriveInterface.DriveMode.POSITION)
+
+        self.tankFieldMovement = \
+            auto_commands.TankFieldMovement(fl, fr, bl, br,
+                                            ticksPerWheelRotation, 6 * math.pi,
+                                            ahrs=self.ahrs, invertDrive=True)
 
         self.pdp = wpilib.PowerDistributionPanel()
         self.currentLog = LogState("Current")
@@ -106,14 +116,40 @@ class DriveBot(Module):
         print("  A: Voltage mode")
         print("  B: Speed mode")
         print("  X: Position mode")
+        print("  Dpad: Move in small increments")
+        print("  Start: Reset field orientation")
         self.holoDrive.zeroEncoderTargets()
-        if self.fieldOriented:
-            self.drive.zero()
+        self.dPadCount = 1000
+        #booleans for DPad steering
+        self.upPad = False
+        self.rightPad = False
+        self.downPad = False
+        self.leftPad = False
 
     def autonomousInit(self):
-        self.holoDrive.zeroEncoderTargets()
         if self.fieldOriented:
             self.drive.zero()
+        self.holoDrive.zeroEncoderTargets()
+        self._setPID((5.0, 0.0009, 3.0, 0.0))
+
+        # command mode...
+        scheduler = wpilib.command.Scheduler.getInstance()
+
+        # testing...
+
+        gearWaitCommandTestGroup = wpilib.command.CommandGroup()
+        gearWaitCommandTestGroup.addSequential(
+            auto_commands.GearWaitCommand())
+        gearWaitCommandTestGroup.addSequential(
+            wpilib.command.PrintCommand("Gear removed!"))
+        scheduler.add(gearWaitCommandTestGroup)
+
+        flywheelsWaitCommandTestGroup = wpilib.command.CommandGroup()
+        flywheelsWaitCommandTestGroup.addSequential(
+            auto_commands.FlywheelsWaitCommand())
+        flywheelsWaitCommandTestGroup.addSequential(
+            wpilib.command.PrintCommand("Flywheels ready!"))
+        scheduler.add(flywheelsWaitCommandTestGroup)
         
     def teleopPeriodic(self):
         # change drive mode with A, B, and X
@@ -124,7 +160,11 @@ class DriveBot(Module):
         elif self.gamepad.getRawButton(Gamepad.X):
             self.drive.setDriveMode(DriveInterface.DriveMode.POSITION)
         self.driveModeLog.update(self._driveModeName(self.drive.getDriveMode()))
-        
+
+        #reset field orientation
+        if(self.gamepad.getRawButton(Gamepad.START) and self.fieldOriented):
+            self.drive.zero()
+
         scale = self.normalScale
         turnScale = self.normalScale
         exponent = self.joystickExponent
@@ -138,6 +178,36 @@ class DriveBot(Module):
         turn = self._joystickPower(-self.gamepad.getRX(), exponent) * turnScale
         magnitude = self._joystickPower(self.gamepad.getLMagnitude(), exponent) * scale
         direction = self.gamepad.getLDirection()
+
+        #check if DPad is pressed
+        if self.gamepad.getRawButton(Gamepad.UP):
+            self.upPad = True
+            self.dPadCount = 0
+        elif self.gamepad.getRawButton(Gamepad.RIGHT):
+            self.rightPad = True
+            self.dPadCount = 0
+        elif self.gamepad.getRawButton(Gamepad.DOWN):
+            self.downPad = True
+            self.dPadCount = 0
+        elif self.gamepad.getRawButton(Gamepad.LEFT):
+            self.leftPad = True
+            self.dPadCount = 0
+
+        if(self.dPadCount < 10):
+            magnitude = 0.1
+            self.dPadCount += 1
+        else:
+            self.upPad = self.rightPad = self.downPad = self.leftPad = False
+
+        if(self.upPad):
+            direction = math.pi/2.0
+        elif(self.rightPad):
+            direction = 0
+        elif(self.downPad):
+            direction = 3.0*math.pi/2.0
+        elif(self.leftPad):
+            direction = math.pi
+
         # constrain direction to be between 0 and 2pi
         if direction < 0:
             circles = math.ceil(-direction / (math.pi*2))
@@ -211,6 +281,15 @@ class DriveBot(Module):
             return target
         else:
             return value
+
+def _testCommand(command):
+    print("Testing command", type(command).__name__)
+    # make sure nothing crashes when these methods are called
+    command.initialize()
+    command.execute()
+    command.isFinished()
+    command.interrupted()
+    print("Done testing", type(command).__name__)
 
 if __name__ == "__main__":
     wpilib.run(DriveBot)

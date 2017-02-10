@@ -5,6 +5,7 @@ import seamonsters.fix2017
 from seamonsters.wpilib_sim import simulate
 from seamonsters.modularRobot import Module
 from seamonsters.gamepad import Gamepad
+import seamonsters.gamepad
 
 class Climber(Module):
     def lock(self):
@@ -24,19 +25,22 @@ class Climber(Module):
             print("Unlocked")
 
     def robotInit(self):
-        self.gamepad = Gamepad(port = 1)
+        self.gamepad = seamonsters.gamepad.globalGamepad(port = 1)
 
         self.cm = wpilib.CANTalon(4)
         #cm stands for climb motor
 
+        self.pdp = wpilib.PowerDistributionPanel()
+
     def teleopInit(self):
-        print("SPECIAL GAMEPAD")
+        print("SPECIAL GAMEPAD:")
         print("  Left Joystick up: Climb")
         print("  Left Joystick down: Descend")
         print("  Up Dpad: Lock motor")
         print("  Down Dpad: Unlock motor")
         self.locked = False
         self.lockmode = False
+        self.enabled = True
 
     def teleopPeriodic(self):
         if self.gamepad.getRawButton(Gamepad.UP):
@@ -47,14 +51,20 @@ class Climber(Module):
         if self.gamepad.getRawButton(Gamepad.DOWN):
             if self.lockmode:
                 self.lockmode = False
+                self.enabled = True
                 print("Lock mode disabled")
 
         if self.gamepad.getLY()==0 and self.lockmode:
             self.lock()
-        else:
+        elif self.enabled:
             self.unlock()
             self.cm.set(self.gamepad.getLY() * -.5)
 
+        if self.pdp.getCurrent(3) >= 20:
+            self.lock()
+            self.enabled = False
+            print("Disabled climber")
+            
     def disabledInit(self):
         pass
 
