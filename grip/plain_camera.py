@@ -5,9 +5,9 @@ def main():
     #do stuff
     cam = cv2.VideoCapture(0) # use the 2nd camera
     while True:
-        img = cam.grab()
-        cv2.imshow('camera2', img)
-        print("Things should be working")
+        ret, frame = cam.read()
+        frame = cv2.cvtColor(frame, cv2.COLORBGR2GRAY)
+        cv2.imshow('camera2', frame)
     cv2.destroyAllWindows()
 
 if __name__ == '__main__':
