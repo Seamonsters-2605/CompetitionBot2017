@@ -213,6 +213,7 @@ class TurnAlignCommand(wpilib.command.Command):
         self.speed = speed
         self.vision = vision
         self.invert = invert
+        self.numCyclesCentered = 0
 
     def initialize(self):
         for i in range(0, 4):
@@ -226,7 +227,7 @@ class TurnAlignCommand(wpilib.command.Command):
             return
         else:
             print(targetX)
-        turnAmount = self.speed * abs(targetX - 0.5) * 2
+        turnAmount = self.speed * (abs(targetX - 0.5) ** 0.6) * 2
 
         if targetX > 0.5:
             turnAmount = -turnAmount
@@ -251,8 +252,14 @@ class TurnAlignCommand(wpilib.command.Command):
         if targetX == None:
             return False
         distance = abs(targetX - 0.5)
-        return distance < 0.02
-        #return False
+        if distance < 0.02:
+            self.numCyclesCentered += 1
+        else:
+            self.numCyclesCentered = 0
+        if self.numCyclesCentered > 10:
+            print("Reached target!")
+            return True
+        return False
 
 # UNTESTED
 class StrafeAlignCommand(wpilib.command.Command):
