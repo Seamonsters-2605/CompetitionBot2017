@@ -294,11 +294,16 @@ class DriveToTargetDistanceCommand(wpilib.command.Command):
     def execute(self):
         # 50 times per second while the command runs
 
+        # find distance to targets
         contours = self.visionary.getContours()
         pixelDistance = math.sqrt(vision.Vision.findCentersXDistance()**2 + vision.Vision.findCentersYDistance()**2)
 
         self.distance = self.pegFocalDistance * self.pegRealTargetDistance / pixelDistance
-        pass
+
+        # actually move robot
+        rotation = (self.initRotation + math.radians(self.ahrs.getAngle())) / 15
+
+        self.drive.drive(.2, math.pi / 2, rotation)
 
     def isFinished(self):
         # return True or False if the command is complete or not
