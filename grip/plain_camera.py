@@ -7,6 +7,7 @@ def main():
     while True:
         ret_val, img = cam.read()
         cv2.imshow('camera2', img)
+        print("Things should be working")
     cv2.destroyAllWindows()
 
 if __name__ == '__main__':
