@@ -287,7 +287,7 @@ class DriveToTargetDistanceCommand(wpilib.command.Command):
         self.drive = drive
         self.visionary = vision
         self.ahrs = ahrs
-        self.buffer = 18 #inches
+        self.buffer = 21 #inches
 
         self.pegFocalDistance = 661.96
         self.pegRealTargetDistance = 8.25
