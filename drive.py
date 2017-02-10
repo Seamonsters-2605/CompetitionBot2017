@@ -141,8 +141,10 @@ class DriveBot(Module):
 
         # testing...
         
-        turnAlignCommand = self.tankFieldMovement.turnAlignCommand(self.vision)
-        scheduler.add(turnAlignCommand)
+        strafeAlignCommand = auto_commands.StrafeAlignCommand(self.holoDrive,
+                                                              self.vision,
+                                                              self.ahrs)
+        scheduler.add(strafeAlignCommand)
         
     def teleopPeriodic(self):
         # change drive mode with A, B, and X
