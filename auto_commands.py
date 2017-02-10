@@ -73,13 +73,19 @@ class TankFieldMovement:
             distance / self.wheelCircumference * self.ticksPerWheelRotation,
             self.ahrs)
 
-    def turnCommand(self, amount, speed):
+    def turnCommand(self, amount, speed=None):
         if speed == None:
             speed = self.defaultSpeed
         if self.invertDrive:
             amount = -amount
         return TankTurnCommand(self.wheelMotors, speed, amount, self.ahrs,
                                self.invertDrive)
+
+    def turnAlignCommand(self, vision, speed=None):
+        if speed == None:
+            speed = self.defaultSpeed
+        return TurnAlignCommand(self.wheelMotors, speed, vision,
+                                self.invertDrive)
 
 class TankDriveCommand(wpilib.command.Command):
     
@@ -198,9 +204,10 @@ class FlywheelsWaitCommand(wpilib.command.Command):
 # NOT TESTED
 class TurnAlignCommand(wpilib.command.Command):
     
-    def __init__(self, wheelMotors, vision, invert=False):
+    def __init__(self, wheelMotors, speed, vision, invert=False):
         super().__init__()
         self.wheelMotors = wheelMotors
+        self.speed = speed
         self.vision = vision
         self.invert = invert
 
@@ -211,7 +218,7 @@ class TurnAlignCommand(wpilib.command.Command):
     
     def execute(self):
         targetX = self._getTargetX()
-        turnAmount = 100.0 * abs(self._getTargetX() - 0.5)
+        turnAmount = self.speed * abs(self._getTargetX() - 0.5)
 
         if targetX < 0.5:
             turnAmount = -turnAmount

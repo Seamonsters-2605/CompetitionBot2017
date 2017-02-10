@@ -13,6 +13,7 @@ from seamonsters.drive import FieldOrientedDrive
 from seamonsters.holonomicDrive import HolonomicDrive
 from seamonsters.logging import LogState
 
+import vision
 import auto_commands
 
 from robotpy_ext.common_drivers.navx import AHRS
@@ -104,7 +105,8 @@ class DriveBot(Module):
         self.tankFieldMovement = \
             auto_commands.TankFieldMovement(fl, fr, bl, br,
                                             ticksPerWheelRotation, 6 * math.pi,
-                                            ahrs=self.ahrs, invertDrive=True)
+                                            ahrs=self.ahrs, invertDrive=True,
+                                            driveSpeed=100)
 
         self.pdp = wpilib.PowerDistributionPanel()
         self.currentLog = LogState("Current")
@@ -132,24 +134,15 @@ class DriveBot(Module):
         self.holoDrive.zeroEncoderTargets()
         self._setPID((5.0, 0.0009, 3.0, 0.0))
 
+        self.vision = vision.Vision()
+
         # command mode...
         scheduler = wpilib.command.Scheduler.getInstance()
 
         # testing...
-
-        gearWaitCommandTestGroup = wpilib.command.CommandGroup()
-        gearWaitCommandTestGroup.addSequential(
-            auto_commands.GearWaitCommand())
-        gearWaitCommandTestGroup.addSequential(
-            wpilib.command.PrintCommand("Gear removed!"))
-        scheduler.add(gearWaitCommandTestGroup)
-
-        flywheelsWaitCommandTestGroup = wpilib.command.CommandGroup()
-        flywheelsWaitCommandTestGroup.addSequential(
-            auto_commands.FlywheelsWaitCommand())
-        flywheelsWaitCommandTestGroup.addSequential(
-            wpilib.command.PrintCommand("Flywheels ready!"))
-        scheduler.add(flywheelsWaitCommandTestGroup)
+        
+        turnAlignCommand = self.tankFieldMovement.turnAlignCommand(self.vision)
+        scheduler.add(turnAlignCommand)
         
     def teleopPeriodic(self):
         # change drive mode with A, B, and X
