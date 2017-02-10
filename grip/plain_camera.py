@@ -5,8 +5,8 @@ def main():
     #do stuff
     cam = cv2.VideoCapture(1) # use the 2nd camera
     while True:
-        ret_val, img = cam.read()
-        cv2.imshow('camera2', img)
+        #ret_val, img = cam.read()
+        cv2.imshow('camera2', cam.read())
         print("Things should be working")
     cv2.destroyAllWindows()
 
