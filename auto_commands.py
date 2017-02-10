@@ -232,7 +232,7 @@ class TurnAlignCommand(wpilib.command.Command):
         distance = abs(self._getTargetX() - 0.5)
         return distance < 0.02
 
-
+# UNTESTED
 class StrafeAlignCommand(wpilib.command.Command):
     """
     Requires robot to be roughly facing vision target
@@ -245,7 +245,7 @@ class StrafeAlignCommand(wpilib.command.Command):
         self.drive = drive
         self.visionary = vision
         self.ahrs = ahrs
-        self.tolerance = 2
+        self.tolerance = 2 # pixels
 
     def initialize(self):
         self.initRotation = - math.radians(self.ahrs.getAngle())
@@ -257,7 +257,6 @@ class StrafeAlignCommand(wpilib.command.Command):
         if self.center == None:
             self.Cancel()
 
-        # COMPLETELY UNTESTED
         rotation = (self.initRotation + math.radians(self.ahrs.getAngle())) / 15
 
         if self.center[0] < (vision.Vision.WIDTH / 2 - self.tolerance):
@@ -270,15 +269,15 @@ class StrafeAlignCommand(wpilib.command.Command):
 
     def isFinished(self):
         # when peg within tolerance (2 pixels) of center (on x axis)
-        return abs(self.center[0] - vision.Vision.WIDTH / 2) < self.tolerance
+        return abs(self.center[0] - vision.Vision.WIDTH / 2) <= self.tolerance
 
+# TODO, UNFINISHED
 class DriveToTargetDistanceCommand(wpilib.command.Command):
     """
     Calculates distance to peg using vision
     Drives forward to [buffer] inches away
     Maintains rotation using NavX
     """
-
 
     def __init__(self, drive, vision, ahrs):
         self.drive = drive
