@@ -52,7 +52,7 @@ class Climber(Module):
         if self.gamepad.getRawButton(Gamepad.DOWN):
             if self.lockmode:
                 self.lockmode = False
-                self.enabled = True
+            self.enabled = True
 
         if not self.enabled:
             self.lockLog.update("Climber disabled")
