@@ -7,7 +7,7 @@ def main():
     while True:
         ret, frame = cam.read()
         #gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        cv2.imshow('camera2', frame)
+        cv2.imshow('plain_camera', frame)
         if cv2.waitKey(1) & 0xFF == ord('q'):
              break
     cam.release()

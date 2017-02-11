@@ -31,6 +31,7 @@ def main(pipeline):
             ret_val, img = cam.read()
             pipeline.process(img)
             out = pipeline.convex_hulls_output
+            cv2.imshow("pi_script", img)
 
             xCoords = [ ]
             yCoords = [ ]
