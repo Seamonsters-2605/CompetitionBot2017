@@ -14,7 +14,7 @@ class Shooter (Module):
         self.gamepad = seamonsters.gamepad.globalGamepad(port=1)
 
         self.flywheels = Flywheels()
-        self.intake = wpilib.CANTalon(6)
+        self.ballcontrol = BallControl()
 
     def teleopInit(self):
         print("  A: Flywheel")
@@ -28,11 +28,11 @@ class Shooter (Module):
             self.flywheels.stopFlywheels()
 
         if self.gamepad.getRawButton(Gamepad.B):
-            self.intake.set(0.2)
+            self.ballcontrol.intakeForward()
         elif self.gamepad.getRawButton(Gamepad.X):
-            self.intake.set(-0.2)
+            self.ballcontrol.intakeBackward()
         else:
-            self.intake.set(0)
+            self.ballcontrol.intakeStop()
 
         if self.gamepad.getRawButton(Gamepad.Y):
             self.flywheels.reverseFlywheels()
@@ -43,6 +43,16 @@ class Shooter (Module):
         elif self.gamepad.getRawButton(Gamepad.BACK):
             print("Flywheels in Voltage mode")
             self.flywheels.switchVoltageMode()
+
+class BallControl:
+    def __init__(self):
+       self.intake = wpilib.CANTalon(6)
+    def intakeForward(self):
+         self.intake.set(0.2)
+    def intakeBackward(self):
+        self.intake.set(-0.2)
+    def intakeStop(self):
+        self.intake.set(0)
 
 class Flywheels:
 
