@@ -59,10 +59,10 @@ class Flywheels:
     def __init__(self):
         self.flywheelMotor = wpilib.CANTalon(5)
         self.speedVoltage = .76
-        self.speedSpeed = 20000
+        self.speedSpeed = 21000
 
         # encoder resolution is 512 (* 4)
-        self.flywheelMotor.setPID(0.15, 0.0, 40.0, 0.001)
+        self.flywheelMotor.setPID(0.15, 0.0, 40.0, 0)
         self.flywheelMotor.setFeedbackDevice(
             wpilib.CANTalon.FeedbackDevice.QuadEncoder)
 
@@ -70,6 +70,8 @@ class Flywheels:
         self.flywheelMotor.changeControlMode(
                 wpilib.CANTalon.ControlMode.PercentVbus)
         self.talonSpeedModeEnabled = False
+
+        self.voltageModeStartupCount = 0
 
     def switchSpeedMode(self):
         self.speedModeEnabled = True
@@ -91,9 +93,15 @@ class Flywheels:
 
     def spinFlywheels(self):
         if self.speedModeEnabled:
-            self._talonSpeedMode()
-            self.flywheelMotor.set(-self.speedSpeed)
-            print(self.flywheelMotor.getEncVelocity())
+            if self.voltageModeStartupCount < 50:
+                self._talonVoltageMode()
+                self.flywheelMotor.set(-self.speedVoltage)
+                print(self.flywheelMotor.getEncVelocity())
+            else:
+                self._talonSpeedMode()
+                self.flywheelMotor.set(-self.speedSpeed)
+                print(self.flywheelMotor.getEncVelocity())
+            self.voltageModeStartupCount += 1
         else:
             self._talonVoltageMode()
             self.flywheelMotor.set(-self.speedVoltage)
@@ -102,14 +110,12 @@ class Flywheels:
     def stopFlywheels(self):
         self._talonVoltageMode()
         self.flywheelMotor.set(0)
+        self.voltageModeStartupCount = 0
 
     def reverseFlywheels(self):
-        if self.speedModeEnabled:
-            self._talonSpeedMode()
-            self.flywheelMotor.set(self.speedSpeed/2)
-        else:
-            self._talonVoltageMode()
-            self.flywheelMotor.set(self.speedVoltage/2)
+        self._talonVoltageMode()
+        self.flywheelMotor.set(self.speedVoltage/2)
+        self.voltageModeStartupCount = 0
 
 if __name__ == "__main__":
     wpilib.run(Shooter)
