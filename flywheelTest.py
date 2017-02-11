@@ -7,9 +7,8 @@ class FlywheelTest(wpilib.IterativeRobot):
         self.gamepad = wpilib.Joystick(0)
 
         self.flywheelMotor = CANTalon(5)
-        self.speed = 1500
+        self.speed = 20000
 
-        self.flywheelMotor.setPID(1.0, 0.0, 0.0, 0)
         self.flywheelMotor.setFeedbackDevice(
             CANTalon.FeedbackDevice.QuadEncoder)
 
