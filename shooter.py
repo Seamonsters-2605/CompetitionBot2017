@@ -112,19 +112,19 @@ class Flywheels:
         else:
             self._talonVoltageMode()
             self.flywheelMotor.set(-self.speedVoltage)
-        self.speedLog.update(self.flywheelMotor.getEncVelocity())
+        self.speedLog.update(-self.flywheelMotor.getEncVelocity())
 
     def stopFlywheels(self):
         self._talonVoltageMode()
         self.flywheelMotor.set(0)
         self.voltageModeStartupCount = 0
-        self.speedLog.update(self.flywheelMotor.getEncVelocity())
+        self.speedLog.update(-self.flywheelMotor.getEncVelocity())
 
     def reverseFlywheels(self):
         self._talonVoltageMode()
         self.flywheelMotor.set(self.speedVoltage/2)
         self.voltageModeStartupCount = 0
-        self.speedLog.update(self.flywheelMotor.getEncVelocity())
+        self.speedLog.update(-self.flywheelMotor.getEncVelocity())
 
 if __name__ == "__main__":
     wpilib.run(Shooter)
