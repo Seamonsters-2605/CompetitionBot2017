@@ -59,9 +59,9 @@ class Flywheels:
     def __init__(self):
         self.flywheelMotor = wpilib.CANTalon(5)
         self.speedVoltage = .76
-        self.speedSpeed = 3000
+        self.speedSpeed = 500
 
-        self.flywheelMotor.setPID(1.0, 0.0, 3.0, 0)
+        self.flywheelMotor.setPID(1.0, 0.0, 0.0, 0)
         self.flywheelMotor.setFeedbackDevice(
             wpilib.CANTalon.FeedbackDevice.QuadEncoder)
 
