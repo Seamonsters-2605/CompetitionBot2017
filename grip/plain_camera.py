@@ -6,8 +6,7 @@ def main():
     cam = cv2.VideoCapture(1) # use the 2nd camera
     while True:
         ret, frame = cam.read()
-        #gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        cv2.imshow('plain_camera', frame)
+        #cv2.imshow('plain_camera', frame)
         if cv2.waitKey(1) & 0xFF == ord('q'):
              break
     cam.release()
