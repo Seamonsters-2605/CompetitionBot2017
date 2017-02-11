@@ -4,6 +4,7 @@ import wpilib
 import seamonsters.fix2017
 from seamonsters.wpilib_sim import simulate
 from seamonsters.modularRobot import Module
+import seamonsters.logging
 
 from drive import DriveBot
 from debugmode import DebugMode
@@ -19,6 +20,14 @@ class CompetitionBot2017(Module):
         self.addModule(DebugMode(robot))
         self.addModule(Climber(initSuper=False))
         self.addModule(Shooter(initSuper=False))
+
+    def autonomousPeriodic(self):
+        super().autonomousPeriodic()
+        seamonsters.logging.sendLogStates()
+
+    def teleopPeriodic(self):
+        super().teleopPeriodic()
+        seamonsters.logging.sendLogStates()
 
 if __name__ == "__main__":
     wpilib.run(CompetitionBot2017, physics_enabled=True)

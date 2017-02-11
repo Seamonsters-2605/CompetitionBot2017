@@ -12,7 +12,7 @@ class TemplateCommand(wpilib.command.Command):
 
     def __init__(self, args):
         # start of autonomous
-        pass
+        super().__init__()
 
     # OPTIONAL, usually needed
     def initialize(self):
@@ -38,13 +38,16 @@ class TemplateCommand(wpilib.command.Command):
         pass
 
 class GearWaitCommand(wpilib.command.Command):
-    def initialize(self):
-        self.proximitySensor=wpilib.AnalogInput(0)
+
+    def __init__(self):
+        super().__init__()
+        self.proximitySensor = wpilib.AnalogInput(0)
+
     def execute(self):
         pass
-    def isFinished(self):
-        return self.proximitySensor.getVoltage()<2
 
+    def isFinished(self):
+        return self.proximitySensor.getVoltage() < 2.0
 
 
 class TankFieldMovement:
@@ -73,13 +76,19 @@ class TankFieldMovement:
             distance / self.wheelCircumference * self.ticksPerWheelRotation,
             self.ahrs)
 
-    def turnCommand(self, amount, speed):
+    def turnCommand(self, amount, speed=None):
         if speed == None:
             speed = self.defaultSpeed
         if self.invertDrive:
             amount = -amount
         return TankTurnCommand(self.wheelMotors, speed, amount, self.ahrs,
                                self.invertDrive)
+
+    def turnAlignCommand(self, vision, speed=None):
+        if speed == None:
+            speed = self.defaultSpeed
+        return TurnAlignCommand(self.wheelMotors, speed, vision,
+                                self.invertDrive)
 
 class TankDriveCommand(wpilib.command.Command):
     
@@ -198,11 +207,13 @@ class FlywheelsWaitCommand(wpilib.command.Command):
 # NOT TESTED
 class TurnAlignCommand(wpilib.command.Command):
     
-    def __init__(self, wheelMotors, vision, invert=False):
+    def __init__(self, wheelMotors, speed, vision, invert=False):
         super().__init__()
         self.wheelMotors = wheelMotors
+        self.speed = speed
         self.vision = vision
         self.invert = invert
+        self.numCyclesCentered = 0
 
     def initialize(self):
         for i in range(0, 4):
@@ -211,9 +222,14 @@ class TurnAlignCommand(wpilib.command.Command):
     
     def execute(self):
         targetX = self._getTargetX()
-        turnAmount = 100.0 * abs(self._getTargetX() - 0.5)
+        if targetX == None:
+            print("No vision!!")
+            return
+        else:
+            print(targetX)
+        turnAmount = self.speed * (abs(targetX - 0.5) ** 0.6) * 2
 
-        if targetX < 0.5:
+        if targetX > 0.5:
             turnAmount = -turnAmount
         if self.invert:
             turnAmount = -turnAmount
@@ -226,11 +242,24 @@ class TurnAlignCommand(wpilib.command.Command):
     def _getTargetX(self):
         contours = self.vision.getContours()
         targetCenter = vision.Vision.targetCenter(contours)
-        return float(targetCenter[0]) / float(vision.Vision.WIDTH)
+        if targetCenter == None:
+            return None
+        else:
+            return float(targetCenter[0]) / float(vision.Vision.WIDTH)
 
     def isFinished(self):
-        distance = abs(self._getTargetX() - 0.5)
-        return distance < 0.02
+        targetX = self._getTargetX()
+        if targetX == None:
+            return False
+        distance = abs(targetX - 0.5)
+        if distance < 0.02:
+            self.numCyclesCentered += 1
+        else:
+            self.numCyclesCentered = 0
+        if self.numCyclesCentered > 10:
+            print("Reached target!")
+            return True
+        return False
 
 # UNTESTED
 class StrafeAlignCommand(wpilib.command.Command):
@@ -240,36 +269,47 @@ class StrafeAlignCommand(wpilib.command.Command):
     Maintains rotation with NavX
     """
 
-    def __int__(self, drive, vision, ahrs):
+    def __init__(self, drive, vision, ahrs):
         super().__init__()
         self.drive = drive
-        self.visionary = vision
+        self.vision = vision
         self.ahrs = ahrs
-        self.tolerance = 2 # pixels
+        self.tolerance = .01 # fraction of width
 
     def initialize(self):
         self.initRotation = - math.radians(self.ahrs.getAngle())
 
     def execute(self):
-        contours = self.visionary.getContours()
-        self.center = vision.Vision.targetCenter(contours)
+        targetX = self._getTargetX()
+        print(targetX)
 
-        if self.center == None:
-            self.Cancel()
+        if targetX == None:
+            print("No vision!!")
+            return
 
         rotation = (self.initRotation + math.radians(self.ahrs.getAngle())) / 15
 
-        if self.center[0] < (vision.Vision.WIDTH / 2 - self.tolerance):
-            # move left
-            self.drive.drive(.2, math.pi, rotation)
+        speed = (abs(.5 - targetX) ** .6) / 2
 
-        elif self.center[0] > (vision.Vision.WIDTH / 2 + self.tolerance):
+        if targetX > 0.5:
+            # move left
+            self.drive.drive(speed, math.pi, rotation)
+
+        elif targetX < 0.5:
             # move right
-            self.drive.drive(.2, 0, rotation)
+            self.drive.drive(speed, 0, rotation)
 
     def isFinished(self):
         # when peg within tolerance (2 pixels) of center (on x axis)
-        return abs(self.center[0] - vision.Vision.WIDTH / 2) <= self.tolerance
+        return abs(.5 - self._getTargetX()) <= self.tolerance
+
+    def _getTargetX(self):
+        contours = self.vision.getContours()
+        targetCenter = vision.Vision.targetCenter(contours)
+        if targetCenter == None:
+            return None
+        else:
+            return float(targetCenter[0]) / float(vision.Vision.WIDTH)
 
 # UNTESTED
 class DriveToTargetDistanceCommand(wpilib.command.Command):
@@ -280,10 +320,11 @@ class DriveToTargetDistanceCommand(wpilib.command.Command):
     """
 
     def __init__(self, drive, vision, ahrs):
+        super().__init__()
         self.drive = drive
         self.visionary = vision
         self.ahrs = ahrs
-        self.buffer = 18 #inches
+        self.buffer = 21 #inches
 
         self.pegFocalDistance = 661.96
         self.pegRealTargetDistance = 8.25
@@ -308,8 +349,3 @@ class DriveToTargetDistanceCommand(wpilib.command.Command):
     def isFinished(self):
         # return True or False if the command is complete or not
         return self.distance < self.buffer
-
-
-
-
-
