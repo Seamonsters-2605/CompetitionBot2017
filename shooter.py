@@ -64,7 +64,6 @@ class Flywheels:
         self.flywheelMotor.setPID(1.0, 0.0, 3.0, 0)
         self.flywheelMotor.setFeedbackDevice(
             wpilib.CANTalon.FeedbackDevice.QuadEncoder)
-        self.flywheelMotor.reverseSensor(True)
 
         self.switchSpeedMode()
         self.flywheelMotor.changeControlMode(
