@@ -339,7 +339,7 @@ class DriveToTargetDistanceCommand(wpilib.command.Command):
         contours = self.visionary.getContours()
         if len(contours) < 2:
             self.cancel()
-            
+
         pixelDistance = math.sqrt(vision.Vision.findCentersXDistance()**2 + vision.Vision.findCentersYDistance()**2)
 
         self.distance = self.pegFocalDistance * self.pegRealTargetDistance / pixelDistance
@@ -347,7 +347,7 @@ class DriveToTargetDistanceCommand(wpilib.command.Command):
         # actually move robot
         rotation = (self.initRotation + math.radians(self.ahrs.getAngle())) / 15
 
-        speed = (1 - 2.7 ** (-.015(self.distance - self.buffer)))
+        speed = (1 - 2.7 ** (-.02(self.distance - self.buffer)))
 
         self.drive.drive(speed, math.pi / 2, rotation)
 
