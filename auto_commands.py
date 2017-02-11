@@ -252,11 +252,11 @@ class TurnAlignCommand(wpilib.command.Command):
         if targetX == None:
             return False
         distance = abs(targetX - 0.5)
-        if distance < 0.02:
+        if distance <= 0.02:
             self.numCyclesCentered += 1
         else:
             self.numCyclesCentered = 0
-        if self.numCyclesCentered > 10:
+        if self.numCyclesCentered >= 15:
             print("Reached target!")
             return True
         return False
@@ -274,7 +274,7 @@ class StrafeAlignCommand(wpilib.command.Command):
         self.drive = drive
         self.vision = vision
         self.ahrs = ahrs
-        self.tolerance = .01 # fraction of width
+        self.tolerance = .02 # fraction of width
 
     def initialize(self):
         self.initRotation = - math.radians(self.ahrs.getAngle())
@@ -300,7 +300,7 @@ class StrafeAlignCommand(wpilib.command.Command):
             self.drive.drive(speed, 0, rotation)
 
     def isFinished(self):
-        # when peg within tolerance (2 pixels) of center (on x axis)
+        # when peg within tolerance of center (on x axis)
         return abs(.5 - self._getTargetX()) <= self.tolerance
 
     def _getTargetX(self):
