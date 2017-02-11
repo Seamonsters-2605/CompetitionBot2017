@@ -16,6 +16,8 @@ class Shooter (Module):
         self.flywheels = Flywheels()
         self.ballcontrol = BallControl()
 
+        self.controlModeLog = LogState("Flywheel mode")
+
     def teleopInit(self):
         print("  A: Flywheel")
         print("  B: Intake")
@@ -38,11 +40,13 @@ class Shooter (Module):
             self.flywheels.reverseFlywheels()
 
         if self.gamepad.getRawButton(Gamepad.START):
-            print("Flywheels in Speed mode")
             self.flywheels.switchSpeedMode()
         elif self.gamepad.getRawButton(Gamepad.BACK):
-            print("Flywheels in Voltage mode")
             self.flywheels.switchVoltageMode()
+        if self.flywheels.inSpeedMode():
+            self.controlModeLog.update("Speed")
+        else:
+            self.controlModeLog.update("Voltage")
 
 class BallControl:
     def __init__(self):
@@ -73,11 +77,16 @@ class Flywheels:
 
         self.voltageModeStartupCount = 0
 
+        self.speedLog = LogState("Flywheel speed")
+
     def switchSpeedMode(self):
         self.speedModeEnabled = True
 
     def switchVoltageMode(self):
         self.speedModeEnabled = False
+
+    def inSpeedMode(self):
+        return self.speedModeEnabled
 
     def _talonSpeedMode(self):
         if not self.talonSpeedModeEnabled:
@@ -96,26 +105,26 @@ class Flywheels:
             if self.voltageModeStartupCount < 50:
                 self._talonVoltageMode()
                 self.flywheelMotor.set(-self.speedVoltage)
-                print(self.flywheelMotor.getEncVelocity())
             else:
                 self._talonSpeedMode()
                 self.flywheelMotor.set(-self.speedSpeed)
-                print(self.flywheelMotor.getEncVelocity())
             self.voltageModeStartupCount += 1
         else:
             self._talonVoltageMode()
             self.flywheelMotor.set(-self.speedVoltage)
-            print(self.flywheelMotor.getEncVelocity())
+        self.speedLog.update(self.flywheelMotor.getEncVelocity())
 
     def stopFlywheels(self):
         self._talonVoltageMode()
         self.flywheelMotor.set(0)
         self.voltageModeStartupCount = 0
+        self.speedLog.update(self.flywheelMotor.getEncVelocity())
 
     def reverseFlywheels(self):
         self._talonVoltageMode()
         self.flywheelMotor.set(self.speedVoltage/2)
         self.voltageModeStartupCount = 0
+        self.speedLog.update(self.flywheelMotor.getEncVelocity())
 
 if __name__ == "__main__":
     wpilib.run(Shooter)
