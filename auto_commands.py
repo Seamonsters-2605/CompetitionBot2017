@@ -300,8 +300,11 @@ class StrafeAlignCommand(wpilib.command.Command):
             self.drive.drive(speed, 0, rotation)
 
     def isFinished(self):
+        targetX = self._getTargetX()
+        if targetX == None:
+            return False
         # when peg within tolerance of center (on x axis)
-        return abs(.5 - self._getTargetX()) <= self.tolerance
+        return abs(.5 - targetX) <= self.tolerance
 
     def _getTargetX(self):
         contours = self.vision.getContours()

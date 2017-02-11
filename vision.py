@@ -10,8 +10,12 @@ class Vision:
         self.contoursTable = NetworkTables.getTable('contours')
 
     def getContours(self):
-        return Vision.readContours(self.contoursTable.getNumberArray('x'),
-                                   self.contoursTable.getNumberArray('y'))
+        try:
+            return Vision.readContours(self.contoursTable.getNumberArray('x'),
+                                       self.contoursTable.getNumberArray('y'))
+        except BaseException:
+            print("Vision connection error!")
+            return [ ]
 
     def targetCenter(contours):
         """
