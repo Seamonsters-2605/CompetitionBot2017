@@ -107,6 +107,7 @@ class DriveBot(Module):
                                             ticksPerWheelRotation, 6 * math.pi,
                                             ahrs=self.ahrs, invertDrive=True,
                                             driveSpeed=100)
+        self.proximitySensor = wpilib.AnalogInput(0)
 
         self.pdp = wpilib.PowerDistributionPanel()
         self.currentLog = LogState("Current")

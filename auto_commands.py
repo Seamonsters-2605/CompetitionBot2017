@@ -39,9 +39,9 @@ class TemplateCommand(wpilib.command.Command):
 
 class GearWaitCommand(wpilib.command.Command):
 
-    def __init__(self):
+    def __init__(self, proximitySensor):
         super().__init__()
-        self.proximitySensor = wpilib.AnalogInput(0)
+        self.proximitySensor = proximitySensor
 
     def execute(self):
         pass
