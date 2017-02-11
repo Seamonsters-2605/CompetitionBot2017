@@ -1,12 +1,10 @@
 import wpilib
 from ctre import CANTalon
-from seamonsters.gamepad import globalGamepad
-from seamonsters.gamepad import Gamepad
 
 class FlywheelTest(wpilib.IterativeRobot):
     
     def robotInit(self):
-        self.gamepad = globalGamepad(port=0)
+        self.gamepad = wpilib.Joystick(0)
 
         self.flywheelMotor = CANTalon(5)
         self.speed = 1500
@@ -19,7 +17,7 @@ class FlywheelTest(wpilib.IterativeRobot):
         self.flywheelMotor.changeControlMode(CANTalon.ControlMode.PercentVbus)
 
     def teleopPeriodic(self):
-        if self.gamepad.getRawButton(Gamepad.A):
+        if self.gamepad.getRawButton(1):
             if not self.inSpeedMode:
                 self.flywheelMotor.changeControlMode(
                     CANTalon.ControlMode.Speed)
