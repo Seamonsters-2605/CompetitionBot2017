@@ -55,17 +55,17 @@ class Climber(Module):
             self.enabled = True
 
         if not self.enabled:
-            self.lockLog.update("Climber disabled")
-            self.statusLog.update("Locked, disabled")
+            self.lockLog.update("Climber disabled!")
+            self.statusLog.update("Locked, disabled!")
         elif self.lockmode:
-            self.lockLog.update("On")
+            self.lockLog.update("On!")
         else:
             self.lockLog.update("Off")
 
         if self.gamepad.getLY()==0 and self.lockmode:
             self.lock()
             if self.enabled:
-                self.statusLog.update("Locked")
+                self.statusLog.update("Locked!")
         elif self.enabled:
             self.unlock()
             self.cm.set(self.gamepad.getLY() * -.5)

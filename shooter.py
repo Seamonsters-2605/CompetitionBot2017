@@ -46,7 +46,7 @@ class Shooter (Module):
         if self.flywheels.inSpeedMode():
             self.controlModeLog.update("Speed")
         else:
-            self.controlModeLog.update("Voltage")
+            self.controlModeLog.update("Voltage!")
 
 class BallControl:
     def __init__(self):

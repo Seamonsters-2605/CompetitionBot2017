@@ -224,21 +224,24 @@ class DriveBot(Module):
         self._setPID(self._lerpPID(max(self.driveScales)))
 
         if self.currentLogEnabled:
-            self.currentLog.update(self.pdp.getCurrent(12) + # drive motors
-                                   self.pdp.getCurrent(13) +
-                                   self.pdp.getCurrent(14) +
-                                   self.pdp.getCurrent(15) +
-                                   self.pdp.getCurrent(3) # climber
-                                   )
+            current = self.pdp.getCurrent(12) + \ # drive motors
+                      self.pdp.getCurrent(13) + \
+                      self.pdp.getCurrent(14) + \
+                      self.pdp.getCurrent(15) + \
+                      self.pdp.getCurrent(3) # climber
+            if current > 50:
+                self.currentLog.update(str(current) + "!")
+            else:
+                self.currentLog.update(current)
 
     def _driveModeName(self, driveMode):
         if driveMode == DriveInterface.DriveMode.VOLTAGE:
-            return "Voltage"
+            return "Voltage!"
         if driveMode == DriveInterface.DriveMode.SPEED:
-            return "Speed"
+            return "Speed!"
         if driveMode == DriveInterface.DriveMode.POSITION:
             return "Position"
-        return "Unknown"
+        return "Unknown!"
         
     def _setPID(self, pid):
         if self.pidLogEnabled:
