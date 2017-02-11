@@ -6,6 +6,7 @@ from seamonsters.wpilib_sim import simulate
 from seamonsters.modularRobot import Module
 from seamonsters.gamepad import Gamepad
 import seamonsters.gamepad
+from seamonsters.logging import LogState
 
 class Climber(Module):
     def lock(self):
@@ -16,13 +17,11 @@ class Climber(Module):
             self.cm.setPID(1.0, 0.0, 3.0, 0.0)
             position = self.cm.getPosition()
             self.cm.set(position)
-            print("Locked")
 
     def unlock(self):
         if self.locked :
             self.locked = False
             self.cm.changeControlMode(wpilib.CANTalon.ControlMode.PercentVbus)
-            print("Unlocked")
 
     def robotInit(self):
         self.gamepad = seamonsters.gamepad.globalGamepad(port = 1)
@@ -31,6 +30,9 @@ class Climber(Module):
         #cm stands for climb motor
 
         self.pdp = wpilib.PowerDistributionPanel()
+
+        self.lockLog = LogState("Climber lock mode")
+        self.statusLog = LogState("Climber status")
 
     def teleopInit(self):
         print("SPECIAL GAMEPAD:")
@@ -46,24 +48,32 @@ class Climber(Module):
         if self.gamepad.getRawButton(Gamepad.UP):
             if not self.lockmode:
                 self.lockmode = True
-                print("Lock mode enabled")
 
         if self.gamepad.getRawButton(Gamepad.DOWN):
             if self.lockmode:
                 self.lockmode = False
                 self.enabled = True
-                print("Lock mode disabled")
+
+        if not self.enabled:
+            self.lockLog.update("Climber disabled")
+            self.statusLog.update("Locked, disabled")
+        elif self.lockmode:
+            self.lockLog.update("On")
+        else:
+            self.lockLog.update("Off")
 
         if self.gamepad.getLY()==0 and self.lockmode:
             self.lock()
+            if self.enabled:
+                self.statusLog.update("Locked")
         elif self.enabled:
             self.unlock()
             self.cm.set(self.gamepad.getLY() * -.5)
+            self.statusLog.update("Unlocked")
 
         if self.pdp.getCurrent(3) >= 20:
             self.lock()
             self.enabled = False
-            print("Disabled climber")
             
     def disabledInit(self):
         pass
