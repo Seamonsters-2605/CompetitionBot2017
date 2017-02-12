@@ -56,14 +56,22 @@ class Shooter (Module):
 
 class BallControl:
     def __init__(self):
-       self.intake = wpilib.CANTalon(6)
+        self.intake = wpilib.CANTalon(6)
+        self.proximitysensor = wpilib.AnalogInput(1)
+        self.feeder = wpilib.CANTalon(7)
     def intakeForward(self):
-         self.intake.set(0.2)
+        self.intake.set(0.2)
     def intakeBackward(self):
         self.intake.set(-0.2)
     def intakeStop(self):
         self.intake.set(0)
-
+    def feedForwards(self):
+        if self.proximitysensor.getVoltage() > 1:
+            self.feeder.set(0.9)
+        else:
+            self.feeder.set(0.41)
+    def feedBackwards(self):
+        self.feeder.set(-0.13)
 class Flywheels:
 
     def __init__(self):
