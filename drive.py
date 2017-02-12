@@ -12,6 +12,7 @@ from seamonsters.drive import AccelerationFilterDrive
 from seamonsters.drive import FieldOrientedDrive
 from seamonsters.holonomicDrive import HolonomicDrive
 from seamonsters.logging import LogState
+from seamonsters import dashboard
 
 import vision
 import auto_commands
@@ -55,12 +56,6 @@ class DriveBot(Module):
 
         ### END OF CONSTANTS ###
 
-        ### FLAGS ###
-        self.fieldOriented = True
-        self.currentLogEnabled = True
-
-        ### END OF FLAGS ###
-
         self.gamepad = Gamepad(port = 0)
         
         fl = wpilib.CANTalon(2)
@@ -90,17 +85,11 @@ class DriveBot(Module):
         
         self.filterDrive = AccelerationFilterDrive(self.pidDrive,
                                                    accelerationRate)
-
-        self.ahrs = None
-        if self.fieldOriented:
-            self.ahrs = AHRS.create_spi() # the NavX
-            self.drive = FieldOrientedDrive(self.filterDrive, self.ahrs,
-                                            offset=0)
-            self.drive.zero()
-        else:
-            self.drive = self.filterDrive
         
-        self.drive.setDriveMode(DriveInterface.DriveMode.POSITION)
+        self.ahrs = AHRS.create_spi() # the NavX
+        self.fieldDrive = FieldOrientedDrive(self.filterDrive, self.ahrs,
+                                             offset=0)
+        self.fieldDrive.zero()
 
         self.tankFieldMovement = \
             auto_commands.TankFieldMovement(fl, fr, bl, br,
@@ -129,11 +118,27 @@ class DriveBot(Module):
         self.downPad = False
         self.leftPad = False
 
+        if dashboard.getSwitch("Field oriented drive", True):
+            print("Field oriented on")
+            self.drive = self.fieldDrive
+        else:
+            print("Field oriented off")
+            self.drive = self.filterDrive
+        self.currentLogEnabled = dashboard.getSwitch("Current logging", True)
+        if dashboard.getSwitch("Drive voltage mode", False):
+            self.holoDrive.setDriveMode(DriveInterface.DriveMode.VOLTAGE)
+        else:
+            self.holoDrive.setDriveMode(DriveInterface.DriveMode.POSITION)
+
     def autonomousInit(self):
-        if self.fieldOriented:
-            self.drive.zero()
+        self.fieldDrive.zero()
         self.holoDrive.zeroEncoderTargets()
         self._setPID((5.0, 0.0009, 3.0, 0.0))
+        
+        if dashboard.getSwitch("Drive voltage mode", False):
+            self.holoDrive.setDriveMode(DriveInterface.DriveMode.VOLTAGE)
+        else:
+            self.holoDrive.setDriveMode(DriveInterface.DriveMode.POSITION)
 
         self.vision = vision.Vision()
 
@@ -158,8 +163,8 @@ class DriveBot(Module):
         self.driveModeLog.update(self._driveModeName(self.drive.getDriveMode()))
 
         #reset field orientation
-        if(self.gamepad.getRawButton(Gamepad.START) and self.fieldOriented):
-            self.drive.zero()
+        if self.gamepad.getRawButton(Gamepad.START):
+            self.fieldDrive.zero()
 
         scale = self.normalScale
         turnScale = self.normalScale

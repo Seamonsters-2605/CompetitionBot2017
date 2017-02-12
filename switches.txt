@@ -1,7 +1,6 @@
-+Field Oriented Drive
--Drive PID Logging
-+Current Logging
++Field oriented drive
++Current logging
 -Drive voltage mode
 -Flywheel voltage mode
-+Gear in Auto
-+Shoot in Auto
++Gear in auto
++Shoot in auto
