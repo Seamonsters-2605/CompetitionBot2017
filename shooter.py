@@ -7,6 +7,7 @@ from seamonsters.modularRobot import Module
 from seamonsters.gamepad import Gamepad
 import seamonsters.gamepad
 from seamonsters.logging import LogState
+from seamonsters import dashboard
 
 class Shooter (Module):
     
@@ -16,12 +17,21 @@ class Shooter (Module):
         self.flywheels = Flywheels()
         self.ballcontrol = BallControl()
 
-        self.controlModeLog = LogState("Flywheel mode")
+    def autonomousInit(self):
+        if dashboard.getSwitch("Flywheel voltage mode", False):
+            self.flywheels.switchVoltageMode()
+        else:
+            self.flywheels.switchSpeedMode()
 
     def teleopInit(self):
         print("  A: Flywheel")
         print("  B: Intake")
         print("  X: Outtake")
+        
+        if dashboard.getSwitch("Flywheel voltage mode", False):
+            self.flywheels.switchVoltageMode()
+        else:
+            self.flywheels.switchSpeedMode()
 
     def teleopPeriodic(self):
         if self.gamepad.getRawButton(Gamepad.A):
@@ -43,10 +53,6 @@ class Shooter (Module):
             self.flywheels.switchSpeedMode()
         elif self.gamepad.getRawButton(Gamepad.BACK):
             self.flywheels.switchVoltageMode()
-        if self.flywheels.inSpeedMode():
-            self.controlModeLog.update("Speed")
-        else:
-            self.controlModeLog.update("Voltage!")
 
 class BallControl:
     def __init__(self):
@@ -78,6 +84,7 @@ class Flywheels:
         self.voltageModeStartupCount = 0
 
         self.speedLog = LogState("Flywheel speed")
+        self.controlModeLog = LogState("Flywheel mode")
 
     def switchSpeedMode(self):
         self.speedModeEnabled = True
@@ -100,6 +107,13 @@ class Flywheels:
             self.flywheelMotor.changeControlMode(
                 wpilib.CANTalon.ControlMode.PercentVbus)
 
+    def _updateLogs(self):
+        self.speedLog.update(-self.flywheelMotor.getEncVelocity())
+        if self.speedModeEnabled:
+            self.controlModeLog.update("Speed")
+        else:
+            self.controlModeLog.update("Voltage!")
+
     def spinFlywheels(self):
         if self.speedModeEnabled:
             if self.voltageModeStartupCount < 50:
@@ -112,19 +126,19 @@ class Flywheels:
         else:
             self._talonVoltageMode()
             self.flywheelMotor.set(-self.speedVoltage)
-        self.speedLog.update(-self.flywheelMotor.getEncVelocity())
+        self._updateLogs()
 
     def stopFlywheels(self):
         self._talonVoltageMode()
         self.flywheelMotor.set(0)
         self.voltageModeStartupCount = 0
-        self.speedLog.update(-self.flywheelMotor.getEncVelocity())
+        self._updateLogs()
 
     def reverseFlywheels(self):
         self._talonVoltageMode()
         self.flywheelMotor.set(self.speedVoltage/2)
         self.voltageModeStartupCount = 0
-        self.speedLog.update(-self.flywheelMotor.getEncVelocity())
+        self._updateLogs()
 
 if __name__ == "__main__":
     wpilib.run(Shooter)
