@@ -99,7 +99,7 @@ class DriveBot(Module):
         self.proximitySensor = wpilib.AnalogInput(0)
 
         self.pdp = wpilib.PowerDistributionPanel()
-        self.currentLog = LogState("Current")
+        self.currentLog = LogState("Drive current")
         
     def teleopInit(self):
         print("DRIVE GAMEPAD:")
@@ -147,10 +147,9 @@ class DriveBot(Module):
 
         # testing...
         
-        strafeAlignCommand = auto_commands.StrafeAlignCommand(self.pidDrive,
-                                                              self.vision,
-                                                              self.ahrs)
-        scheduler.add(strafeAlignCommand)
+        staticRotationCommand = auto_commands.StaticRotationTestCommand(
+            self.pidDrive, self.ahrs)
+        scheduler.add(staticRotationCommand)
         
     def teleopPeriodic(self):
         # change drive mode with A, B, and X
@@ -223,14 +222,9 @@ class DriveBot(Module):
         self.drive.drive(magnitude, direction, turn)
 
         if self.currentLogEnabled:
-            current = self.pdp.getCurrent(12) + \
-                      self.pdp.getCurrent(13) + \
-                      self.pdp.getCurrent(14) + \
-                      self.pdp.getCurrent(15) + \
-                      self.pdp.getCurrent(0) + \
-                      self.pdp.getCurrent(1) + \
-                      self.pdp.getCurrent(2) + \
-                      self.pdp.getCurrent(3)
+            current = 0
+            for talon in self.talons:
+                current += talon.getOutputCurrent()
             if current > 50:
                 self.currentLog.update(str(current) + "!")
             else:
