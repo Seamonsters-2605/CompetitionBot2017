@@ -36,9 +36,10 @@ class Shooter (Module):
     def teleopPeriodic(self):
         if self.gamepad.getRawButton(Gamepad.A):
             self.flywheels.spinFlywheels()
+            self.ballcontrol.feedForwards()
         else:
             self.flywheels.stopFlywheels()
-
+            self.ballcontrol.stopFeed()
         if self.gamepad.getRawButton(Gamepad.B):
             self.ballcontrol.intakeForward()
         elif self.gamepad.getRawButton(Gamepad.X):
@@ -72,6 +73,8 @@ class BallControl:
             self.feeder.set(0.41)
     def feedBackwards(self):
         self.feeder.set(-0.13)
+    def stopFeed(self):
+        self.feeder.set(0.00)
 class Flywheels:
 
     def __init__(self):
