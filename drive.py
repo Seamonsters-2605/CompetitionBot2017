@@ -142,7 +142,7 @@ class DriveBot(Module):
 
         # testing...
         
-        strafeAlignCommand = auto_commands.StrafeAlignCommand(self.holoDrive,
+        strafeAlignCommand = auto_commands.StrafeAlignCommand(self.pidDrive,
                                                               self.vision,
                                                               self.ahrs)
         scheduler.add(strafeAlignCommand)

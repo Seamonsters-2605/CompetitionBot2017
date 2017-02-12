@@ -7,6 +7,7 @@ from shooter import Flywheels
 import vision
 
 from seamonsters.holonomicDrive import HolonomicDrive
+from seamonsters.drive import DriveInterface
 
 class TemplateCommand(wpilib.command.Command):
 
@@ -36,6 +37,28 @@ class TemplateCommand(wpilib.command.Command):
     def end(self):
         # after the command completes
         pass
+
+
+class StaticRotationDrive(DriveInterface):
+
+    def __init__(self, interface, ahrs):
+        self.interface = interface
+        self.ahrs = ahrs
+        self.origin = self._getYawRadians()
+        
+    def setDriveMode(self, mode):
+        self.interface.setDriveMode(mode)
+
+    def getDriveMode(self):
+        return self.interface.getDriveMode()
+
+    def drive(self, magnitude, direction, turn, forceDriveMode = None):
+        turn = (self._getYawRadians() - self.origin) * -.07
+        self.interface.drive(magnitude, direction, turn, forceDriveMode)
+    
+    def _getYawRadians(self):
+        return - math.radians(self.ahrs.getAngle())
+
 
 class GearWaitCommand(wpilib.command.Command):
 
@@ -271,13 +294,9 @@ class StrafeAlignCommand(wpilib.command.Command):
 
     def __init__(self, drive, vision, ahrs):
         super().__init__()
-        self.drive = drive
+        self.drive = StaticRotationDrive(drive, ahrs)
         self.vision = vision
-        self.ahrs = ahrs
         self.tolerance = .02 # fraction of width
-
-    def initialize(self):
-        self.initRotation = - math.radians(self.ahrs.getAngle())
 
     def execute(self):
         targetX = self._getTargetX()
@@ -287,17 +306,15 @@ class StrafeAlignCommand(wpilib.command.Command):
             print("No vision!!")
             return
 
-        rotation = (self.initRotation + math.radians(self.ahrs.getAngle())) / 15
-
         speed = (abs(.5 - targetX) ** .6) / 2
 
         if targetX > 0.5:
             # move left
-            self.drive.drive(speed, math.pi, rotation)
+            self.drive.drive(speed, math.pi, 0)
 
         elif targetX < 0.5:
             # move right
-            self.drive.drive(speed, 0, rotation)
+            self.drive.drive(speed, 0, 0)
 
     def isFinished(self):
         targetX = self._getTargetX()
@@ -324,16 +341,12 @@ class DriveToTargetDistanceCommand(wpilib.command.Command):
 
     def __init__(self, drive, vision, ahrs):
         super().__init__()
-        self.drive = drive
+        self.drive = StaticRotationDrive(drive, ahrs)
         self.visionary = vision
-        self.ahrs = ahrs
         self.buffer = 21 #inches
 
         self.pegFocalDistance = 661.96
         self.pegRealTargetDistance = 8.25
-
-    def initialize(self):
-        self.initRotation = - math.radians(self.ahrs.getAngle())
 
     def execute(self):
         # 50 times per second while the command runs
@@ -347,12 +360,9 @@ class DriveToTargetDistanceCommand(wpilib.command.Command):
 
         self.distance = self.pegFocalDistance * self.pegRealTargetDistance / pixelDistance
 
-        # actually move robot
-        rotation = (self.initRotation + math.radians(self.ahrs.getAngle())) / 15
-
         speed = (1 - 2.7 ** (-.02(self.distance - self.buffer)))
 
-        self.drive.drive(speed, math.pi / 2, rotation)
+        self.drive.drive(speed, math.pi / 2, 0)
 
     def isFinished(self):
         # return True or False if the command is complete or not
