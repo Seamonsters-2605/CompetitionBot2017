@@ -44,6 +44,9 @@ class StaticRotationDrive(DriveInterface):
     def __init__(self, interface, ahrs):
         self.interface = interface
         self.ahrs = ahrs
+        self.zero()
+
+    def zero(self):
         self.origin = self._getYawRadians()
         
     def setDriveMode(self, mode):
@@ -65,6 +68,9 @@ class StaticRotationTestCommand(wpilib.command.Command):
     def __init__(self, drive, ahrs):
         super().__init__()
         self.drive = StaticRotationDrive(drive, ahrs)
+
+    def initialize(self):
+        self.drive.zero()
 
     def execute(self):
         self.drive.drive(0,0,0)
@@ -311,6 +317,9 @@ class StrafeAlignCommand(wpilib.command.Command):
         self.vision = vision
         self.tolerance = .02 # fraction of width
 
+    def initialize(self):
+        self.drive.zero()
+
     def execute(self):
         targetX = self._getTargetX()
         print(targetX)
@@ -360,6 +369,9 @@ class DriveToTargetDistanceCommand(wpilib.command.Command):
 
         self.pegFocalDistance = 661.96
         self.pegRealTargetDistance = 8.25
+
+    def initialize(self):
+        self.drive.zero()
 
     def execute(self):
         # 50 times per second while the command runs
