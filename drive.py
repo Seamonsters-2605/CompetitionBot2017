@@ -223,12 +223,14 @@ class DriveBot(Module):
         self.drive.drive(magnitude, direction, turn)
 
         if self.currentLogEnabled:
-                      # drive motors
             current = self.pdp.getCurrent(12) + \
                       self.pdp.getCurrent(13) + \
                       self.pdp.getCurrent(14) + \
                       self.pdp.getCurrent(15) + \
-                      self.pdp.getCurrent(3) # climber
+                      self.pdp.getCurrent(0) + \
+                      self.pdp.getCurrent(1) + \
+                      self.pdp.getCurrent(2) + \
+                      self.pdp.getCurrent(3)
             if current > 50:
                 self.currentLog.update(str(current) + "!")
             else:
