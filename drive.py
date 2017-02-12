@@ -43,13 +43,13 @@ class DriveBot(Module):
         accelerationRate = .04
 
         # PIDF values for fast driving:
-        self.fastPID = (1.0, 0.0009, 3.0, 0.0)
+        fastPID = (1.0, 0.0009, 3.0, 0.0)
         # speed at which fast PID's should be used:
-        self.fastPIDScale = 0.15
+        fastPIDScale = 0.15
         # PIDF values for slow driving:
-        self.slowPID = (30.0, 0.0009, 3.0, 0.0)
+        slowPID = (30.0, 0.0009, 3.0, 0.0)
         # speed at which slow PID's should be used:
-        self.slowPIDScale = 0.01
+        slowPIDScale = 0.01
 
         pidLookBackRange = 10
 
@@ -57,7 +57,6 @@ class DriveBot(Module):
 
         ### FLAGS ###
         self.fieldOriented = True
-        self.pidLogEnabled = False
         self.currentLogEnabled = True
 
         ### END OF FLAGS ###
@@ -75,10 +74,7 @@ class DriveBot(Module):
 
         self.driveModeLog = LogState("Drive mode")
         
-        self.currentPID = None
-        self.pidLog = LogState("Drive PID")
-        self._setPID(self.fastPID)
-        self.driveScales = [0.0 for i in range(0, pidLookBackRange)]
+        self._setPID(fastPID)
         
         # encoder has 100 raw ticks -- with a QuadEncoder that makes 400 ticks
         # the motor gear has 12 teeth and the wheel has 85 teeth
@@ -87,8 +83,12 @@ class DriveBot(Module):
         self.holoDrive = HolonomicDrive(fl, fr, bl, br, ticksPerWheelRotation)
         self.holoDrive.invertDrive(True)
         self.holoDrive.setWheelOffset(math.radians(45.0)) #angle of rollers
+
+        self.pidDrive = DynamicPIDDrive(self.holoDrive, self.talons,
+                                        slowPID, slowPIDScale,
+                                        fastPID, fastPIDScale, pidLookBackRange)
         
-        self.filterDrive = AccelerationFilterDrive(self.holoDrive,
+        self.filterDrive = AccelerationFilterDrive(self.pidDrive,
                                                    accelerationRate)
 
         self.ahrs = None
@@ -217,14 +217,9 @@ class DriveBot(Module):
         
         self.drive.drive(magnitude, direction, turn)
 
-        driveScale = max(self.filterDrive.getFilteredMagnitude(),
-                         abs(self.filterDrive.getFilteredTurn() * 2))
-        self.driveScales.append(driveScale)
-        self.driveScales.pop(0)
-        self._setPID(self._lerpPID(max(self.driveScales)))
-
         if self.currentLogEnabled:
-            current = self.pdp.getCurrent(12) + \ # drive motors
+                      # drive motors
+            current = self.pdp.getCurrent(12) + \
                       self.pdp.getCurrent(13) + \
                       self.pdp.getCurrent(14) + \
                       self.pdp.getCurrent(15) + \
@@ -244,8 +239,51 @@ class DriveBot(Module):
         return "Unknown!"
         
     def _setPID(self, pid):
-        if self.pidLogEnabled:
-            self.pidLog.update(pid)
+        for talon in self.talons:
+            talon.setPID(pid[0], pid[1], pid[2], pid[3])
+
+    def _joystickPower(self, value, exponent):
+        newValue = float(abs(value)) ** float(exponent)
+        if value < 0:
+            newValue = -newValue
+        return newValue
+
+    def roundDirection(self, value, target):
+        if abs(value - target) <= self.driveDirectionDeadZone:
+            return target
+        else:
+            return value
+
+
+class DynamicPIDDrive(DriveInterface):
+
+    def __init__(self, interface, wheelTalons, slowPID, slowPIDScale,
+                 fastPID, fastPIDScale, pidLookBackRange=10):
+        self.interface = interface
+        self.talons = wheelTalons
+        self.slowPID = slowPID
+        self.slowPIDScale = slowPIDScale
+        self.fastPID = fastPID
+        self.fastPIDScale = fastPIDScale
+
+        self.currentPID = None
+        self.driveScales = [0.0 for i in range(0, pidLookBackRange)]
+
+    def setDriveMode(self, mode):
+        self.interface.setDriveMode(mode)
+
+    def getDriveMode(self):
+        return self.interface.getDriveMode()
+
+    def drive(self, magnitude, direction, turn, forceDriveMode = None):
+        driveScale = max(abs(magnitude), abs(turn * 2))
+        self.driveScales.append(driveScale)
+        self.driveScales.pop(0)
+        self._setPID(self._lerpPID(max(self.driveScales)))
+        
+        self.interface.drive(magnitude, direction, turn, forceDriveMode)
+
+    def _setPID(self, pid):
         if pid == self.currentPID:
             return
         self.currentPID = pid
@@ -269,17 +307,6 @@ class DriveBot(Module):
                 pidList.append(value)
             return tuple(pidList)
 
-    def _joystickPower(self, value, exponent):
-        newValue = float(abs(value)) ** float(exponent)
-        if value < 0:
-            newValue = -newValue
-        return newValue
-
-    def roundDirection(self, value, target):
-        if abs(value - target) <= self.driveDirectionDeadZone:
-            return target
-        else:
-            return value
 
 def _testCommand(command):
     print("Testing command", type(command).__name__)
