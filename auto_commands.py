@@ -60,6 +60,19 @@ class StaticRotationDrive(DriveInterface):
         return - math.radians(self.ahrs.getAngle())
 
 
+class StaticRotationTestCommand(wpilib.command.Command):
+
+    def __init__(self, drive, ahrs):
+        super().__init__()
+        self.drive = StaticRotationDrive(drive, ahrs)
+
+    def execute(self):
+        self.drive.drive(0,0,0)
+
+    def isFinished(self):
+        return False
+
+
 class GearWaitCommand(wpilib.command.Command):
 
     def __init__(self, proximitySensor):
