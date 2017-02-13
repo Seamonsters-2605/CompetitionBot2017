@@ -246,7 +246,6 @@ class FlywheelsWaitCommand(wpilib.command.Command):
         return self.count >= 100
 
 
-# NOT TESTED
 class TurnAlignCommand(wpilib.command.Command):
     
     def __init__(self, wheelMotors, speed, vision, invert=False):
@@ -303,7 +302,7 @@ class TurnAlignCommand(wpilib.command.Command):
             return True
         return False
 
-# UNTESTED
+
 class StrafeAlignCommand(wpilib.command.Command):
     """
     Requires robot to be roughly facing vision target

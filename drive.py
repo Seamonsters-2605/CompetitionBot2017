@@ -147,9 +147,9 @@ class DriveBot(Module):
 
         # testing...
         
-        staticRotationCommand = auto_commands.StaticRotationTestCommand(
-            self.pidDrive, self.ahrs)
-        scheduler.add(staticRotationCommand)
+        testCommand = auto_commands.StrafeAlignCommand(
+            self.pidDrive, self.vision, self.ahrs)
+        scheduler.add(testCommand)
         
     def teleopPeriodic(self):
         # change drive mode with A, B, and X
