@@ -347,16 +347,16 @@ class StrafeAlignCommand(wpilib.command.Command):
 # UNTESTED
 class DriveToTargetDistanceCommand(wpilib.command.Command):
     """
-    Calculates distance to peg using vision
-    Drives forward to [buffer] inches away
-    Maintains rotation using NavX
+    Calculates distance to peg using vision.
+    Drives forward to [buffer] inches away.
+    Maintains rotation using NavX.
     """
 
-    def __init__(self, drive, vision, ahrs):
+    def __init__(self, drive, vision, ahrs, buffer=21.0):
         super().__init__()
         self.drive = StaticRotationDrive(drive, ahrs)
         self.visionary = vision
-        self.buffer = 21 #inches
+        self.buffer = buffer #inches
 
         self.pegFocalDistance = 661.96
         self.pegRealTargetDistance = 8.25
@@ -368,8 +368,6 @@ class DriveToTargetDistanceCommand(wpilib.command.Command):
         self.drive.zero()
 
     def execute(self):
-        # 50 times per second while the command runs
-
         # find distance to targets
         contours = self.visionary.getContours()
         if len(contours) < 2:
@@ -385,5 +383,4 @@ class DriveToTargetDistanceCommand(wpilib.command.Command):
         self.drive.drive(speed, math.pi / 2, 0)
 
     def isFinished(self):
-        # return True or False if the command is complete or not
         return self.distance < self.buffer
