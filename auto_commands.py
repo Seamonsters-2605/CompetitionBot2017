@@ -376,7 +376,7 @@ class DriveToTargetDistanceCommand(wpilib.command.Command):
 
         self.distance = self.pegFocalDistance * self.pegRealTargetDistance / pixelDistance
 
-        speed = (1 - 2.7 ** (-.02(self.distance - self.buffer)))
+        speed = (1 - 2.7 ** (-.02 * (self.distance - self.buffer)))
 
         self.drive.drive(speed, math.pi / 2, 0)
 
