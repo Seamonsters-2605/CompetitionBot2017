@@ -1,6 +1,6 @@
 __author__ = "seamonsters"
 
-import wpilib.commands
+import wpilib.command
 
 class CommandWrapper(wpilib.command.Command):
     """
