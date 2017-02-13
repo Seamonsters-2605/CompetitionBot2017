@@ -28,7 +28,7 @@ class CommandWrapper(wpilib.command.Command):
     def end(self):
         self.command.end()
 
-def ForeverCommand(CommandWrapper):
+class ForeverCommand(CommandWrapper):
     """
     Wraps a command. isFinished() always returns False.
     """
@@ -39,7 +39,7 @@ def ForeverCommand(CommandWrapper):
     def isFinished(self):
         return False
 
-def EnsureFinishedCommand(CommandWrapper):
+class EnsureFinishedCommand(CommandWrapper):
     """
     Waits until isFinished() of the wrapped command returns True for a certain
     number of steps before finishing.
