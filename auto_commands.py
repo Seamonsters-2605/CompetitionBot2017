@@ -361,6 +361,9 @@ class DriveToTargetDistanceCommand(wpilib.command.Command):
         self.pegFocalDistance = 661.96
         self.pegRealTargetDistance = 8.25
 
+        # prevent isFinished() from returning True
+        self.distance = self.buffer + 1
+
     def initialize(self):
         self.drive.zero()
 
@@ -370,7 +373,8 @@ class DriveToTargetDistanceCommand(wpilib.command.Command):
         # find distance to targets
         contours = self.visionary.getContours()
         if len(contours) < 2:
-            self.cancel()
+            print("No vision!!")
+            return
 
         pixelDistance = math.sqrt(vision.Vision.findCentersXDistance()**2 + vision.Vision.findCentersYDistance()**2)
 
