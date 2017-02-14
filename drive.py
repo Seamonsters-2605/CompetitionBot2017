@@ -16,6 +16,7 @@ from seamonsters import dashboard
 
 import vision
 import auto_commands
+import command_utils
 
 from robotpy_ext.common_drivers.navx import AHRS
 import math
@@ -147,8 +148,8 @@ class DriveBot(Module):
 
         # testing...
         
-        testCommand = auto_commands.StrafeAlignCommand(
-            self.pidDrive, self.vision, self.ahrs)
+        testCommand = command_utils.ForeverCommand(auto_commands.StrafeAlignCommand(
+            self.pidDrive, self.vision, self.ahrs))
         scheduler.add(testCommand)
         
     def teleopPeriodic(self):
