@@ -48,7 +48,13 @@ class StaticRotationDrive(DriveInterface):
 
     def zero(self):
         self.origin = self._getYawRadians()
-        
+
+    def offset(self, amount):
+        self.origin += amount
+
+    def isClose(self):
+        return abs(self._getYawRadians() - self.origin) < math.radians(3)
+
     def setDriveMode(self, mode):
         self.interface.setDriveMode(mode)
 
@@ -76,7 +82,7 @@ class StaticRotationTestCommand(wpilib.command.Command):
         self.drive.drive(0,0,0)
 
     def isFinished(self):
-        return False
+        return self.drive.isClose()
 
 
 class GearWaitCommand(wpilib.command.Command):
@@ -334,7 +340,7 @@ class StrafeAlignCommand(wpilib.command.Command):
         if targetX == None:
             return False
         # when peg within tolerance of center (on x axis)
-        return abs(.5 - targetX) <= self.tolerance
+        return abs(.5 - targetX) <= self.tolerance and self.drive.isClose()
 
     def end(self):
         self.drive.drive(0, 0, 0)
@@ -391,4 +397,4 @@ class DriveToTargetDistanceCommand(wpilib.command.Command):
         self.drive.drive(0, 0, 0)
 
     def isFinished(self):
-        return abs(self.distance - self.buffer) < self.tolerance
+        return abs(self.distance - self.buffer) < self.tolerance and self.drive.isClose()
