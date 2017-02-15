@@ -69,22 +69,6 @@ class StaticRotationDrive(DriveInterface):
         return - math.radians(self.ahrs.getAngle())
 
 
-class StaticRotationTestCommand(wpilib.command.Command):
-
-    def __init__(self, drive, ahrs):
-        super().__init__()
-        self.drive = StaticRotationDrive(drive, ahrs)
-
-    def initialize(self):
-        self.drive.zero()
-
-    def execute(self):
-        self.drive.drive(0,0,0)
-
-    def isFinished(self):
-        return self.drive.isClose()
-
-
 class GearWaitCommand(wpilib.command.Command):
 
     def __init__(self, proximitySensor):
@@ -123,14 +107,6 @@ class TankFieldMovement:
         return TankDriveCommand(self.wheelMotors, speed,
             distance / self.wheelCircumference * self.ticksPerWheelRotation,
             self.ahrs)
-
-    def turnCommand(self, amount, speed=None):
-        if speed == None:
-            speed = self.defaultSpeed
-        if self.invertDrive:
-            amount = -amount
-        return TankTurnCommand(self.wheelMotors, speed, amount, self.ahrs,
-                               self.invertDrive)
 
     def turnAlignCommand(self, vision, speed=None):
         if speed == None:
@@ -181,48 +157,28 @@ class TankDriveCommand(wpilib.command.Command):
                 return False
         return True
 
-class TankTurnCommand(wpilib.command.Command):
-    
-    def __init__(self, wheelMotors, speed, rotation, ahrs, invert=False):
+
+class TurnCommand(wpilib.command.Command):
+
+    def __init__(self, amount, drive, ahrs):
         super().__init__()
-        self.wheelMotors = wheelMotors
-        self.speed = speed
-        self.ahrs = ahrs
-        self.rotation = rotation
-        self.invert = invert
-        self.targetRotation = None
+        self.drive = StaticRotationDrive(drive, ahrs)
+        self.amount = amount
+        self.offsetSet = False
 
     def initialize(self):
-        currentRotation = self._getYawRadians()
-        self.targetRotation = currentRotation + self.rotation
-        for i in range(0, 4):
-            motor = self.wheelMotors[i]
-            motor.changeControlMode(wpilib.CANTalon.ControlMode.Position)
-    
+        self.drive.zero()
+        self.drive.offset(self.amount)
+        self.offsetSet = True
+
     def execute(self):
-        currentRotation = self._getYawRadians()
-        for i in range(0, 4):
-            motor = self.wheelMotors[i]
-            current = motor.getPosition()
-            if currentRotation < self.targetRotation:
-                motor.set(current + self.speed)
-            else:
-                motor.set(current - self.speed)
+        self.drive.drive(0,0,0)
 
     def isFinished(self):
-        if self.targetRotation == None:
-            return
-        currentRotation = self._getYawRadians()
-        if self.rotation > 0:
-            return currentRotation >= self.targetRotation
-        else:
-            return currentRotation <= self.targetRotation
+        if not self.offsetSet:
+            return False
+        return self.drive.isClose()
 
-    def _getYawRadians(self):
-        radians = - math.radians(self.ahrs.getAngle())
-        if self.invert:
-            radians = -radians
-        return radians
 
 class FlywheelsCommand(wpilib.command.Command):
 

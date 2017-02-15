@@ -149,7 +149,7 @@ class DriveBot(Module):
 
         commandSequence.addSequential(self.tankFieldMovement.driveCommand(98))
         commandSequence.addSequential(WaitCommand(1))
-        commandSequence.addSequential(self.tankFieldMovement.turnCommand(-math.radians(60)))
+        commandSequence.addSequential(TurnCommand(-math.radians(60), self.pidDrive, self.ahrs))
 
         scheduler.add(commandSequence)
 
