@@ -1,7 +1,7 @@
 __author__ = "seamonsters"
 
 import wpilib
-import wpilib.command
+from wpilib.command import *
 import seamonsters.fix2017
 from seamonsters.wpilib_sim import simulate
 from seamonsters.modularRobot import Module
@@ -15,8 +15,8 @@ from seamonsters.logging import LogState
 from seamonsters import dashboard
 
 import vision
-import auto_commands
-import command_utils
+from auto_commands import *
+from command_utils import *
 
 from robotpy_ext.common_drivers.navx import AHRS
 import math
@@ -93,7 +93,7 @@ class DriveBot(Module):
         self.fieldDrive.zero()
 
         self.tankFieldMovement = \
-            auto_commands.TankFieldMovement(fl, fr, bl, br,
+            TankFieldMovement(fl, fr, bl, br,
                                             ticksPerWheelRotation, 6 * math.pi,
                                             ahrs=self.ahrs, invertDrive=True,
                                             driveSpeed=100)
@@ -143,15 +143,16 @@ class DriveBot(Module):
 
         self.vision = vision.Vision()
 
-        # command mode...
-        scheduler = wpilib.command.Scheduler.getInstance()
+        scheduler = Scheduler.getInstance()
 
-        # testing...
-        
-        testCommand = command_utils.ForeverCommand(auto_commands.DriveToTargetDistanceCommand(
-            self.pidDrive, self.vision, self.ahrs))
-        scheduler.add(testCommand)
-        
+        commandSequence = CommandGroup()
+
+        commandSequence.addSequential(self.tankFieldMovement.driveCommand(98))
+        commandSequence.addSequential(WaitCommand(1))
+        commandSequence.addSequential(self.tankFieldMovement.turnCommand(-math.radians(60)))
+
+        scheduler.add(commandSequence)
+
     def teleopPeriodic(self):
         # change drive mode with A, B, and X
         if   self.gamepad.getRawButton(Gamepad.A):
