@@ -336,6 +336,9 @@ class StrafeAlignCommand(wpilib.command.Command):
         # when peg within tolerance of center (on x axis)
         return abs(.5 - targetX) <= self.tolerance
 
+    def end(self):
+        self.drive.drive(0, 0, 0)
+
     def _getTargetX(self):
         contours = self.vision.getContours()
         targetCenter = vision.Vision.targetCenter(contours)
@@ -383,6 +386,9 @@ class DriveToTargetDistanceCommand(wpilib.command.Command):
         speed = (1 - 2.7 ** (-.01 * (self.distance - self.buffer))) * .5
 
         self.drive.drive(speed, math.pi / 2, 0)
+
+    def end(self):
+        self.drive.drive(0, 0, 0)
 
     def isFinished(self):
         return abs(self.distance - self.buffer) < self.tolerance
