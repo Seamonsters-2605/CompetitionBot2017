@@ -69,6 +69,14 @@ class StaticRotationDrive(DriveInterface):
         return - math.radians(self.ahrs.getAngle())
 
 
+class ResetHoloDriveCommand(wpilib.command.InstantCommand):
+
+    def __init__(self, holoDrive):
+        self.drive = holoDrive
+
+    def initialize(self):
+        self.drive.zeroEncoderTargets()
+
 class GearWaitCommand(wpilib.command.Command):
 
     def __init__(self, proximitySensor):

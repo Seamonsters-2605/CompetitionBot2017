@@ -147,9 +147,14 @@ class DriveBot(Module):
 
         commandSequence = CommandGroup()
 
-        commandSequence.addSequential(self.tankFieldMovement.driveCommand(98))
-        commandSequence.addSequential(WaitCommand(1))
-        commandSequence.addSequential(TurnCommand(-math.radians(60), self.pidDrive, self.ahrs))
+        commandSequence.addSequential(
+            self.tankFieldMovement.driveCommand(distance=98))
+        commandSequence.addSequential(
+            ResetHoloDriveCommand(holoDrive=self.holoDrive))
+        commandSequence.addSequential(
+            WaitCommand(timeout=1))
+        commandSequence.addSequential(
+            TurnCommand(amount=-math.radians(60), drive=self.pidDrive, ahrs=self.ahrs))
 
         scheduler.add(commandSequence)
 
