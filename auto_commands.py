@@ -319,7 +319,7 @@ class StrafeAlignCommand(wpilib.command.Command):
             print("No vision!!")
             return
 
-        speed = (abs(.5 - targetX) ** .6) / 2
+        speed = -(abs(targetX - .5) ** 1.0) * .3
 
         if targetX > 0.5:
             # move left
