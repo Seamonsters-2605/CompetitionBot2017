@@ -148,7 +148,7 @@ class DriveBot(Module):
 
         # testing...
         
-        testCommand = command_utils.ForeverCommand(auto_commands.StrafeAlignCommand(
+        testCommand = command_utils.ForeverCommand(auto_commands.DriveToTargetDistanceCommand(
             self.pidDrive, self.vision, self.ahrs))
         scheduler.add(testCommand)
         

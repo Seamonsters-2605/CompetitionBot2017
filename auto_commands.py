@@ -357,6 +357,7 @@ class DriveToTargetDistanceCommand(wpilib.command.Command):
         self.drive = StaticRotationDrive(drive, ahrs)
         self.visionary = vision
         self.buffer = buffer #inches
+        self.tolerance = 1
 
         self.pegFocalDistance = 661.96
         self.pegRealTargetDistance = 8.25
@@ -374,13 +375,14 @@ class DriveToTargetDistanceCommand(wpilib.command.Command):
             print("No vision!!")
             return
 
-        pixelDistance = math.sqrt(vision.Vision.findCentersXDistance()**2 + vision.Vision.findCentersYDistance()**2)
+        pixelDistance = math.sqrt(vision.Vision.findCentersXDistance(contours)**2
+                                + vision.Vision.findCentersYDistance(contours)**2)
 
         self.distance = self.pegFocalDistance * self.pegRealTargetDistance / pixelDistance
 
-        speed = (1 - 2.7 ** (-.02 * (self.distance - self.buffer)))
+        speed = (1 - 2.7 ** (-.01 * (self.distance - self.buffer))) * .5
 
         self.drive.drive(speed, math.pi / 2, 0)
 
     def isFinished(self):
-        return self.distance < self.buffer
+        return abs(self.distance - self.buffer) < self.tolerance
