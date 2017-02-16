@@ -161,6 +161,37 @@ class TankDriveCommand(wpilib.command.Command):
         return True
 
 
+class MoveToPegCommand(wpilib.command.Command):
+
+    def __init__(self, turnAmount, fieldDrive, ahrs, vision):
+        super().__init__()
+        self.drive = StaticRotationDrive(fieldDrive, ahrs)
+        self.turnAmount = turnAmount
+        self.vision = vision
+        self.offsetSet = False
+        self.foundTarget = False
+
+    def initialize(self):
+        self.drive.zero()
+        self.drive.offset(math.radians(self.turnAmount))
+        self.offsetSet = True
+
+    def execute(self):
+        if not self.offsetSet:
+            return False
+        contours = self.vision.getContours()
+        targetCenter = vision.Vision.targetCenter(contours)
+        self.foundTarget = targetCenter != None
+
+        if not self.foundTarget:
+            self.drive.drive(.4, math.pi/2, 0)
+        else:
+            self.drive.drive(0, 0, 0)
+
+    def isFinished(self):
+        return self.drive.isClose() and self.foundTarget
+
+
 class TurnCommand(wpilib.command.Command):
 
     def __init__(self, amount, drive, ahrs):
