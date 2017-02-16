@@ -164,7 +164,7 @@ class DriveBot(Module):
             EnsureFinishedCommand(
                 TurnCommand(amount=startAngle,
                             drive=self.pidDrive, ahrs=self.ahrs),
-                10))
+                20))
         startSequence.addSequential(
             PrintCommand("Turn with NavX finished")
         )
@@ -176,7 +176,7 @@ class DriveBot(Module):
                 StrafeAlignCommand(drive=self.holoDrive,
                                    vision=self.vision,
                                    ahrs=self.ahrs),
-                10)
+                15)
         )
         approachPegSequence.addSequential(
             PrintCommand("Strafe finished")
