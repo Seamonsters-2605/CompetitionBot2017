@@ -39,21 +39,12 @@ class TemplateCommand(wpilib.command.Command):
         pass
 
 
-class StaticRotationDrive(DriveInterface):
+class MultiDrive(DriveInterface):
 
-    def __init__(self, interface, ahrs):
+    def __init__(self, interface):
+        super().__init__()
         self.interface = interface
-        self.ahrs = ahrs
-        self.zero()
-
-    def zero(self):
-        self.origin = self._getYawRadians()
-
-    def offset(self, amount):
-        self.origin += amount
-
-    def isClose(self):
-        return abs(self._getYawRadians() - self.origin) < math.radians(2)
+        self._reset()
 
     def setDriveMode(self, mode):
         self.interface.setDriveMode(mode)
@@ -61,12 +52,80 @@ class StaticRotationDrive(DriveInterface):
     def getDriveMode(self):
         return self.interface.getDriveMode()
 
+    def _reset(self):
+        self.totalX = 0
+        self.totalY = 0
+        self.totalTurn = 0
+        self.numDriveCalls = 0
+        self.numTurnCalls = 0
+        self.forceDriveMode = None
+
     def drive(self, magnitude, direction, turn, forceDriveMode = None):
+        if forceDriveMode != None:
+            self.forceDriveMode = forceDriveMode
+        self.totalX += magnitude * math.cos(direction)
+        self.totalY += magnitude * math.sin(direction)
+        self.totalTurn += turn
+
+        if magnitude != 0:
+            self.numDriveCalls += 1
+        if turn != 0:
+            self.numTurnCalls += 1
+
+    def update(self):
+        if self.numDriveCalls == 0:
+            x = 0
+            y = 0
+        else:
+            x = float(self.totalX) / float(self.numDriveCalls)
+            y = float(self.totalY) / float(self.numDriveCalls)
+        if self.numTurnCalls == 0:
+            turn = 0
+        else:
+            turn = float(self.totalTurn) / float(self.numTurnCalls)
+        magnitude = math.sqrt(x ** 2 + y ** 2)
+        direction = math.atan2(y, x)
+        self.interface.drive(magnitude, direction, turn, self.forceDriveMode)
+        self._reset()
+
+class UpdateMultiDriveCommand(wpilib.command.Command):
+
+    def __init__(self, drive):
+        super().__init__()
+        self.drive = drive
+
+    def execute(self):
+        self.drive.update()
+
+class StaticRotationCommand(wpilib.command.Command):
+
+    def __init__(self, drive, ahrs, offset=0):
+        super().__init__()
+        self.drive = drive
+        self.ahrs = ahrs
+        self.offsetAmount = offset
+        # prevent isFinished() returning True
+        self.origin = self._getYawRadians() + math.pi*2
+
+    def zero(self):
+        self.origin = self._getYawRadians()
+
+    def offset(self, amount):
+        self.origin += amount
+
+    def initialize(self):
+        self.zero()
+        self.offset(self.offsetAmount)
+
+    def isFinished(self):
+        return abs(self._getYawRadians() - self.origin) < math.radians(2)
+
+    def execute(self):
         turn = (self._getYawRadians() - self.origin) * -.14
-        self.interface.drive(magnitude, direction, turn, forceDriveMode)
+        self.drive.drive(0, 0, turn)
     
     def _getYawRadians(self):
-        return - math.radians(self.ahrs.getAngle())
+        return -math.radians(self.ahrs.getAngle())
 
 
 class ResetHoloDriveCommand(wpilib.command.InstantCommand):
@@ -94,7 +153,7 @@ class GearWaitCommand(wpilib.command.Command):
 class TankFieldMovement:
 
     def __init__(self, fl, fr, bl, br, ticksPerWheelRotation,
-                 wheelCircumference, driveSpeed=400, ahrs=None,
+                 wheelCircumference, driveSpeed=400,
                  invertDrive=False):
         self.wheelMotors = [None for i in range(0, 4)]
         self.wheelMotors[HolonomicDrive.FRONT_LEFT] = fl
@@ -106,7 +165,6 @@ class TankFieldMovement:
         self.wheelCircumference = wheelCircumference
         self.defaultSpeed = driveSpeed
         self.invertDrive = invertDrive
-        self.ahrs = ahrs
     
     def driveCommand(self, distance, speed=None):
         if speed == None:
@@ -163,63 +221,29 @@ class TankDriveCommand(wpilib.command.Command):
 
 class MoveToPegCommand(wpilib.command.Command):
 
-    def __init__(self, turnAmount, fieldDrive, ahrs, vision):
+    def __init__(self, fieldDrive, vision):
         super().__init__()
-        self.drive = StaticRotationDrive(fieldDrive, ahrs)
-        self.turnAmount = turnAmount
+        self.drive = fieldDrive
         self.vision = vision
-        self.offsetSet = False
-        self.foundTarget = False
         self.count = 0
 
-    def initialize(self):
-        self.drive.zero()
-        self.drive.offset(self.turnAmount)
-        self.offsetSet = True
-
     def execute(self):
-        if not self.offsetSet:
-            return False
-        if self.count > 2:
-            contours = self.vision.getContours()
-            targetCenter = vision.Vision.targetCenter(contours)
-            self.foundTarget = targetCenter != None
-
-        if not self.foundTarget:
-            self.drive.drive(.15, math.pi/2, 0)
-        else:
-            self.drive.drive(0, 0, 0)
-
+        self.drive.drive(.15, math.pi/2, 0)
         self.count += 1
 
     def isFinished(self):
-        return self.drive.isClose() and self.foundTarget
-
-
-class TurnCommand(wpilib.command.Command):
-
-    def __init__(self, amount, drive, ahrs):
-        super().__init__()
-        self.drive = StaticRotationDrive(drive, ahrs)
-        self.amount = amount
-        self.offsetSet = False
-
-    def initialize(self):
-        self.drive.zero()
-        self.drive.offset(self.amount)
-        self.offsetSet = True
-
-    def execute(self):
-        self.drive.drive(0,0,0)
-
-    def isFinished(self):
-        if not self.offsetSet:
+        if self.count > 100:
+            contours = self.vision.getContours()
+            targetCenter = vision.Vision.targetCenter(contours)
+            return targetCenter != None
+        else:
             return False
-        return self.drive.isClose()
+
 
 class StoreRotationCommand(wpilib.command.InstantCommand):
 
     def __init__(self, ahrs):
+        super().__init__()
         self.rotation = None
         self.ahrs = ahrs
 
@@ -230,21 +254,17 @@ class StoreRotationCommand(wpilib.command.InstantCommand):
         return self.rotation
 
 
-class RecallRotationCommand(wpilib.command.Command):
+class RecallRotationCommand(StaticRotationCommand):
 
     def __init__(self, storeRotationCommand, drive, ahrs):
-        super().__init__()
-        self.drive = StaticRotationDrive(drive, ahrs)
+        super().__init__(drive, ahrs)
         self.storeRotationCommand = storeRotationCommand
         self.offsetSet = False
 
     def initialize(self):
-        self.drive.zero()
-        self.drive.offset(self.storeRotationCommand.getRotation())
+        super().zero()
+        super().offset(self.storeRotationCommand.getRotation())
         self.offsetSet = True
-
-    def execute(self):
-        self.drive.drive(0,0,0)
 
     def isFinished(self):
         if not self.offsetSet:
@@ -323,14 +343,11 @@ class StrafeAlignCommand(wpilib.command.Command):
     Maintains rotation with NavX
     """
 
-    def __init__(self, drive, vision, ahrs):
+    def __init__(self, drive, vision):
         super().__init__()
-        self.drive = StaticRotationDrive(drive, ahrs)
+        self.drive = drive
         self.vision = vision
         self.tolerance = .01 # fraction of width
-
-    def initialize(self):
-        self.drive.zero()
 
     def execute(self):
         targetX = self._getTargetX()
@@ -355,7 +372,7 @@ class StrafeAlignCommand(wpilib.command.Command):
         if targetX == None:
             return False
         # when peg within tolerance of center (on x axis)
-        return abs(.5 - targetX) <= self.tolerance and self.drive.isClose()
+        return abs(.5 - targetX) <= self.tolerance
 
     def end(self):
         self.drive.drive(0, 0, 0)
@@ -376,9 +393,9 @@ class DriveToTargetDistanceCommand(wpilib.command.Command):
     Maintains rotation using NavX.
     """
 
-    def __init__(self, drive, vision, ahrs, buffer=21.0):
+    def __init__(self, drive, vision, buffer=21.0):
         super().__init__()
-        self.drive = StaticRotationDrive(drive, ahrs)
+        self.drive = drive
         self.visionary = vision
         self.buffer = buffer #inches
         self.tolerance = 1
@@ -388,9 +405,6 @@ class DriveToTargetDistanceCommand(wpilib.command.Command):
 
         # prevent isFinished() from returning True
         self.distance = self.buffer + self.tolerance + 1
-
-    def initialize(self):
-        self.drive.zero()
 
     def execute(self):
         # find distance to targets
@@ -412,4 +426,4 @@ class DriveToTargetDistanceCommand(wpilib.command.Command):
         self.drive.drive(0, 0, 0)
 
     def isFinished(self):
-        return abs(self.distance - self.buffer) < self.tolerance and self.drive.isClose()
+        return abs(self.distance - self.buffer) < self.tolerance

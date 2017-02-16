@@ -95,8 +95,7 @@ class DriveBot(Module):
         self.tankFieldMovement = \
             TankFieldMovement(fl, fr, bl, br,
                                             ticksPerWheelRotation, 6 * math.pi,
-                                            ahrs=self.ahrs, invertDrive=True,
-                                            driveSpeed=100)
+                                            invertDrive=True, driveSpeed=100)
         self.proximitySensor = wpilib.AnalogInput(0)
 
         self.pdp = wpilib.PowerDistributionPanel()
@@ -143,21 +142,23 @@ class DriveBot(Module):
 
         self.vision = vision.Vision()
 
+        multiFieldDrive = MultiDrive(self.fieldDrive)
+        multiDrive = MultiDrive(self.pidDrive)
+
         scheduler = Scheduler.getInstance()
 
         startAngle = -math.radians(60) # can be opposite or 0 based on start position
 
         startSequence = CommandGroup()
-
-        startSequence.addSequential(
+        startSequence.addParallel(UpdateMultiDriveCommand(multiFieldDrive))
+        startSequence.addParallel(
+            StaticRotationCommand(multiFieldDrive, self.ahrs, startAngle))
+        startSequence.addParallel(
             EnsureFinishedCommand(
-                MoveToPegCommand(startAngle, self.fieldDrive, self.ahrs,
-                                 self.vision),
-                10))
-        startSequence.addSequential(
-            PrintCommand("Turn with NavX finished")
-        )
+                MoveToPegCommand(multiFieldDrive, self.vision),
+                50))
 
+        """
         approachPegSequence = CommandGroup()
 
         approachPegSequence.addSequential(
@@ -181,12 +182,13 @@ class DriveBot(Module):
         approachPegSequence.addSequential(
             PrintCommand("DriveToTarget finished")
         )
+        """
 
-        finalStartSequence = CommandGroup()
-        finalStartSequence.addSequential(startSequence)
-        finalStartSequence.addSequential(approachPegSequence)
+        finalSequence = CommandGroup()
+        finalSequence.addSequential(startSequence)
+        #finalSequence.addSequential(approachPegSequence)
 
-        scheduler.add(finalStartSequence)
+        scheduler.add(finalSequence)
 
     def teleopPeriodic(self):
         # change drive mode with A, B, and X
