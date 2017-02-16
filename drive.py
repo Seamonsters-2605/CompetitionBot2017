@@ -145,23 +145,29 @@ class DriveBot(Module):
 
         scheduler = Scheduler.getInstance()
 
-        leftStartSequence = CommandGroup()
+        startSequence = CommandGroup()
 
-        leftStartSequence.addSequential(
+        startSequence.addSequential(
             EnsureFinishedCommand(
                 self.tankFieldMovement.driveCommand(distance=98),
                 10))
-        leftStartSequence.addSequential(
+        startSequence.addSequential(
+            PrintCommand("Drive to distance finished")
+        )
+        startSequence.addSequential(
             ResetHoloDriveCommand(holoDrive=self.holoDrive))
-        leftStartSequence.addSequential(
+        startSequence.addSequential(
             WaitCommand(timeout=0.5))
-        leftStartSequence.addSequential(
+        startSequence.addSequential(
             EnsureFinishedCommand(
                 TurnCommand(amount=-math.radians(60),
                             drive=self.pidDrive, ahrs=self.ahrs),
                 10))
+        startSequence.addSequential(
+            PrintCommand("Turn with NavX finished")
+        )
 
-        scheduler.add(leftStartSequence)
+        scheduler.add(startSequence)
 
         approachPegSequence = CommandGroup()
 
@@ -173,12 +179,18 @@ class DriveBot(Module):
                 10)
         )
         approachPegSequence.addSequential(
+            PrintCommand("Strafe finished")
+        )
+        approachPegSequence.addSequential(
             EnsureFinishedCommand(
                 DriveToTargetDistanceCommand(drive=self.holoDrive,
                                              vision=self.vision,
                                              ahrs=self.ahrs,
-                                             buffer=21.0),
+                                             buffer=19.0),
                 10)
+        )
+        approachPegSequence.addSequential(
+            PrintCommand("DriveToTarget finished")
         )
 
         scheduler.add(approachPegSequence)
