@@ -24,7 +24,10 @@ class Shooter (Module):
             self.flywheels.switchSpeedMode()
 
     def teleopInit(self):
-        print("  A: Flywheel")
+        print("  A: Shoot")
+        print("  Y: Reverse Flywheel")
+        print("  Start: Flywheel speed mode")
+        print("  Back: Flywheel voltage mode")
         print("  B: Intake")
         print("  X: Outtake")
         
