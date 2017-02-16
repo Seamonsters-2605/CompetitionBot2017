@@ -195,6 +195,10 @@ class DriveBot(Module):
             PrintCommand("DriveToTarget finished")
         )
 
+        finalStartSequence = CommandGroup()
+        finalStartSequence.addSequential(startSequence)
+        finalStartSequence.addSequential(approachPegSequence)
+
         scheduler.add(approachPegSequence)
 
     def teleopPeriodic(self):
