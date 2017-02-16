@@ -173,7 +173,7 @@ class MoveToPegCommand(wpilib.command.Command):
 
     def initialize(self):
         self.drive.zero()
-        self.drive.offset(math.radians(self.turnAmount))
+        self.drive.offset(self.turnAmount)
         self.offsetSet = True
 
     def execute(self):
