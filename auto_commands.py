@@ -72,6 +72,7 @@ class StaticRotationDrive(DriveInterface):
 class ResetHoloDriveCommand(wpilib.command.InstantCommand):
 
     def __init__(self, holoDrive):
+        super().__init__()
         self.drive = holoDrive
 
     def initialize(self):
@@ -115,12 +116,6 @@ class TankFieldMovement:
         return TankDriveCommand(self.wheelMotors, speed,
             distance / self.wheelCircumference * self.ticksPerWheelRotation,
             self.ahrs)
-
-    def turnAlignCommand(self, vision, speed=None):
-        if speed == None:
-            speed = self.defaultSpeed
-        return TurnAlignCommand(self.wheelMotors, speed, vision,
-                                self.invertDrive)
 
 class TankDriveCommand(wpilib.command.Command):
     
@@ -218,17 +213,10 @@ class FlywheelsWaitCommand(wpilib.command.Command):
 
 class TurnAlignCommand(wpilib.command.Command):
     
-    def __init__(self, wheelMotors, speed, vision, invert=False):
+    def __init__(self, drive, vision):
         super().__init__()
-        self.wheelMotors = wheelMotors
-        self.speed = speed
+        self.drive = drive
         self.vision = vision
-        self.invert = invert
-
-    def initialize(self):
-        for i in range(0, 4):
-            motor = self.wheelMotors[i]
-            motor.changeControlMode(wpilib.CANTalon.ControlMode.Position)
     
     def execute(self):
         targetX = self._getTargetX()
@@ -237,17 +225,11 @@ class TurnAlignCommand(wpilib.command.Command):
             return
         else:
             print(targetX)
-        turnAmount = self.speed * (abs(targetX - 0.5) ** 0.6) * 2
+        turnAmount = (abs(targetX - 0.5) ** 0.6) * 8
 
         if targetX > 0.5:
             turnAmount = -turnAmount
-        if self.invert:
-            turnAmount = -turnAmount
-        
-        for i in range(0, 4):
-            motor = self.wheelMotors[i]
-            current = motor.getPosition()
-            motor.set(current + turnAmount)
+        self.drive.drive(0, 0, turnAmount)
 
     def _getTargetX(self):
         contours = self.vision.getContours()
