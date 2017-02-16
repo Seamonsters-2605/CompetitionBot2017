@@ -61,9 +61,9 @@ class BallControl:
         self.proximitysensor = wpilib.AnalogInput(1)
         self.feeder = wpilib.CANTalon(7)
     def intakeForward(self):
-        self.intake.set(0.2)
+        self.intake.set(0.25)
     def intakeBackward(self):
-        self.intake.set(-0.2)
+        self.intake.set(-0.25)
     def intakeStop(self):
         self.intake.set(0)
     def feedForwards(self):
