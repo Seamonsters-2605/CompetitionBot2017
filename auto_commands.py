@@ -170,6 +170,7 @@ class MoveToPegCommand(wpilib.command.Command):
         self.vision = vision
         self.offsetSet = False
         self.foundTarget = False
+        self.count = 0
 
     def initialize(self):
         self.drive.zero()
@@ -179,14 +180,17 @@ class MoveToPegCommand(wpilib.command.Command):
     def execute(self):
         if not self.offsetSet:
             return False
-        contours = self.vision.getContours()
-        targetCenter = vision.Vision.targetCenter(contours)
-        self.foundTarget = targetCenter != None
+        if self.count > 2:
+            contours = self.vision.getContours()
+            targetCenter = vision.Vision.targetCenter(contours)
+            self.foundTarget = targetCenter != None
 
         if not self.foundTarget:
             self.drive.drive(.4, math.pi/2, 0)
         else:
             self.drive.drive(0, 0, 0)
+
+        self.count += 1
 
     def isFinished(self):
         return self.drive.isClose() and self.foundTarget
