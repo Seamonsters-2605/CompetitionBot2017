@@ -145,23 +145,43 @@ class DriveBot(Module):
 
         scheduler = Scheduler.getInstance()
 
-        commandSequence = CommandGroup()
+        leftStartSequence = CommandGroup()
 
-        commandSequence.addSequential(
+        leftStartSequence.addSequential(
             EnsureFinishedCommand(
                 self.tankFieldMovement.driveCommand(distance=98),
                 10))
-        commandSequence.addSequential(
+        leftStartSequence.addSequential(
             ResetHoloDriveCommand(holoDrive=self.holoDrive))
-        commandSequence.addSequential(
+        leftStartSequence.addSequential(
             WaitCommand(timeout=0.5))
-        commandSequence.addSequential(
+        leftStartSequence.addSequential(
             EnsureFinishedCommand(
                 TurnCommand(amount=-math.radians(60),
                             drive=self.pidDrive, ahrs=self.ahrs),
                 10))
 
-        scheduler.add(commandSequence)
+        scheduler.add(leftStartSequence)
+
+        approachPegSequence = CommandGroup()
+
+        approachPegSequence.addSequential(
+            EnsureFinishedCommand(
+                StrafeAlignCommand(drive=self.holoDrive,
+                                   vision=self.vision,
+                                   ahrs=self.ahrs),
+                10)
+        )
+        approachPegSequence.addSequential(
+            EnsureFinishedCommand(
+                DriveToTargetDistanceCommand(drive=self.holoDrive,
+                                             vision=self.vision,
+                                             ahrs=self.ahrs,
+                                             buffer=21.0),
+                10)
+        )
+
+        scheduler.add(approachPegSequence)
 
     def teleopPeriodic(self):
         # change drive mode with A, B, and X

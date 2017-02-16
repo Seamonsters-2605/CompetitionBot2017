@@ -352,7 +352,7 @@ class DriveToTargetDistanceCommand(wpilib.command.Command):
         self.pegRealTargetDistance = 8.25
 
         # prevent isFinished() from returning True
-        self.distance = self.buffer + 1
+        self.distance = self.buffer + self.tolerance + 1
 
     def initialize(self):
         self.drive.zero()
