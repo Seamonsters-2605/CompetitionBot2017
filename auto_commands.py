@@ -184,7 +184,7 @@ class MoveToPegCommand(wpilib.command.Command):
         self.foundTarget = targetCenter != None
 
         if not self.foundTarget:
-            self.drive.drive(.4, math.pi/2, 0)
+            self.drive.drive(.15, math.pi/2, 0)
         else:
             self.drive.drive(0, 0, 0)
 
