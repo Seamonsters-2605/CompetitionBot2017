@@ -385,7 +385,7 @@ class StrafeAlignCommand(wpilib.command.Command):
         else:
             return float(targetCenter[0]) / float(vision.Vision.WIDTH)
 
-# UNTESTED
+
 class DriveToTargetDistanceCommand(wpilib.command.Command):
     """
     Calculates distance to peg using vision.
