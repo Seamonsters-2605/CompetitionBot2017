@@ -151,7 +151,7 @@ class DriveBot(Module):
 
         startSequence.addSequential(
             EnsureFinishedCommand(
-                self.tankFieldMovement.driveCommand(distance=92, speed=150),
+                self.tankFieldMovement.driveCommand(distance=88, speed=150),
                 10))
         startSequence.addSequential(
             PrintCommand("Drive to distance finished")

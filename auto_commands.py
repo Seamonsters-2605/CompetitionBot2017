@@ -62,7 +62,7 @@ class StaticRotationDrive(DriveInterface):
         return self.interface.getDriveMode()
 
     def drive(self, magnitude, direction, turn, forceDriveMode = None):
-        turn = (self._getYawRadians() - self.origin) * -.07
+        turn = (self._getYawRadians() - self.origin) * -.14
         self.interface.drive(magnitude, direction, turn, forceDriveMode)
     
     def _getYawRadians(self):
