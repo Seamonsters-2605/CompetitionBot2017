@@ -158,10 +158,11 @@ class DriveBot(Module):
             EnsureFinishedCommand(
                 MoveToPegCommand(multiFieldDrive, self.vision),
                 50))
-        finalSequence.addSequential(
+        finalSequence.addParallel(
             WhileRunningCommand(
-                startSequence,
-                UpdateMultiDriveCommand(multiFieldDrive)))
+                UpdateMultiDriveCommand(multiFieldDrive),
+                startSequence))
+        finalSequence.addSequential(startSequence)
 
         approachPegSequence = CommandGroup()
         approachPegSequence.addParallel(
@@ -179,10 +180,11 @@ class DriveBot(Module):
                                              buffer=19.0),
                 10)
         )
-        finalSequence.addSequential(
+        finalSequence.addParallel(
             WhileRunningCommand(
-                approachPegSequence,
-                UpdateMultiDriveCommand(multiDrive)))
+                UpdateMultiDriveCommand(multiDrive),
+                approachPegSequence))
+        finalSequence.addSequential(approachPegSequence)
 
         scheduler.add(finalSequence)
 

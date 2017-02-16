@@ -57,32 +57,11 @@ class EnsureFinishedCommand(CommandWrapper):
             self.count = 0
         return self.count > self.requiredCount
 
-class WhileRunningCommand(wpilib.command.Command):
+class WhileRunningCommand(CommandWrapper):
 
-    def __init__(self, command, whileRunning):
-        super().__init__()
-        self.command = command
-        self.whileRunning = whileRunning
-        for requirement in self.command.getRequirements():
-            self.requires(requirement)
-        for requirement in self.whileRunning.getRequirements():
-            self.requires(requirement)
-
-    def initialize(self):
-        self.command.initialize()
-        self.whileRunning.initialize()
-
-    def execute(self):
-        self.command.execute()
-        self.whileRunning.execute()
+    def __init__(self, command, watchCommand):
+        super().__init__(command)
+        self.watchCommand = watchCommand
 
     def isFinished(self):
-        return self.command.isFinished()
-
-    def interrupted(self):
-        self.command.interrupted()
-        self.whileRunning.interrupted()
-
-    def end(self):
-        self.command.end()
-        self.whileRunning.end()
+        return self.watchCommand.isFinished()
