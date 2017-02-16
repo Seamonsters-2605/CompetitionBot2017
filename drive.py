@@ -151,19 +151,8 @@ class DriveBot(Module):
 
         startSequence.addSequential(
             EnsureFinishedCommand(
-                self.tankFieldMovement.driveCommand(distance=98),
-                10))
-        startSequence.addSequential(
-            PrintCommand("Drive to distance finished")
-        )
-        startSequence.addSequential(
-            ResetHoloDriveCommand(holoDrive=self.holoDrive))
-        startSequence.addSequential(
-            WaitCommand(timeout=0.5))
-        startSequence.addSequential(
-            EnsureFinishedCommand(
-                TurnCommand(amount=startAngle,
-                            drive=self.pidDrive, ahrs=self.ahrs),
+                MoveToPegCommand(startAngle, self.fieldDrive, self.ahrs,
+                                 self.vision),
                 10))
         startSequence.addSequential(
             PrintCommand("Turn with NavX finished")
@@ -176,7 +165,7 @@ class DriveBot(Module):
                 StrafeAlignCommand(drive=self.holoDrive,
                                    vision=self.vision,
                                    ahrs=self.ahrs),
-                10)
+                20)
         )
         approachPegSequence.addSequential(
             PrintCommand("Strafe finished")

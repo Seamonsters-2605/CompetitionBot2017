@@ -53,7 +53,7 @@ class StaticRotationDrive(DriveInterface):
         self.origin += amount
 
     def isClose(self):
-        return abs(self._getYawRadians() - self.origin) < math.radians(3)
+        return abs(self._getYawRadians() - self.origin) < math.radians(2)
 
     def setDriveMode(self, mode):
         self.interface.setDriveMode(mode)
@@ -62,7 +62,7 @@ class StaticRotationDrive(DriveInterface):
         return self.interface.getDriveMode()
 
     def drive(self, magnitude, direction, turn, forceDriveMode = None):
-        turn = (self._getYawRadians() - self.origin) * -.07
+        turn = (self._getYawRadians() - self.origin) * -.14
         self.interface.drive(magnitude, direction, turn, forceDriveMode)
     
     def _getYawRadians(self):
@@ -159,6 +159,37 @@ class TankDriveCommand(wpilib.command.Command):
             if not finished:
                 return False
         return True
+
+
+class MoveToPegCommand(wpilib.command.Command):
+
+    def __init__(self, turnAmount, fieldDrive, ahrs, vision):
+        super().__init__()
+        self.drive = StaticRotationDrive(fieldDrive, ahrs)
+        self.turnAmount = turnAmount
+        self.vision = vision
+        self.offsetSet = False
+        self.foundTarget = False
+
+    def initialize(self):
+        self.drive.zero()
+        self.drive.offset(math.radians(self.turnAmount))
+        self.offsetSet = True
+
+    def execute(self):
+        if not self.offsetSet:
+            return False
+        contours = self.vision.getContours()
+        targetCenter = vision.Vision.targetCenter(contours)
+        self.foundTarget = targetCenter != None
+
+        if not self.foundTarget:
+            self.drive.drive(.4, math.pi/2, 0)
+        else:
+            self.drive.drive(0, 0, 0)
+
+    def isFinished(self):
+        return self.drive.isClose() and self.foundTarget
 
 
 class TurnCommand(wpilib.command.Command):
@@ -292,7 +323,7 @@ class StrafeAlignCommand(wpilib.command.Command):
         super().__init__()
         self.drive = StaticRotationDrive(drive, ahrs)
         self.vision = vision
-        self.tolerance = .02 # fraction of width
+        self.tolerance = .01 # fraction of width
 
     def initialize(self):
         self.drive.zero()
