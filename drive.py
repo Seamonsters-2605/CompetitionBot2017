@@ -169,8 +169,6 @@ class DriveBot(Module):
             PrintCommand("Turn with NavX finished")
         )
 
-        scheduler.add(startSequence)
-
         approachPegSequence = CommandGroup()
 
         approachPegSequence.addSequential(
@@ -199,7 +197,7 @@ class DriveBot(Module):
         finalStartSequence.addSequential(startSequence)
         finalStartSequence.addSequential(approachPegSequence)
 
-        scheduler.add(approachPegSequence)
+        scheduler.add(finalStartSequence)
 
     def teleopPeriodic(self):
         # change drive mode with A, B, and X
