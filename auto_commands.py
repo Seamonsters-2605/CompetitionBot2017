@@ -182,6 +182,40 @@ class TurnCommand(wpilib.command.Command):
             return False
         return self.drive.isClose()
 
+class StoreRotationCommand(wpilib.command.InstantCommand):
+
+    def __init__(self, ahrs):
+        self.rotation = None
+        self.ahrs = ahrs
+
+    def initialize(self):
+        self.rotation = - math.radians(self.ahrs.getAngle())
+
+    def getRotation(self):
+        return self.rotation
+
+
+class RecallRotationCommand(wpilib.command.Command):
+
+    def __init__(self, storeRotationCommand, drive, ahrs):
+        super().__init__()
+        self.drive = StaticRotationDrive(drive, ahrs)
+        self.storeRotationCommand = storeRotationCommand
+        self.offsetSet = False
+
+    def initialize(self):
+        self.drive.zero()
+        self.drive.offset(self.storeRotationCommand.getRotation())
+        self.offsetSet = True
+
+    def execute(self):
+        self.drive.drive(0,0,0)
+
+    def isFinished(self):
+        if not self.offsetSet:
+            return False
+        return self.drive.isClose()
+
 
 class FlywheelsCommand(wpilib.command.Command):
 
