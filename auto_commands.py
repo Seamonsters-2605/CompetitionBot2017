@@ -53,7 +53,7 @@ class StaticRotationDrive(DriveInterface):
         self.origin += amount
 
     def isClose(self):
-        return abs(self._getYawRadians() - self.origin) < math.radians(3)
+        return abs(self._getYawRadians() - self.origin) < math.radians(2)
 
     def setDriveMode(self, mode):
         self.interface.setDriveMode(mode)
@@ -292,7 +292,7 @@ class StrafeAlignCommand(wpilib.command.Command):
         super().__init__()
         self.drive = StaticRotationDrive(drive, ahrs)
         self.vision = vision
-        self.tolerance = .02 # fraction of width
+        self.tolerance = .01 # fraction of width
 
     def initialize(self):
         self.drive.zero()
