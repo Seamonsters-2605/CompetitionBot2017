@@ -145,6 +145,8 @@ class DriveBot(Module):
 
         scheduler = Scheduler.getInstance()
 
+        startAngle = -math.radians(60) # can be opposite or 0 based on start position
+
         startSequence = CommandGroup()
 
         startSequence.addSequential(
@@ -160,7 +162,7 @@ class DriveBot(Module):
             WaitCommand(timeout=0.5))
         startSequence.addSequential(
             EnsureFinishedCommand(
-                TurnCommand(amount=-math.radians(60),
+                TurnCommand(amount=startAngle,
                             drive=self.pidDrive, ahrs=self.ahrs),
                 10))
         startSequence.addSequential(

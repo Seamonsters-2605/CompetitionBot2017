@@ -299,7 +299,7 @@ class StrafeAlignCommand(wpilib.command.Command):
 
     def execute(self):
         targetX = self._getTargetX()
-        print(targetX)
+        #print(targetX)
 
         if targetX == None:
             print("No vision!!")
