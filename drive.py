@@ -163,33 +163,26 @@ class DriveBot(Module):
                 startSequence,
                 UpdateMultiDriveCommand(multiFieldDrive)))
 
-        """
         approachPegSequence = CommandGroup()
-
+        approachPegSequence.addParallel(
+            StaticRotationCommand(multiDrive, self.ahrs))
         approachPegSequence.addSequential(
             EnsureFinishedCommand(
-                StrafeAlignCommand(drive=self.holoDrive,
-                                   vision=self.vision,
-                                   ahrs=self.ahrs),
+                StrafeAlignCommand(drive=multiDrive,
+                                   vision=self.vision),
                 20)
         )
         approachPegSequence.addSequential(
-            PrintCommand("Strafe finished")
-        )
-        approachPegSequence.addSequential(
             EnsureFinishedCommand(
-                DriveToTargetDistanceCommand(drive=self.holoDrive,
+                DriveToTargetDistanceCommand(drive=multiDrive,
                                              vision=self.vision,
-                                             ahrs=self.ahrs,
                                              buffer=19.0),
                 10)
         )
-        approachPegSequence.addSequential(
-            PrintCommand("DriveToTarget finished")
-        )
-
-        finalSequence.addSequential(approachPegSequence)
-        """
+        finalSequence.addSequential(
+            WhileRunningCommand(
+                approachPegSequence,
+                UpdateMultiDriveCommand(multiDrive)))
 
         scheduler.add(finalSequence)
 
