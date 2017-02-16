@@ -149,14 +149,19 @@ class DriveBot(Module):
 
         startAngle = -math.radians(60) # can be opposite or 0 based on start position
 
+        finalSequence = CommandGroup()
+
         startSequence = CommandGroup()
-        startSequence.addParallel(UpdateMultiDriveCommand(multiFieldDrive))
         startSequence.addParallel(
             StaticRotationCommand(multiFieldDrive, self.ahrs, startAngle))
         startSequence.addParallel(
             EnsureFinishedCommand(
                 MoveToPegCommand(multiFieldDrive, self.vision),
                 50))
+        finalSequence.addSequential(
+            WhileRunningCommand(
+                startSequence,
+                UpdateMultiDriveCommand(multiFieldDrive)))
 
         """
         approachPegSequence = CommandGroup()
@@ -182,11 +187,9 @@ class DriveBot(Module):
         approachPegSequence.addSequential(
             PrintCommand("DriveToTarget finished")
         )
-        """
 
-        finalSequence = CommandGroup()
-        finalSequence.addSequential(startSequence)
-        #finalSequence.addSequential(approachPegSequence)
+        finalSequence.addSequential(approachPegSequence)
+        """
 
         scheduler.add(finalSequence)
 
