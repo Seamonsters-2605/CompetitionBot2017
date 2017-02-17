@@ -149,20 +149,50 @@ class DriveBot(Module):
 
         startAngle = -math.radians(60) # can be opposite or 0 based on start position
 
+        # TODO change startPos with DriverStation
+        startPos = "left" # "left", "center", or "right"
+
         finalSequence = CommandGroup()
 
-        startSequence = CommandGroup()
-        startSequence.addParallel(
+        leftStartSequence = CommandGroup()
+        leftStartSequence.addParallel(
             StaticRotationCommand(multiFieldDrive, self.ahrs, startAngle))
-        startSequence.addParallel(
+        leftStartSequence.addParallel(
             EnsureFinishedCommand(
                 MoveToPegCommand(multiFieldDrive, self.vision),
                 50))
-        finalSequence.addParallel(
-            WhileRunningCommand(
-                UpdateMultiDriveCommand(multiFieldDrive),
-                startSequence))
-        finalSequence.addSequential(startSequence)
+
+        centerStartSequence = CommandGroup()
+        centerStartSequence.addSequential(
+            TankFieldMovement.driveCommand(distance=48, speed=200)
+        )
+
+        rightStartSequence = CommandGroup()
+        rightStartSequence.addParallel(
+            StaticRotationCommand(multiFieldDrive, self.ahrs, -startAngle))
+        rightStartSequence.addParallel(
+            EnsureFinishedCommand(
+                MoveToPegCommand(multiFieldDrive, self.vision),
+                50))
+
+        if startPos == "left":
+            finalSequence.addParallel(
+                WhileRunningCommand(
+                    UpdateMultiDriveCommand(multiFieldDrive),
+                    leftStartSequence))
+            finalSequence.addSequential(leftStartSequence)
+        elif startPos == "center":
+            finalSequence.addParallel(
+                WhileRunningCommand(
+                    UpdateMultiDriveCommand(multiFieldDrive),
+                    centerStartSequence))
+            finalSequence.addSequential(centerStartSequence)
+        elif startPos == "right":
+            finalSequence.addParallel(
+                WhileRunningCommand(
+                    UpdateMultiDriveCommand(multiFieldDrive),
+                    rightStartSequence))
+            finalSequence.addSequential(rightStartSequence)
 
         approachPegSequence = CommandGroup()
         approachPegSequence.addParallel(
