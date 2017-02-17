@@ -224,7 +224,7 @@ class DriveBot(Module):
             EnsureFinishedCommand(
                 DriveToTargetDistanceCommand(drive=multiDrive,
                                              vision=self.vision,
-                                             buffer=14.0),
+                                             buffer=15.0),
                 10)
         )
         finalSequence.addParallel(

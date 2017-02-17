@@ -244,7 +244,7 @@ class MoveToPegCommand(wpilib.command.Command):
         self.count += 1
 
     def isFinished(self):
-        if self.count > 80:
+        if self.count > 75:
             contours = self.vision.getContours()
             contours = vision.Vision.findTargetContours(contours)
             if len(contours) < 2:
@@ -363,7 +363,7 @@ class StrafeAlignCommand(wpilib.command.Command):
         super().__init__()
         self.drive = drive
         self.vision = vision
-        self.tolerance = .01 # fraction of width
+        self.tolerance = .02 # fraction of width
 
     def execute(self):
         targetX = self._getTargetX()
