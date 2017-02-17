@@ -100,6 +100,8 @@ class DriveBot(Module):
 
         self.pdp = wpilib.PowerDistributionPanel()
         self.currentLog = LogState("Drive current")
+
+        self.encoderLog = LogState("Wheel encoders")
         
     def teleopInit(self):
         print("DRIVE GAMEPAD:")
@@ -153,7 +155,9 @@ class DriveBot(Module):
 
         startSequence = CommandGroup()
         startSequence.addParallel(
-            StaticRotationCommand(multiFieldDrive, self.ahrs, startAngle))
+            EnsureFinishedCommand(
+                StaticRotationCommand(multiFieldDrive, self.ahrs, startAngle),
+                20))
         startSequence.addParallel(
             EnsureFinishedCommand(
                 MoveToPegCommand(multiFieldDrive, self.vision),
@@ -163,10 +167,9 @@ class DriveBot(Module):
                 UpdateMultiDriveCommand(multiFieldDrive),
                 startSequence))
         finalSequence.addSequential(startSequence)
+        finalSequence.addSequential(PrintCommand("Start sequence finished!"))
 
         approachPegSequence = CommandGroup()
-        approachPegSequence.addParallel(
-            StaticRotationCommand(multiDrive, self.ahrs))
         approachPegSequence.addSequential(
             EnsureFinishedCommand(
                 StrafeAlignCommand(drive=multiDrive,
@@ -177,14 +180,25 @@ class DriveBot(Module):
             EnsureFinishedCommand(
                 DriveToTargetDistanceCommand(drive=multiDrive,
                                              vision=self.vision,
-                                             buffer=19.0),
+                                             buffer=16.0),
                 10)
         )
         finalSequence.addParallel(
             WhileRunningCommand(
+                ForeverCommand(
+                    StaticRotationCommand(multiDrive, self.ahrs)),
+                approachPegSequence))
+        finalSequence.addParallel(
+            WhileRunningCommand(
                 UpdateMultiDriveCommand(multiDrive),
                 approachPegSequence))
+
         finalSequence.addSequential(approachPegSequence)
+
+        finalSequence.addSequential(
+            SetPidCommand(self.talons, 5.0, 0.0009, 3.0, 0.0))
+        finalSequence.addSequential(
+            self.tankFieldMovement.driveCommand(8))
 
         scheduler.add(finalSequence)
 
@@ -266,6 +280,10 @@ class DriveBot(Module):
                 self.currentLog.update(str(current) + "!")
             else:
                 self.currentLog.update(current)
+        encoderLogText = ""
+        for talon in self.talons:
+            encoderLogText += str(talon.getPosition()) + " "
+        self.encoderLog.update(encoderLogText)
 
     def _driveModeName(self, driveMode):
         if driveMode == DriveInterface.DriveMode.VOLTAGE:

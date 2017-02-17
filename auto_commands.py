@@ -137,6 +137,20 @@ class ResetHoloDriveCommand(wpilib.command.InstantCommand):
     def initialize(self):
         self.drive.zeroEncoderTargets()
 
+class SetPidCommand(wpilib.command.InstantCommand):
+
+    def __init__(self, motors, p, i, d, f):
+        super().__init__()
+        self.motors = motors
+        self.p = p
+        self.i = i
+        self.d = d
+        self.f = f
+
+    def initialize(self):
+        for motor in self.motors:
+            motor.setPID(self.p, self.i, self.d, self.f)
+
 class GearWaitCommand(wpilib.command.Command):
 
     def __init__(self, proximitySensor):
@@ -172,17 +186,15 @@ class TankFieldMovement:
         if self.invertDrive:
             distance = -distance
         return TankDriveCommand(self.wheelMotors, speed,
-            distance / self.wheelCircumference * self.ticksPerWheelRotation,
-            self.ahrs)
+            distance / self.wheelCircumference * self.ticksPerWheelRotation)
 
 class TankDriveCommand(wpilib.command.Command):
     
-    def __init__(self, wheelMotors, speed, ticks, ahrs):
+    def __init__(self, wheelMotors, speed, ticks):
         super().__init__()
         self.wheelMotors = wheelMotors
         self.speed = speed
         self.ticks = ticks
-        self.ahrs = ahrs
         self.motorFinished = [False, False, False, False]
     
     def initialize(self):
@@ -234,6 +246,10 @@ class MoveToPegCommand(wpilib.command.Command):
     def isFinished(self):
         if self.count > 100:
             contours = self.vision.getContours()
+            contours = vision.Vision.findTargetContours(contours)
+            if len(contours) < 2:
+                return False
+
             targetCenter = vision.Vision.targetCenter(contours)
             return targetCenter != None
         else:
