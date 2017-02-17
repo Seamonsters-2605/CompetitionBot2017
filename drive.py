@@ -221,6 +221,8 @@ class DriveBot(Module):
                 20)
         )
         approachPegSequence.addSequential(
+            PrintCommand("Aligned with peg"))
+        approachPegSequence.addSequential(
             EnsureFinishedCommand(
                 DriveToTargetDistanceCommand(drive=multiDrive,
                                              vision=self.vision,
@@ -243,6 +245,13 @@ class DriveBot(Module):
             SetPidCommand(self.talons, 5.0, 0.0009, 3.0, 0.0))
         finalSequence.addSequential(
             self.tankFieldMovement.driveCommand(8))
+        finalSequence.addSequential(ResetHoloDriveCommand(self.holoDrive))
+        finalSequence.addSequential(
+            PrintCommand("Waiting for gear..."))
+        finalSequence.addSequential(
+            GearWaitCommand(self.proximitySensor))
+        finalSequence.addSequential(
+            PrintCommand("Gear removed!"))
 
         scheduler.add(finalSequence)
 
