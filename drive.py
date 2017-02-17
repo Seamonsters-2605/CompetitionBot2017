@@ -151,8 +151,7 @@ class DriveBot(Module):
 
         startAngle = -math.radians(60) # can be opposite or 0 based on start position
 
-        # TODO change startPos with DriverStation
-        startPos = "left" # "left", "center", or "right"
+        startPos = wpilib.DriverStation.getLocation() # left = 1, center = 2, right = 3
 
         finalSequence = CommandGroup()
 
@@ -178,19 +177,19 @@ class DriveBot(Module):
                 MoveToPegCommand(multiFieldDrive, self.vision),
                 50))
 
-        if startPos == "left":
+        if startPos == 1:
             finalSequence.addParallel(
                 WhileRunningCommand(
                     UpdateMultiDriveCommand(multiFieldDrive),
                     leftStartSequence))
             finalSequence.addSequential(leftStartSequence)
-        elif startPos == "center":
+        elif startPos == 2:
             finalSequence.addParallel(
                 WhileRunningCommand(
                     UpdateMultiDriveCommand(multiFieldDrive),
                     centerStartSequence))
             finalSequence.addSequential(centerStartSequence)
-        elif startPos == "right":
+        elif startPos == 3:
             finalSequence.addParallel(
                 WhileRunningCommand(
                     UpdateMultiDriveCommand(multiFieldDrive),
