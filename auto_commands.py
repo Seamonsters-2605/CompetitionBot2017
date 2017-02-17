@@ -240,11 +240,11 @@ class MoveToPegCommand(wpilib.command.Command):
         self.count = 0
 
     def execute(self):
-        self.drive.drive(.15, math.pi/2, 0)
+        self.drive.drive(.2, math.pi/2, 0)
         self.count += 1
 
     def isFinished(self):
-        if self.count > 100:
+        if self.count > 80:
             contours = self.vision.getContours()
             contours = vision.Vision.findTargetContours(contours)
             if len(contours) < 2:
@@ -373,7 +373,7 @@ class StrafeAlignCommand(wpilib.command.Command):
             print("No vision!!")
             return
 
-        speed = -(abs(targetX - .5) ** 1.0) * .3
+        speed = -(abs(targetX - .5) ** 1.0) * .5
 
         if targetX > 0.5:
             # move left
@@ -434,7 +434,7 @@ class DriveToTargetDistanceCommand(wpilib.command.Command):
 
         self.distance = self.pegFocalDistance * self.pegRealTargetDistance / pixelDistance
 
-        speed = (1 - 2.7 ** (-.01 * (self.distance - self.buffer))) * .5
+        speed = (1 - 2.7 ** (-.01 * (self.distance - self.buffer))) * .7
 
         self.drive.drive(speed, math.pi / 2, 0)
 

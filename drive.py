@@ -151,7 +151,7 @@ class DriveBot(Module):
 
         startAngle = -math.radians(60) # can be opposite or 0 based on start position
 
-        startPos = wpilib.DriverStation.getLocation() # left = 1, center = 2, right = 3
+        startPos = wpilib.DriverStation.getInstance().getLocation() # left = 1, center = 2, right = 3
 
         finalSequence = CommandGroup()
 
@@ -224,7 +224,7 @@ class DriveBot(Module):
             EnsureFinishedCommand(
                 DriveToTargetDistanceCommand(drive=multiDrive,
                                              vision=self.vision,
-                                             buffer=16.0),
+                                             buffer=14.0),
                 10)
         )
         finalSequence.addParallel(
