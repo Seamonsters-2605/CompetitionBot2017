@@ -237,8 +237,14 @@ class DriveBot(Module):
         finalSequence.addSequential(
             SetPidCommand(self.talons, 5.0, 0.0009, 3.0, 0.0))
         finalSequence.addSequential(
-            self.tankFieldMovement.driveCommand(-16))
+            self.tankFieldMovement.driveCommand(-20))
         finalSequence.addSequential(ResetHoloDriveCommand(self.holoDrive))
+        finalSequence.addSequential(WaitCommand(0.5))
+        finalSequence.addParallel(
+            EnsureFinishedCommand(
+                StaticRotationCommand(self.pidDrive, self.ahrs,
+                                      math.radians(180)),
+                10))
         finalSequence.addSequential(WaitCommand(1))
         finalSequence.addSequential(StopDriveCommand(self.holoDrive))
 
