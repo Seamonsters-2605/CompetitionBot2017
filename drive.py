@@ -235,6 +235,8 @@ class DriveBot(Module):
         finalSequence.addSequential(
             PrintCommand("Gear removed!"))
         finalSequence.addSequential(
+            SetPidCommand(self.talons, 5.0, 0.0009, 3.0, 0.0))
+        finalSequence.addSequential(
             self.tankFieldMovement.driveCommand(-16))
         finalSequence.addSequential(ResetHoloDriveCommand(self.holoDrive))
         finalSequence.addSequential(WaitCommand(1))
