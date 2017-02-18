@@ -149,69 +149,40 @@ class DriveBot(Module):
 
         scheduler = Scheduler.getInstance()
 
-        startAngle = -math.radians(60) # can be opposite or 0 based on start position
-
         startPos = wpilib.DriverStation.getInstance().getLocation() # left = 1, center = 2, right = 3
+
+        if startPos == 1: # left
+            startAngle = -math.radians(60) # can be opposite or 0 based on start position
+        elif startPos == 2: # center
+            startAngle = 0
+        elif startPos == 3: # right
+            startAngle = math.radians(60)
+        else:
+            startAngle = 0
+            print("Unknown startPos value")
 
         finalSequence = CommandGroup()
 
-        """
-        leftStartSequence = CommandGroup()
-        leftStartSequence.addParallel(
-            StaticRotationCommand(multiFieldDrive, self.ahrs, startAngle))
-        leftStartSequence.addParallel(
-            EnsureFinishedCommand(
-                MoveToPegCommand(multiFieldDrive, self.vision),
-                50))
-
-        centerStartSequence = CommandGroup()
-        centerStartSequence.addSequential(
-            TankFieldMovement.driveCommand(distance=48, speed=200)
-        )
-
-        rightStartSequence = CommandGroup()
-        rightStartSequence.addParallel(
-            StaticRotationCommand(multiFieldDrive, self.ahrs, -startAngle))
-        rightStartSequence.addParallel(
-            EnsureFinishedCommand(
-                MoveToPegCommand(multiFieldDrive, self.vision),
-                50))
-
-        if startPos == 1:
-            finalSequence.addParallel(
-                WhileRunningCommand(
-                    UpdateMultiDriveCommand(multiFieldDrive),
-                    leftStartSequence))
-            finalSequence.addSequential(leftStartSequence)
-        elif startPos == 2:
-            finalSequence.addParallel(
-                WhileRunningCommand(
-                    UpdateMultiDriveCommand(multiFieldDrive),
-                    centerStartSequence))
-            finalSequence.addSequential(centerStartSequence)
-        elif startPos == 3:
-            finalSequence.addParallel(
-                WhileRunningCommand(
-                    UpdateMultiDriveCommand(multiFieldDrive),
-                    rightStartSequence))
-            finalSequence.addSequential(rightStartSequence)
-        """
-
         startSequence = CommandGroup()
-        startSequence.addParallel(
-            EnsureFinishedCommand(
-                MoveToPegCommand(multiFieldDrive, self.vision),
-                25))
-        startSequence.addSequential(
-            WaitCommand(1))
-        startSequence.addParallel(
-            EnsureFinishedCommand(
-                StaticRotationCommand(multiFieldDrive, self.ahrs, startAngle),
-                20))
-        finalSequence.addParallel(
-            WhileRunningCommand(
-                UpdateMultiDriveCommand(multiFieldDrive),
-                startSequence))
+        if startPos != 2: # left or right:
+            startSequence.addParallel(
+                EnsureFinishedCommand(
+                    MoveToPegCommand(multiFieldDrive, self.vision),
+                    25))
+            startSequence.addSequential(
+                WaitCommand(1))
+            startSequence.addParallel(
+                EnsureFinishedCommand(
+                    StaticRotationCommand(multiFieldDrive, self.ahrs, startAngle),
+                    20))
+            finalSequence.addParallel(
+                WhileRunningCommand(
+                    UpdateMultiDriveCommand(multiFieldDrive),
+                    startSequence))
+        else:
+            print("Center sequence")
+            startSequence.addSequential(self.tankFieldMovement.driveCommand(60))
+            startSequence.addSequential(ResetHoloDriveCommand(self.holoDrive))
         finalSequence.addSequential(startSequence)
         finalSequence.addSequential(PrintCommand("Start sequence finished!"))
 
@@ -246,8 +217,12 @@ class DriveBot(Module):
 
         finalSequence.addSequential(
             SetPidCommand(self.talons, 5.0, 0.0009, 3.0, 0.0))
-        finalSequence.addSequential(
-            self.tankFieldMovement.driveCommand(9))
+        if startPos == 2:
+            finalSequence.addSequential(
+                self.tankFieldMovement.driveCommand(10))
+        else:
+            finalSequence.addSequential(
+                self.tankFieldMovement.driveCommand(9))
         finalSequence.addSequential(ResetHoloDriveCommand(self.holoDrive))
         finalSequence.addSequential(WaitCommand(1))
         finalSequence.addSequential(StopDriveCommand(self.holoDrive))
