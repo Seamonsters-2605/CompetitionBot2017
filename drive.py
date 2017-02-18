@@ -244,8 +244,9 @@ class DriveBot(Module):
         finalSequence.addSequential(
             SetPidCommand(self.talons, 5.0, 0.0009, 3.0, 0.0))
         finalSequence.addSequential(
-            self.tankFieldMovement.driveCommand(8))
+            self.tankFieldMovement.driveCommand(9))
         finalSequence.addSequential(ResetHoloDriveCommand(self.holoDrive))
+        finalSequence.addSequential(StopDriveCommand(self.holoDrive))
         finalSequence.addSequential(
             PrintCommand("Waiting for gear..."))
         finalSequence.addSequential(

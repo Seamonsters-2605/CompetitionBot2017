@@ -137,6 +137,15 @@ class ResetHoloDriveCommand(wpilib.command.InstantCommand):
     def initialize(self):
         self.drive.zeroEncoderTargets()
 
+class StopDriveCommand(wpilib.command.InstantCommand):
+
+    def __init__(self, drive):
+        super().__init__()
+        self.drive = drive
+
+    def initialize(self):
+        self.drive.drive(0,0,0)
+
 class SetPidCommand(wpilib.command.InstantCommand):
 
     def __init__(self, motors, p, i, d, f):
@@ -373,7 +382,7 @@ class StrafeAlignCommand(wpilib.command.Command):
             print("No vision!!")
             return
 
-        speed = -(abs(targetX - .5) ** 1.0) * .5
+        speed = -(abs(targetX - .5) ** 1.2) * .5
 
         if targetX > 0.5:
             # move left
