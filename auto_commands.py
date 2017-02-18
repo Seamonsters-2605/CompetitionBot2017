@@ -165,12 +165,14 @@ class GearWaitCommand(wpilib.command.Command):
     def __init__(self, proximitySensor):
         super().__init__()
         self.proximitySensor = proximitySensor
+    def initialize(self):
+        self.initialVoltage = self.proximitySensor.getVoltage()
 
     def execute(self):
         pass
 
     def isFinished(self):
-        return self.proximitySensor.getVoltage() < 2.0
+        return abs(self.proximitySensor.getVoltage() - self.initialVoltage) > .2
 
 
 class TankFieldMovement:
