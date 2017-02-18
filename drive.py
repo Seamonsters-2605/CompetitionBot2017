@@ -170,11 +170,11 @@ class DriveBot(Module):
                     MoveToPegCommand(multiFieldDrive, self.vision),
                     25))
             startSequence.addSequential(
-                WaitCommand(1))
+                WaitCommand(0.75))
             startSequence.addParallel(
                 EnsureFinishedCommand(
                     StaticRotationCommand(multiFieldDrive, self.ahrs, startAngle),
-                    20))
+                    30))
             finalSequence.addParallel(
                 WhileRunningCommand(
                     UpdateMultiDriveCommand(multiFieldDrive),
@@ -202,7 +202,7 @@ class DriveBot(Module):
             EnsureFinishedCommand(
                 StrafeAlignCommand(drive=multiDrive,
                                    vision=self.vision),
-                20)
+                25)
         )
         approachPegSequence.addSequential(
             PrintCommand("Aligned with peg"))
@@ -227,13 +227,13 @@ class DriveBot(Module):
         finalSequence.addSequential(approachPegSequence)
 
         finalSequence.addSequential(
+            PrintCommand("Driving to the peg..."))
+        finalSequence.addSequential(
             SetPidCommand(self.talons, 5.0, 0.0009, 3.0, 0.0))
-        if startPos == 2:
-            finalSequence.addSequential(
-                self.tankFieldMovement.driveCommand(11))
-        else:
-            finalSequence.addSequential(
-                self.tankFieldMovement.driveCommand(9))
+        finalSequence.addSequential(
+            self.tankFieldMovement.driveCommand(11))
+        finalSequence.addSequential(
+            PrintCommand("The gear is on the peg."))
         finalSequence.addSequential(ResetHoloDriveCommand(self.holoDrive))
         finalSequence.addSequential(StopDriveCommand(self.holoDrive))
         finalSequence.addSequential(
