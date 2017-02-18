@@ -118,7 +118,7 @@ class StaticRotationCommand(wpilib.command.Command):
         self.offset(self.offsetAmount)
 
     def isFinished(self):
-        return abs(self._getYawRadians() - self.origin) < math.radians(2)
+        return abs(self._getYawRadians() - self.origin) < math.radians(1.5)
 
     def execute(self):
         turn = (self._getYawRadians() - self.origin) * -.14
@@ -253,7 +253,7 @@ class MoveToPegCommand(wpilib.command.Command):
         self.count += 1
 
     def isFinished(self):
-        if self.count > 75:
+        if self.count > 80:
             contours = self.vision.getContours()
             contours = vision.Vision.findTargetContours(contours)
             if len(contours) < 2:

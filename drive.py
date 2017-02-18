@@ -200,12 +200,14 @@ class DriveBot(Module):
         startSequence = CommandGroup()
         startSequence.addParallel(
             EnsureFinishedCommand(
-                StaticRotationCommand(multiFieldDrive, self.ahrs, startAngle),
-                20))
+                MoveToPegCommand(multiFieldDrive, self.vision),
+                25))
+        startSequence.addSequential(
+            WaitCommand(1))
         startSequence.addParallel(
             EnsureFinishedCommand(
-                MoveToPegCommand(multiFieldDrive, self.vision),
-                50))
+                StaticRotationCommand(multiFieldDrive, self.ahrs, startAngle),
+                20))
         finalSequence.addParallel(
             WhileRunningCommand(
                 UpdateMultiDriveCommand(multiFieldDrive),
@@ -226,9 +228,10 @@ class DriveBot(Module):
             EnsureFinishedCommand(
                 DriveToTargetDistanceCommand(drive=multiDrive,
                                              vision=self.vision,
-                                             buffer=15.0),
+                                             buffer=18.0),
                 10)
         )
+
         finalSequence.addParallel(
             WhileRunningCommand(
                 ForeverCommand(
@@ -246,6 +249,8 @@ class DriveBot(Module):
         finalSequence.addSequential(
             self.tankFieldMovement.driveCommand(9))
         finalSequence.addSequential(ResetHoloDriveCommand(self.holoDrive))
+        finalSequence.addSequential(
+            WaitCommand(1))
         finalSequence.addSequential(StopDriveCommand(self.holoDrive))
         finalSequence.addSequential(
             PrintCommand("Waiting for gear..."))
