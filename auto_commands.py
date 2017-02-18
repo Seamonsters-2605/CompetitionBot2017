@@ -246,7 +246,7 @@ class TankDriveCommand(wpilib.command.Command):
             current = self.currentTargets[i]
             if target != current:
                 return False
-            if abs(motor.getPosition() - target) > self.speed:
+            if abs(motor.getPosition() - target) > self.speed * 2:
                 return False
         return True
 
