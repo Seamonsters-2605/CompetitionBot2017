@@ -181,9 +181,19 @@ class DriveBot(Module):
                     startSequence))
         else:
             print("Center sequence")
+            storeRotationCommand = StoreRotationCommand(self.ahrs)
+            startSequence.addSequential(storeRotationCommand)
             startSequence.addSequential(
-                self.tankFieldMovement.driveCommand(60, speed=200))
+                self.tankFieldMovement.driveCommand(60, speed=150))
             startSequence.addSequential(ResetHoloDriveCommand(self.holoDrive))
+            startSequence.addSequential(WaitCommand(0.5))
+            startSequence.addSequential(
+                PrintCommand("Recalling rotation..."))
+            startSequence.addSequential(
+                EnsureFinishedCommand(
+                    RecallRotationCommand(storeRotationCommand,
+                                          self.pidDrive, self.ahrs),
+                    30))
         finalSequence.addSequential(startSequence)
         finalSequence.addSequential(PrintCommand("Start sequence finished!"))
 
