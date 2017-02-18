@@ -181,7 +181,8 @@ class DriveBot(Module):
                     startSequence))
         else:
             print("Center sequence")
-            startSequence.addSequential(self.tankFieldMovement.driveCommand(60))
+            startSequence.addSequential(
+                self.tankFieldMovement.driveCommand(60, speed=200))
             startSequence.addSequential(ResetHoloDriveCommand(self.holoDrive))
         finalSequence.addSequential(startSequence)
         finalSequence.addSequential(PrintCommand("Start sequence finished!"))
@@ -224,20 +225,19 @@ class DriveBot(Module):
             finalSequence.addSequential(
                 self.tankFieldMovement.driveCommand(9))
         finalSequence.addSequential(ResetHoloDriveCommand(self.holoDrive))
-        finalSequence.addSequential(WaitCommand(1))
         finalSequence.addSequential(StopDriveCommand(self.holoDrive))
         finalSequence.addSequential(
             PrintCommand("Waiting for gear..."))
         finalSequence.addSequential(
             EnsureFinishedCommand(
                 GearWaitCommand(self.proximitySensor),
-                50))
+                75))
         finalSequence.addSequential(
             PrintCommand("Gear removed!"))
         finalSequence.addSequential(
             SetPidCommand(self.talons, 5.0, 0.0009, 3.0, 0.0))
         finalSequence.addSequential(
-            self.tankFieldMovement.driveCommand(-20))
+            self.tankFieldMovement.driveCommand(-20, speed=150))
         finalSequence.addSequential(ResetHoloDriveCommand(self.holoDrive))
         finalSequence.addSequential(WaitCommand(0.5))
         finalSequence.addParallel(
