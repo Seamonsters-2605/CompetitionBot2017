@@ -113,6 +113,9 @@ class StaticRotationCommand(wpilib.command.Command):
     def offset(self, amount):
         self.origin += amount
 
+    def absolute(self, value):
+        self.origin = value
+
     def initialize(self):
         self.zero()
         self.offset(self.offsetAmount)
@@ -165,14 +168,12 @@ class GearWaitCommand(wpilib.command.Command):
     def __init__(self, proximitySensor):
         super().__init__()
         self.proximitySensor = proximitySensor
-    def initialize(self):
-        self.initialVoltage = self.proximitySensor.getVoltage()
 
     def execute(self):
         pass
 
     def isFinished(self):
-        return abs(self.proximitySensor.getVoltage() - self.initialVoltage) > .2
+        return self.proximitySensor.getVoltage() < 2
 
 
 class TankFieldMovement:
@@ -204,13 +205,13 @@ class TankDriveCommand(wpilib.command.Command):
     def __init__(self, wheelMotors, speed, ticks):
         super().__init__()
         self.wheelMotors = wheelMotors
-        self.speed = speed
+        self.speed = speed *.25
         self.ticks = ticks
-        self.motorFinished = [False, False, False, False]
+        self.currentTargets = [0.0, 0.0, 0.0, 0.0]
     
     def initialize(self):
         self.targetPositions = [0.0, 0.0, 0.0, 0.0]
-        self.motorFinished = [False, False, False, False]
+        self.currentTargets = [0.0, 0.0, 0.0, 0.0]
         for i in range(0, 4):
             motor = self.wheelMotors[i]
             motor.enable()
@@ -220,25 +221,32 @@ class TankDriveCommand(wpilib.command.Command):
                 targetOffset = self.ticks
             else:
                 targetOffset = -self.ticks
+            self.currentTargets[i] = motor.getPosition()
             self.targetPositions[i] = motor.getPosition() + targetOffset
     
     def execute(self):
         for i in range(0, 4):
             motor = self.wheelMotors[i]
             target = self.targetPositions[i]
-            current = motor.getPosition()
+            current = self.currentTargets[i]
             if abs(target - current) < self.speed:
-                motor.set(target)
-                self.motorFinished[i] = True
+                current = target
             else:
                 if target > current:
-                    motor.set(current + self.speed)
+                    current += self.speed
                 else:
-                    motor.set(current - self.speed)
+                    current -= self.speed
+            self.currentTargets[i] = current
+            motor.set(current)
 
     def isFinished(self):
-        for finished in self.motorFinished:
-            if not finished:
+        for i in range(0, 4):
+            motor = self.wheelMotors[i]
+            target = self.targetPositions[i]
+            current = self.currentTargets[i]
+            if target != current:
+                return False
+            if abs(motor.getPosition() - target) > self.speed:
                 return False
         return True
 
@@ -291,13 +299,8 @@ class RecallRotationCommand(StaticRotationCommand):
 
     def initialize(self):
         super().zero()
-        super().offset(self.storeRotationCommand.getRotation())
+        super().absolute(self.storeRotationCommand.getRotation())
         self.offsetSet = True
-
-    def isFinished(self):
-        if not self.offsetSet:
-            return False
-        return self.drive.isClose()
 
 
 class FlywheelsCommand(wpilib.command.Command):
