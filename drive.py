@@ -219,7 +219,7 @@ class DriveBot(Module):
             SetPidCommand(self.talons, 5.0, 0.0009, 3.0, 0.0))
         if startPos == 2:
             finalSequence.addSequential(
-                self.tankFieldMovement.driveCommand(10))
+                self.tankFieldMovement.driveCommand(11))
         else:
             finalSequence.addSequential(
                 self.tankFieldMovement.driveCommand(9))

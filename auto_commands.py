@@ -211,6 +211,7 @@ class TankDriveCommand(wpilib.command.Command):
         self.motorFinished = [False, False, False, False]
         for i in range(0, 4):
             motor = self.wheelMotors[i]
+            motor.enable()
             motor.changeControlMode(wpilib.CANTalon.ControlMode.Position)
             if i == HolonomicDrive.FRONT_RIGHT \
                     or i == HolonomicDrive.BACK_RIGHT:
