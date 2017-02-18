@@ -249,15 +249,21 @@ class DriveBot(Module):
         finalSequence.addSequential(
             self.tankFieldMovement.driveCommand(9))
         finalSequence.addSequential(ResetHoloDriveCommand(self.holoDrive))
-        finalSequence.addSequential(
-            WaitCommand(1))
+        finalSequence.addSequential(WaitCommand(1))
         finalSequence.addSequential(StopDriveCommand(self.holoDrive))
         finalSequence.addSequential(
             PrintCommand("Waiting for gear..."))
         finalSequence.addSequential(
-            GearWaitCommand(self.proximitySensor))
+            EnsureFinishedCommand(
+                GearWaitCommand(self.proximitySensor),
+                50))
         finalSequence.addSequential(
             PrintCommand("Gear removed!"))
+        finalSequence.addSequential(
+            self.tankFieldMovement.driveCommand(-16))
+        finalSequence.addSequential(ResetHoloDriveCommand(self.holoDrive))
+        finalSequence.addSequential(WaitCommand(1))
+        finalSequence.addSequential(StopDriveCommand(self.holoDrive))
 
         scheduler.add(finalSequence)
 
