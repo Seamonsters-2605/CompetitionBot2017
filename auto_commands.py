@@ -3,7 +3,6 @@ __author__ = "seamonsters"
 import wpilib
 import wpilib.command
 import math
-from shooter import Flywheels
 import vision
 
 from seamonsters.holonomicDrive import HolonomicDrive
@@ -381,9 +380,9 @@ class FlywheelsCommand(wpilib.command.Command):
     Spin the flywheels forever. After forever, stop them.
     """
 
-    def __init__(self):
+    def __init__(self, flywheels):
         super().__init__()
-        self.flywheels = Flywheels()
+        self.flywheels = flywheels
 
     def execute(self):
         self.flywheels.spinFlywheels()
