@@ -58,6 +58,10 @@ class EnsureFinishedCommand(CommandWrapper):
         return self.count > self.requiredCount
 
 class WhileRunningCommand(CommandWrapper):
+    """
+    Wraps one command, but tracks a different command (``watchCommand``) for
+    isFinished().
+    """
 
     def __init__(self, command, watchCommand):
         super().__init__(command)

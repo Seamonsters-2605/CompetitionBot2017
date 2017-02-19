@@ -40,6 +40,11 @@ class TemplateCommand(wpilib.command.Command):
 
 
 class MultiDrive(DriveInterface):
+    """
+    Wraps another DriveInterface, and allows ``drive()`` to be called multiple
+    times in a loop. The values for all of these calls are averaged together,
+    and sent to the wrapped interface when ``update()`` is called.
+    """
 
     def __init__(self, interface):
         super().__init__()
@@ -89,7 +94,9 @@ class MultiDrive(DriveInterface):
         self._reset()
 
 class UpdateMultiDriveCommand(wpilib.command.Command):
-
+    """
+    Command to call ``update()`` for a MultiDrive continuously.
+    """
     def __init__(self, drive):
         super().__init__()
         self.drive = drive
@@ -98,6 +105,11 @@ class UpdateMultiDriveCommand(wpilib.command.Command):
         self.drive.update()
 
 class StaticRotationCommand(wpilib.command.Command):
+    """
+    Maintain a certain rotation. Default is whatever the current rotation is,
+    but this can be changed by giving providing an ``offset`` argument, or by
+    calling ``zero()``, ``offset(amount)``, or ``absolute(value)``.
+    """
 
     def __init__(self, drive, ahrs, offset=0):
         super().__init__()
@@ -108,12 +120,25 @@ class StaticRotationCommand(wpilib.command.Command):
         self.origin = self._getYawRadians() + math.pi*2
 
     def zero(self):
+        """
+        Sets the target rotation to be wherever the robot is facing right now.
+        So hold the current rotation.
+        """
         self.origin = self._getYawRadians()
 
     def offset(self, amount):
+        """
+        Offset whatever the target rotation is by a certain amount.
+        :param amount: how much to add to the target rotation
+        """
         self.origin += amount
 
     def absolute(self, value):
+        """
+        Set the target rotation to an absolute AHRS (NavX) angle. Don't guess
+        on this - this value should come from a previously measured AHRS value.
+        :param value: the target rotation
+        """
         self.origin = value
 
     def initialize(self):
@@ -132,6 +157,10 @@ class StaticRotationCommand(wpilib.command.Command):
 
 
 class ResetHoloDriveCommand(wpilib.command.InstantCommand):
+    """
+    Instant command that zeros the encoder targets for a HolonomicDrive. This
+    should be used after moving a motor without using HolonomicDrive.
+    """
 
     def __init__(self, holoDrive):
         super().__init__()
@@ -141,6 +170,11 @@ class ResetHoloDriveCommand(wpilib.command.InstantCommand):
         self.drive.zeroEncoderTargets()
 
 class StopDriveCommand(wpilib.command.InstantCommand):
+    """
+    Instant command that tells a DriveInterface to stop driving. This could be
+    useful for DriveInterfaces (like HolonomicDrive) that automatically disable
+    the Talons when they aren't being used.
+    """
 
     def __init__(self, drive):
         super().__init__()
@@ -150,6 +184,9 @@ class StopDriveCommand(wpilib.command.InstantCommand):
         self.drive.drive(0,0,0)
 
 class SetPidCommand(wpilib.command.InstantCommand):
+    """
+    Instant command to set PID's of motors.
+    """
 
     def __init__(self, motors, p, i, d, f):
         super().__init__()
@@ -163,20 +200,13 @@ class SetPidCommand(wpilib.command.InstantCommand):
         for motor in self.motors:
             motor.setPID(self.p, self.i, self.d, self.f)
 
-class GearWaitCommand(wpilib.command.Command):
-
-    def __init__(self, proximitySensor):
-        super().__init__()
-        self.proximitySensor = proximitySensor
-
-    def execute(self):
-        pass
-
-    def isFinished(self):
-        return self.proximitySensor.getVoltage() < 2
-
 
 class TankFieldMovement:
+    """
+    A factory for creating TankDriveCommands (maybe others will be added). It
+    keeps track of talons and various properties and does some math, all to
+    make it simple to create a TankDriveCommand.
+    """
 
     def __init__(self, fl, fr, bl, br, ticksPerWheelRotation,
                  wheelCircumference, driveSpeed=400,
@@ -193,6 +223,11 @@ class TankFieldMovement:
         self.invertDrive = invertDrive
     
     def driveCommand(self, distance, speed=None):
+        """
+        Create a TankDriveCommand to drive a certain distance (in the same
+        units the wheel circumference was given in), at a certain optional
+        speed (default if not given).
+        """
         if speed == None:
             speed = self.defaultSpeed
         if self.invertDrive:
@@ -201,6 +236,10 @@ class TankFieldMovement:
             distance / self.wheelCircumference * self.ticksPerWheelRotation)
 
 class TankDriveCommand(wpilib.command.Command):
+    """
+    Drive forward a certain amount by setting the position of each wheel and
+    tracking encoder values. You should use a TankFieldMovement to create this.
+    """
     
     def __init__(self, wheelMotors, speed, ticks):
         super().__init__()
@@ -251,7 +290,52 @@ class TankDriveCommand(wpilib.command.Command):
         return True
 
 
+class StoreRotationCommand(wpilib.command.InstantCommand):
+    """
+    InstantCommand to save the current rotation. This is meant to be used with
+    RecallRotationCommand.
+    """
+
+    def __init__(self, ahrs):
+        super().__init__()
+        self.rotation = None
+        self.ahrs = ahrs
+
+    def initialize(self):
+        self.rotation = - math.radians(self.ahrs.getAngle())
+
+    def getRotation(self):
+        """
+        Get the rotation that was saved when ``initialize()`` was called. If
+        that hasn't been called yet, return None.
+        :return: an AHRS (NavX) angle, or None
+        """
+        return self.rotation
+
+
+class RecallRotationCommand(StaticRotationCommand):
+    """
+    Try to turn the robot back to the rotation that was saved with a previous
+    StoreRotationCommand. This extends from StaticRotationCommand and works the
+    same way.
+    """
+
+    def __init__(self, storeRotationCommand, drive, ahrs):
+        super().__init__(drive, ahrs)
+        self.storeRotationCommand = storeRotationCommand
+        self.offsetSet = False
+
+    def initialize(self):
+        super().zero()
+        super().absolute(self.storeRotationCommand.getRotation())
+        self.offsetSet = True
+
+
 class MoveToPegCommand(wpilib.command.Command):
+    """
+    Move forward until the peg is visible, but only after a certain amount of
+    time has passed.
+    """
 
     def __init__(self, fieldDrive, vision):
         super().__init__()
@@ -276,34 +360,26 @@ class MoveToPegCommand(wpilib.command.Command):
             return False
 
 
-class StoreRotationCommand(wpilib.command.InstantCommand):
+class GearWaitCommand(wpilib.command.Command):
+    """
+    Do nothing; wait until the gear is removed based on the proximity sensor.
+    """
 
-    def __init__(self, ahrs):
+    def __init__(self, proximitySensor):
         super().__init__()
-        self.rotation = None
-        self.ahrs = ahrs
+        self.proximitySensor = proximitySensor
 
-    def initialize(self):
-        self.rotation = - math.radians(self.ahrs.getAngle())
+    def execute(self):
+        pass
 
-    def getRotation(self):
-        return self.rotation
-
-
-class RecallRotationCommand(StaticRotationCommand):
-
-    def __init__(self, storeRotationCommand, drive, ahrs):
-        super().__init__(drive, ahrs)
-        self.storeRotationCommand = storeRotationCommand
-        self.offsetSet = False
-
-    def initialize(self):
-        super().zero()
-        super().absolute(self.storeRotationCommand.getRotation())
-        self.offsetSet = True
+    def isFinished(self):
+        return self.proximitySensor.getVoltage() < 2
 
 
 class FlywheelsCommand(wpilib.command.Command):
+    """
+    Spin the flywheels forever. After forever, stop them.
+    """
 
     def __init__(self):
         super().__init__()
@@ -319,6 +395,10 @@ class FlywheelsCommand(wpilib.command.Command):
         self.flywheels.stopFlywheels()
 
 class FlywheelsWaitCommand(wpilib.command.Command):
+    """
+    Wait until the flywheels are up to speed. Right now this just waits a fixed
+    amount of time.
+    """
 
     def __init__(self):
         super().__init__()
@@ -332,6 +412,10 @@ class FlywheelsWaitCommand(wpilib.command.Command):
 
 
 class TurnAlignCommand(wpilib.command.Command):
+    """
+    Turn to align with a vision target, so it is roughly in the center of the
+    camera view.
+    """
     
     def __init__(self, drive, vision):
         super().__init__()
@@ -369,9 +453,8 @@ class TurnAlignCommand(wpilib.command.Command):
 
 class StrafeAlignCommand(wpilib.command.Command):
     """
-    Requires robot to be roughly facing vision target
-    Strafes robot until peg is centered based on vision targets
-    Maintains rotation with NavX
+    Strafe to align with a vision target, so it is roughly in the center of the
+    camera view.
     """
 
     def __init__(self, drive, vision):
@@ -421,7 +504,6 @@ class DriveToTargetDistanceCommand(wpilib.command.Command):
     """
     Calculates distance to peg using vision.
     Drives forward to [buffer] inches away.
-    Maintains rotation using NavX.
     """
 
     def __init__(self, drive, vision, buffer=21.0):
