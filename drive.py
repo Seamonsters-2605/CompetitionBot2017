@@ -370,6 +370,13 @@ class DriveBot(Module):
 
 
 class DynamicPIDDrive(DriveInterface):
+    """
+    Wraps another drive interface. Based on the driving matnitude and turn
+    speed, the PID's of a set of talons are changed. PID's are given as a tuple
+    of (p, i, d, f). For speeds below ``slowPIDScale``, ``slowPID`` is used.
+    For speeds above ``fastPIDScale``, ``fastPID`` is used. For speeds in
+    between, the P/I/D/F values are interpolated.
+    """
 
     def __init__(self, interface, wheelTalons, slowPID, slowPIDScale,
                  fastPID, fastPIDScale, pidLookBackRange=10):
