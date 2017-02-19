@@ -10,6 +10,10 @@ class Vision:
         self.contoursTable = NetworkTables.getTable('contours')
 
     def getContours(self):
+        """
+        Read contour data from NetworkTables.
+        :return: a list of contours; see ``readContours()``
+        """
         try:
             return Vision.readContours(self.contoursTable.getNumberArray('x'),
                                        self.contoursTable.getNumberArray('y'))
@@ -19,7 +23,8 @@ class Vision:
 
     def targetCenter(contours):
         """
-        Get the center point of the target, as a tuple.
+        Get the center point of the target, as a tuple. This automatically
+        filters the target countours with ``findTargetContours()``.
         """
         if len(contours) == 0:
             return None
@@ -32,7 +37,9 @@ class Vision:
                 (center1[1] + center2[1]) / 2.0)
 
     def findCentersXDistance(contours):
-        # Gets x distance between centers of contours
+        """
+        Get the x distance between the centers of contours
+        """
         if len(contours) < 2:
             print("Borked")
             return None
@@ -42,7 +49,9 @@ class Vision:
         return (abs(center1[0] - center2[0]))
 
     def findCentersYDistance(contours):
-        # Gets y distance between centers of contours
+        """
+        Get the y distance between the centers of contours
+        """
         if len(contours) < 2:
             print("Borked")
             return None
@@ -54,7 +63,8 @@ class Vision:
 
     def targetDimensions(contours):
         """
-        Find the total dimensions of the target, as a tuple.
+        Find the total dimensions of the target.
+        :return: a tuple of (width, height)
         """
         if len(contours) == 0:
             return (0, 0)
@@ -66,8 +76,9 @@ class Vision:
 
     def findTargetContours(contours):
         """
-        Find the (up to) two contours for the target. Return a list of 0 - 2
-        items: largest contour first, then second largest.
+        Find the (up to) two contours for the target.
+        :return: a list of 0 - 2 items: largest contour first, then second
+        largest.
         """
         if len(contours) <= 2:
             return contours
@@ -96,8 +107,8 @@ class Vision:
 
     def dimensions(contour):
         """
-        Given a contour list, find the width and height. Return a tuple of
-        (width, height).
+        Given a contour, find the width and height.
+        :return: a tuple of (width, height)
         """
         if len(contour) <= 1:
             return (0, 0)
@@ -119,12 +130,17 @@ class Vision:
         return maxX - minX, maxY - minY
 
     def boundingRectArea(contour):
+        """
+        Given a contour, find the area of the bounding rectangle.
+        :return: the area in square pixels
+        """
         width, height = Vision.dimensions(contour)
         return width * height
 
     def centerPoint(contour):
         """
-        Given a contour list, find the center point. Return a tuple.
+        Given a contour, find the center point.
+        :return: the position as a tuple.
         """
         if len(contour) == 0:
             return None
