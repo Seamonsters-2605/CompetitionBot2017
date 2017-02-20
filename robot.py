@@ -10,6 +10,7 @@ from drive import DriveBot
 from debugmode import DebugMode
 from climber import Climber
 from shooter import Shooter
+import cscore_camera
 
 class CompetitionBot2017(Module):
     
