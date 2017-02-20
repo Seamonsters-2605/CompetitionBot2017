@@ -14,6 +14,7 @@ class Shooter (Module):
     def robotInit(self):
         self.gamepad = seamonsters.gamepad.globalGamepad(port=1)
 
+        self.flywheelSpinCount = 0
         self.flywheels = Flywheels()
         self.ballcontrol = BallControl()
 
@@ -39,8 +40,11 @@ class Shooter (Module):
     def teleopPeriodic(self):
         if self.gamepad.getRawButton(Gamepad.A):
             self.flywheels.spinFlywheels()
-            self.ballcontrol.feedForwards()
+            if self.flywheelSpinCount > 75:
+                self.ballcontrol.feedForwards()
+            self.flywheelSpinCount += 1
         else:
+            self.flywheelSpinCount = 0
             self.flywheels.stopFlywheels()
             self.ballcontrol.stopFeed()
         if self.gamepad.getRawButton(Gamepad.B):
@@ -82,7 +86,7 @@ class Flywheels:
         self.speedSpeed = 21000
 
         # encoder resolution is 512 (* 4)
-        self.flywheelMotor.setPID(0.15, 0.0, 40.0, 0)
+        self.flywheelMotor.setPID(0.15, 0.0, 5.0, 0)
         self.flywheelMotor.setFeedbackDevice(
             wpilib.CANTalon.FeedbackDevice.QuadEncoder)
 
