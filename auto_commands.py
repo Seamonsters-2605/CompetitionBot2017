@@ -576,7 +576,7 @@ class DriveToBoilerDistanceCommand(wpilib.command.Command):
         dimensions = vision.Vision.dimensions(contours[lowest])
         width = dimensions[0]
 
-        self.distance = math.sqrt((self.boilerFocalDistance * self.boilerRealTargetDistance / width)
+        self.distance = math.sqrt((self.boilerFocalDistance * self.boilerRealTargetDistance / width)**2
                                    - self.boilerTargetHeight**2)
 
         speed = (1 - 2.7 ** (-.01 * (self.distance - self.buffer))) * .7
