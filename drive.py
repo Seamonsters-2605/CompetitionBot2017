@@ -184,7 +184,7 @@ class DriveBot(Module):
             storeRotationCommand = StoreRotationCommand(self.ahrs)
             startSequence.addSequential(storeRotationCommand)
             startSequence.addSequential(
-                self.tankFieldMovement.driveCommand(60, speed=150))
+                self.tankFieldMovement.driveCommand(60, speed=250))
             startSequence.addSequential(ResetHoloDriveCommand(self.holoDrive))
             startSequence.addSequential(WaitCommand(0.5))
             startSequence.addSequential(
@@ -250,12 +250,12 @@ class DriveBot(Module):
             self.tankFieldMovement.driveCommand(-20, speed=150))
         finalSequence.addSequential(ResetHoloDriveCommand(self.holoDrive))
         finalSequence.addSequential(WaitCommand(0.5))
-        finalSequence.addParallel(
-            EnsureFinishedCommand(
-                StaticRotationCommand(self.pidDrive, self.ahrs,
-                                      math.radians(180)),
-                10))
-        finalSequence.addSequential(WaitCommand(1))
+        #finalSequence.addParallel(
+        #    EnsureFinishedCommand(
+        #        StaticRotationCommand(self.pidDrive, self.ahrs,
+        #                              math.radians(180)),
+        #        10))
+        #finalSequence.addSequential(WaitCommand(1))
         finalSequence.addSequential(StopDriveCommand(self.holoDrive))
 
         scheduler.add(finalSequence)
