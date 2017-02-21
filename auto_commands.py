@@ -539,3 +539,54 @@ class DriveToTargetDistanceCommand(wpilib.command.Command):
 
     def isFinished(self):
         return abs(self.distance - self.buffer) < self.tolerance
+
+class DriveToBoilerDistanceCommand(wpilib.command.Command):
+    """
+    Calculates distance to boiler using vision
+    Drives to a set distance away
+    """
+
+    def __init__(self, drive, vision, buffer=72):
+        super().__init__()
+        self.drive = drive
+        self.visionary = vision
+        self.buffer = buffer  # inches
+        self.tolerance = 3
+
+        self.boilerFocalDistance = 661.96
+        self.boilerRealTargetDistance = 15
+        self.boilerTargetHeight = 78
+
+        # prevent isFinished() from returning True
+        self.distance = self.buffer + self.tolerance + 1
+
+    def execute(self):
+        contours = self.visionary.getContours()
+        contours = vision.Vision.findTargetContours(contours)
+        if len(contours) < 1:
+            print("No vision!!")
+            return
+
+        lowest = 0
+        if len(contours) > 1:
+            if (vision.Vision.targetCenter(contours[0])[1] >
+                    vision.Vision.targetCenter(contours[1])[1]):
+                lowest = 1
+
+        dimensions = vision.Vision.dimensions(contours[lowest])
+        width = dimensions[0]
+
+        self.distance = math.sqrt((self.boilerFocalDistance * self.boilerRealTargetDistance / width)
+                                   - self.boilerTargetHeight**2)
+
+        speed = (1 - 2.7 ** (-.01 * (self.distance - self.buffer))) * .7
+
+        self.drive.drive(speed, math.pi / 2, 0)
+
+    def end(self):
+        self.drive.drive(0, 0, 0)
+
+    def isFinished(self):
+        return abs(self.distance - self.buffer) < self.tolerance
+
+
