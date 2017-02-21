@@ -231,7 +231,7 @@ class DriveBot(Module):
         finalSequence.addSequential(
             SetPidCommand(self.talons, 5.0, 0.0009, 3.0, 0.0))
         finalSequence.addSequential(
-            self.tankFieldMovement.driveCommand(11))
+            self.tankFieldMovement.driveCommand(11, speed=150))
         finalSequence.addSequential(
             PrintCommand("The gear is on the peg."))
         finalSequence.addSequential(ResetHoloDriveCommand(self.holoDrive))
@@ -247,7 +247,7 @@ class DriveBot(Module):
         finalSequence.addSequential(
             SetPidCommand(self.talons, 5.0, 0.0009, 3.0, 0.0))
         finalSequence.addSequential(
-            self.tankFieldMovement.driveCommand(-20, speed=150))
+            self.tankFieldMovement.driveCommand(-20, speed=200))
         finalSequence.addSequential(ResetHoloDriveCommand(self.holoDrive))
         finalSequence.addSequential(WaitCommand(0.5))
         #finalSequence.addParallel(
