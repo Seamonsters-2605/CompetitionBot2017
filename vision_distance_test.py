@@ -12,6 +12,9 @@ class VisionTesting(Module):
     PEGFOCALDIST = 661.96
     PEGREALTARGETSDIST = 8.25
 
+    BOILERREALTARGETDIST = 15
+    BOILERTARGETHEIGHT = 78
+
     def robotInit(self):
         # when the robot code starts (only once, not each time it's enabled)
         # Declare Gamepads and CANTalons here.
@@ -59,6 +62,28 @@ class VisionTesting(Module):
 
         self.counter += 1
         pass
+
+    def teleopPeriodic(self):
+        # NOT ACTUAL TELEOP, JUST USING IT TO TEST BOILER
+        contours = self.visionary.getContours()
+        contours = vision.Vision.findTargetContours(contours)
+        if len(contours) < 1:
+            print("No vision!!")
+            return
+
+        lowest = 0
+        if len(contours) > 1:
+            if (vision.Vision.targetCenter(contours[0])[1] >
+                    vision.Vision.targetCenter(contours[1])[1]):
+                lowest = 1
+
+        dimensions = vision.Vision.dimensions(contours[lowest])
+        width = dimensions[0]
+
+        distance = math.sqrt((VisionTesting.PEGFOCALDIST * VisionTesting.BOILERREALTARGETDIST / width) ** 2
+                                  - VisionTesting.BOILERTARGETHEIGHT ** 2)
+
+        print(distance)
 
     def disabledInit(self):
         # when the robot is disabled
