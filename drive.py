@@ -101,7 +101,8 @@ class DriveBot(Module):
         self.pdp = wpilib.PowerDistributionPanel()
         self.currentLog = LogState("Drive current")
 
-        self.encoderLog = LogState("Wheel encoders")
+        self.encoderLog = None
+        #self.encoderLog = LogState("Wheel encoders")
         
     def teleopInit(self):
         print("DRIVE GAMEPAD:")
@@ -347,10 +348,11 @@ class DriveBot(Module):
                 self.currentLog.update(str(current) + "!")
             else:
                 self.currentLog.update(current)
-        encoderLogText = ""
-        for talon in self.talons:
-            encoderLogText += str(talon.getPosition()) + " "
-        self.encoderLog.update(encoderLogText)
+        if self.encoderLog != None:
+            encoderLogText = ""
+            for talon in self.talons:
+                encoderLogText += str(talon.getPosition()) + " "
+            self.encoderLog.update(encoderLogText)
 
     def _driveModeName(self, driveMode):
         if driveMode == DriveInterface.DriveMode.VOLTAGE:
