@@ -41,7 +41,7 @@ class VisionTesting(Module):
 
         if len(contours) < 2: # THIS IS NOT WORKING
             print("Not enough contours")
-            pass
+            return
 
         self.xSum += xDist
         self.ySum += yDist
@@ -73,8 +73,7 @@ class VisionTesting(Module):
 
         lowest = 0
         if len(contours) > 1:
-            if (vision.Vision.targetCenter(contours[0])[1] >
-                    vision.Vision.targetCenter(contours[1])[1]):
+            if (vision.Vision.centerPoint(contours[0])[1] > vision.Vision.centerPoint(contours[1])[1]):
                 lowest = 1
 
         dimensions = vision.Vision.dimensions(contours[lowest])
