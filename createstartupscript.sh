@@ -7,4 +7,5 @@ echo "set -x\n" >> /etc/rc.local
 echo "sudo ifdown wlan0" >> /etc/rc.local
 echo "sudo ifup eth0\n" >> /etc/rc.local
 echo "python3 /home/pi/seamonsters_git/CompetitionBot2017/grip/pi_script.py &" >> /etc/rc.local
+echo "python3 /home/pi/seamonsters_git/CompetitionBot2017/gip/experimental_boiler_script.py &" >> /etc/rc.local
 echo "exit 0" >> /etc/rc.local
