@@ -14,6 +14,7 @@ class VisionTesting(Module):
 
     BOILERREALTARGETDIST = 15
     BOILERTARGETHEIGHT = 78
+    BOILERFOCALDIST = 661.96 # TODO calculate actual value
 
     def robotInit(self):
         # when the robot code starts (only once, not each time it's enabled)
@@ -79,7 +80,7 @@ class VisionTesting(Module):
         dimensions = vision.Vision.dimensions(contours[lowest])
         width = dimensions[0]
 
-        distance = math.sqrt((VisionTesting.PEGFOCALDIST * VisionTesting.BOILERREALTARGETDIST / width) ** 2
+        distance = math.sqrt((VisionTesting.BOILERFOCALDIST * VisionTesting.BOILERREALTARGETDIST / width) ** 2
                                   - VisionTesting.BOILERTARGETHEIGHT ** 2)
 
         print(distance)
