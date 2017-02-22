@@ -120,6 +120,8 @@ class DriveBot(Module):
         self.downPad = False
         self.leftPad = False
 
+        self.fieldOrientedOn = True
+
         if dashboard.getSwitch("Field oriented drive", True):
             print("Field oriented on")
             self.drive = self.fieldDrive
@@ -276,6 +278,11 @@ class DriveBot(Module):
 
         #reset field orientation
         if self.gamepad.getRawButton(Gamepad.START):
+            self.fieldDrive.zero()
+            self.fieldOrientedOn = True
+        if self.gamepad.getRawButton(Gamepad.BACK):
+            self.fieldOrientedOn = False
+        if not self.fieldOrientedOn:
             self.fieldDrive.zero()
 
         scale = self.normalScale
