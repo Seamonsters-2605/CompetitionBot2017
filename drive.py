@@ -108,10 +108,10 @@ class DriveBot(Module):
         print("  Left Trigger: Slower")
         print("  Right Trigger: Faster")
         print("  A: Voltage mode")
-        print("  B: Speed mode")
         print("  X: Position mode")
         print("  Dpad: Move in small increments")
-        print("  Start: Reset field orientation")
+        print("  Start: Enable/Reset field orientation")
+        print("  Back: Disable field orientation")
         self.holoDrive.zeroEncoderTargets()
         self.dPadCount = 1000
         #booleans for DPad steering
@@ -270,8 +270,6 @@ class DriveBot(Module):
         # change drive mode with A, B, and X
         if   self.gamepad.getRawButton(Gamepad.A):
             self.drive.setDriveMode(DriveInterface.DriveMode.VOLTAGE)
-        elif self.gamepad.getRawButton(Gamepad.B):
-            self.drive.setDriveMode(DriveInterface.DriveMode.SPEED)
         elif self.gamepad.getRawButton(Gamepad.X):
             self.drive.setDriveMode(DriveInterface.DriveMode.POSITION)
         self.driveModeLog.update(self._driveModeName(self.drive.getDriveMode()))
