@@ -68,7 +68,7 @@ class Climber(Module):
                 self.statusLog.update("Locked!")
         elif self.enabled:
             self.unlock()
-            self.cm.set(self.gamepad.getLY() * -.5)
+            self.cm.set(-self.gamepad.getLY())
             self.statusLog.update("Unlocked")
 
         if self.pdp.getCurrent(3) >= 20:
