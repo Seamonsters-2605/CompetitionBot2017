@@ -435,7 +435,7 @@ class TurnAlignCommand(wpilib.command.Command):
         self.drive.drive(0, 0, turnAmount)
 
     def _getTargetX(self):
-        contours = self.vision.getContours()
+        contours = self.vision.getBoilerContours()
         targetCenter = vision.Vision.targetCenter(contours)
         if targetCenter == None:
             return None
@@ -561,7 +561,7 @@ class DriveToBoilerDistanceCommand(wpilib.command.Command):
         self.distance = self.buffer + self.tolerance + 1
 
     def execute(self):
-        contours = self.visionary.getContours()
+        contours = self.visionary.getBoilerContours()
         contours = vision.Vision.findTargetContours(contours)
         if len(contours) < 1:
             print("No vision!!")

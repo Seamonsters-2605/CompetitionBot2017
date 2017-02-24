@@ -6,7 +6,7 @@ import peg_filter_real
 def main(pipeline):
     # TODO I DON'T KNOW HOW TO SET UP A NEW NETWORKTABLES
     NetworkTables.initialize(server="roborio-2605-frc.local")
-    table = NetworkTables.getTable("contours")
+    table = NetworkTables.getTable("boilercontours")
 
     cam = cv2.VideoCapture(1) # use 2nd camera (BE CAREFUL ON WHICH USB PORTS ARE USED)
     # use the raw_* values!
