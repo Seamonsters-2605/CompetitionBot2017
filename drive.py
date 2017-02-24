@@ -120,6 +120,7 @@ class DriveBot(Module):
         self.rightPad = False
         self.downPad = False
         self.leftPad = False
+        self.count = 1
 
         self.fieldOrientedOn = True
 
@@ -337,7 +338,13 @@ class DriveBot(Module):
         direction = self.roundDirection(direction, math.pi)
         direction = self.roundDirection(direction, 3.0*math.pi/2.0)
         direction = self.roundDirection(direction, math.pi*2)
-        
+        if self.gamepad.getRawButton(Gamepad.Y):
+            magnitude=.44
+            if self.count>5:
+                direction=-math.pi
+            elif self.count>10:
+                direction=math.pi
+
         self.drive.drive(magnitude, direction, turn)
 
         if self.currentLogEnabled:
