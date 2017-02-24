@@ -120,6 +120,7 @@ class DriveBot(Module):
         self.rightPad = False
         self.downPad = False
         self.leftPad = False
+        self.count = 0
 
         if dashboard.getSwitch("Field oriented drive", True):
             print("Field oriented on")
@@ -266,6 +267,8 @@ class DriveBot(Module):
         scheduler.add(finalSequence)
 
     def teleopPeriodic(self):
+        self.count = self.count + 1
+
         # change drive mode with A, B, and X
         if   self.gamepad.getRawButton(Gamepad.BACK):
             self.drive.setDriveMode(DriveInterface.DriveMode.VOLTAGE)
@@ -331,7 +334,14 @@ class DriveBot(Module):
         direction = self.roundDirection(direction, math.pi)
         direction = self.roundDirection(direction, 3.0*math.pi/2.0)
         direction = self.roundDirection(direction, math.pi*2)
-        
+
+        if self.gamepad.getRawButton(Gamepad.Y):
+            magnitude=.44
+            if self.count%10 >= 5:
+                direction = math.pi
+            else:
+                direction = 0
+
         self.drive.drive(magnitude, direction, turn)
 
         if self.currentLogEnabled:
