@@ -8,6 +8,7 @@ class Vision:
 
     def __init__(self):
         self.contoursTable = NetworkTables.getTable('contours')
+        self.boilerContoursTable = NetworkTables.getTable('boilercontours')
 
     def getContours(self):
         """
@@ -18,8 +19,22 @@ class Vision:
             return Vision.readContours(self.contoursTable.getNumberArray('x'),
                                        self.contoursTable.getNumberArray('y'))
         except BaseException:
-            print("Vision connection error!")
+            print("Peg vision connection error!")
             return [ ]
+
+    # TODO WIP Untested, I hope I did this right
+    def getBoilerContours(self):
+        """
+        Read contour data from boiler camera from NetworkTables
+        :return: a list of contours
+        """
+        try:
+            return Vision.readContours(self.boilerContoursTable.getNumberArray('x'),
+                                       self.boilerContoursTable.getNumberArray('y'))
+        except BaseException:
+            print("Boiler vision connection error!")
+            return [ ]
+
 
     def targetCenter(contours):
         """
