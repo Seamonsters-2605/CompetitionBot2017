@@ -59,11 +59,10 @@ class Shooter (Module):
 
         if self.gamepad.getRawButton(Gamepad.RT):
             self.ballcontrol.feedForwards()
-        else: self.ballcontrol.stopFeed()
-
-        if self.gamepad.getRawButton(Gamepad.LT):
+        elif self.gamepad.getRawButton(Gamepad.LT):
             self.ballcontrol.feedBackwards()
-        else: self.ballcontrol.stopFeed()
+        else:
+            self.ballcontrol.stopFeed()
 
 
 
