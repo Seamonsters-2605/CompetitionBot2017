@@ -10,6 +10,7 @@ from seamonsters.gamepad import Gamepad
 from seamonsters.drive import DriveInterface
 from seamonsters.drive import AccelerationFilterDrive
 from seamonsters.drive import FieldOrientedDrive
+from seamonsters.drive import DynamicPIDDrive
 from seamonsters.holonomicDrive import HolonomicDrive
 from seamonsters.logging import LogState
 from seamonsters import dashboard
@@ -382,66 +383,6 @@ class DriveBot(Module):
             return target
         else:
             return value
-
-
-class DynamicPIDDrive(DriveInterface):
-    """
-    Wraps another drive interface. Based on the driving matnitude and turn
-    speed, the PID's of a set of talons are changed. PID's are given as a tuple
-    of (p, i, d, f). For speeds below ``slowPIDScale``, ``slowPID`` is used.
-    For speeds above ``fastPIDScale``, ``fastPID`` is used. For speeds in
-    between, the P/I/D/F values are interpolated.
-    """
-
-    def __init__(self, interface, wheelTalons, slowPID, slowPIDScale,
-                 fastPID, fastPIDScale, pidLookBackRange=10):
-        self.interface = interface
-        self.talons = wheelTalons
-        self.slowPID = slowPID
-        self.slowPIDScale = slowPIDScale
-        self.fastPID = fastPID
-        self.fastPIDScale = fastPIDScale
-
-        self.currentPID = None
-        self.driveScales = [0.0 for i in range(0, pidLookBackRange)]
-
-    def setDriveMode(self, mode):
-        self.interface.setDriveMode(mode)
-
-    def getDriveMode(self):
-        return self.interface.getDriveMode()
-
-    def drive(self, magnitude, direction, turn, forceDriveMode = None):
-        driveScale = max(abs(magnitude), abs(turn * 2))
-        self.driveScales.append(driveScale)
-        self.driveScales.pop(0)
-        self._setPID(self._lerpPID(max(self.driveScales)))
-        
-        self.interface.drive(magnitude, direction, turn, forceDriveMode)
-
-    def _setPID(self, pid):
-        if pid == self.currentPID:
-            return
-        self.currentPID = pid
-        for talon in self.talons:
-            talon.setPID(pid[0], pid[1], pid[2], pid[3])
-
-    def _lerpPID(self, magnitude):
-        if magnitude <= self.slowPIDScale:
-            return self.slowPID
-        elif magnitude >= self.fastPIDScale:
-            return self.fastPID
-        else:
-            # 0 - 1
-            scale = (magnitude - self.slowPIDScale) / \
-                    (self.fastPIDScale - self.slowPIDScale)
-            pidList = [ ]
-            for i in range(0, 4):
-                slowValue = self.slowPID[i]
-                fastValue = self.fastPID[i]
-                value = (fastValue - slowValue) * scale + slowValue
-                pidList.append(value)
-            return tuple(pidList)
 
 
 def _testCommand(command):
