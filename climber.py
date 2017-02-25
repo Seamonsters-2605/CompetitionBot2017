@@ -38,18 +38,18 @@ class Climber(Module):
         print("SPECIAL GAMEPAD:")
         print("  Left Joystick up: Climb")
         print("  Left Joystick down: Descend")
-        print("  Up Dpad: Lock motor")
-        print("  Down Dpad: Unlock motor")
+        print("  Button A: Lock motor")
+        print("  Press down Right Joystick: Unlock motor")
         self.locked = False
         self.lockmode = False
         self.enabled = True
 
     def teleopPeriodic(self):
-        if self.gamepad.getRawButton(Gamepad.UP):
+        if self.gamepad.getRawButton(Gamepad.A):
             if not self.lockmode:
                 self.lockmode = True
 
-        if self.gamepad.getRawButton(Gamepad.DOWN):
+        if self.gamepad.getRawButton(Gamepad.RJ):
             if self.lockmode:
                 self.lockmode = False
             self.enabled = True
