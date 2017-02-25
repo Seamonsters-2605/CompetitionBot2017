@@ -25,12 +25,12 @@ class Shooter (Module):
             self.flywheels.switchSpeedMode()
 
     def teleopInit(self):
-        print("  A: Shoot")
-        print("  Y: Reverse Flywheel")
+        print("  UP: Shoot")
+        print("  DOWN: Reverse Flywheel")
         print("  Start: Flywheel speed mode")
         print("  Back: Flywheel voltage mode")
-        print("  B: Intake")
-        print("  X: Outtake")
+        print("  RIGHT: Intake")
+        print("  LEFT: Outtake")
         
         if dashboard.getSwitch("Flywheel voltage mode", False):
             self.flywheels.switchVoltageMode()
@@ -38,7 +38,7 @@ class Shooter (Module):
             self.flywheels.switchSpeedMode()
 
     def teleopPeriodic(self):
-        if self.gamepad.getRawButton(Gamepad.A):
+        if self.gamepad.getRawButton(Gamepad.UP):
             self.flywheels.spinFlywheels()
             if self.flywheelSpinCount > 75:
                 self.ballcontrol.feedForwards()
@@ -47,14 +47,14 @@ class Shooter (Module):
             self.flywheelSpinCount = 0
             self.flywheels.stopFlywheels()
             self.ballcontrol.stopFeed()
-        if self.gamepad.getRawButton(Gamepad.B):
+        if self.gamepad.getRawButton(Gamepad.RIGHT):
             self.ballcontrol.intakeForward()
-        elif self.gamepad.getRawButton(Gamepad.X):
+        elif self.gamepad.getRawButton(Gamepad.LEFT):
             self.ballcontrol.intakeBackward()
         else:
             self.ballcontrol.intakeStop()
 
-        if self.gamepad.getRawButton(Gamepad.Y):
+        if self.gamepad.getRawButton(Gamepad.DOWN):
             self.flywheels.reverseFlywheels()
 
         if self.gamepad.getRawButton(Gamepad.START):
