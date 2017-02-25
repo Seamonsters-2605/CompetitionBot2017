@@ -423,11 +423,16 @@ class TurnAlignCommand(wpilib.command.Command):
     Turn to align with a vision target, so it is roughly in the center of the
     camera view.
     """
+
+    log = None
     
     def __init__(self, drive, vision):
         super().__init__()
         self.drive = drive
         self.vision = vision
+
+        if TurnAlignCommand.log == None:
+            TurnAlignCommand.log = LogState("Turn alignment")
     
     def execute(self):
         targetX = self._getTargetX()
@@ -436,6 +441,7 @@ class TurnAlignCommand(wpilib.command.Command):
             return
         else:
             print(targetX)
+        TurnAlignCommand.log.update(targetX - 0.5)
         turnAmount = (abs(targetX - 0.5) ** 0.6) * 8
 
         if targetX > 0.5:
@@ -464,11 +470,16 @@ class StrafeAlignCommand(wpilib.command.Command):
     camera view.
     """
 
+    log = None
+
     def __init__(self, drive, vision):
         super().__init__()
         self.drive = drive
         self.vision = vision
         self.tolerance = .02 # fraction of width
+
+        if StrafeAlignCommand.log == None:
+            StrafeAlignCommand.log = LogState("Strafe alignment")
 
     def execute(self):
         targetX = self._getTargetX()
@@ -478,6 +489,7 @@ class StrafeAlignCommand(wpilib.command.Command):
             print("No vision!!")
             return
 
+        StrafeAlignCommand.log.update(targetX - .5)
         speed = -(abs(targetX - .5) ** 1.2) * .5
 
         if targetX > 0.5:
@@ -513,6 +525,8 @@ class DriveToTargetDistanceCommand(wpilib.command.Command):
     Drives forward to [buffer] inches away.
     """
 
+    log = None
+
     def __init__(self, drive, vision, buffer=21.0):
         super().__init__()
         self.drive = drive
@@ -526,6 +540,9 @@ class DriveToTargetDistanceCommand(wpilib.command.Command):
         # prevent isFinished() from returning True
         self.distance = self.buffer + self.tolerance + 1
 
+        if DriveToTargetDistanceCommand.log == None:
+            DriveToTargetDistanceCommand.log = LogState("Distance offset")
+
     def execute(self):
         # find distance to targets
         contours = self.visionary.getContours()
@@ -537,6 +554,7 @@ class DriveToTargetDistanceCommand(wpilib.command.Command):
                                 + vision.Vision.findCentersYDistance(contours)**2)
 
         self.distance = self.pegFocalDistance * self.pegRealTargetDistance / pixelDistance
+        DriveToTargetDistanceCommand.log.update(self.distance - self.buffer)
 
         speed = (1 - 2.7 ** (-.01 * (self.distance - self.buffer))) * .7
 
@@ -586,6 +604,7 @@ class DriveToBoilerDistanceCommand(wpilib.command.Command):
 
         self.distance = math.sqrt((self.boilerFocalDistance * self.boilerRealTargetDistance / width)**2
                                    - self.boilerTargetHeight**2)
+        DriveToTargetDistanceCommand.log.update(self.distance - self.buffer)
 
         speed = (1 - 2.7 ** (-.01 * (self.distance - self.buffer))) * .7
 
