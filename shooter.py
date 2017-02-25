@@ -29,8 +29,8 @@ class Shooter (Module):
         print("  Back: Flywheel voltage mode")
         print("  RIGHT: Intake")
         print("  LEFT: Outtake")
-        print("Right Trigger: Feeder forwards")
-        print("Left Trigger: Feeder backwards")
+        print("  Right Trigger: Feeder forwards")
+        print("  Left Trigger: Feeder backwards")
 
         if dashboard.getSwitch("Flywheel voltage mode", False):
             self.flywheels.switchVoltageMode()
@@ -58,13 +58,8 @@ class Shooter (Module):
         elif self.secondaryGamepad.getRawButton(Gamepad.BACK):
             self.flywheels.switchVoltageMode()
 
-        if self.secondaryGamepad.getRawButton(Gamepad.RT):
-            self.ballcontrol.feedForwards()
-        elif self.secondaryGamepad.getRawButton(Gamepad.LT):
-            self.ballcontrol.feedBackwards()
-        else:
-            self.ballcontrol.stopFeed()
-
+        self.ballcontrol.feed(self.secondaryGamepad.getRTrigger() -
+                              self.secondaryGamepad.getLTrigger())
 
 
 class BallControl:
@@ -77,12 +72,8 @@ class BallControl:
         self.intake.set(-0.25)
     def intakeStop(self):
         self.intake.set(0)
-    def feedForwards(self):
-        self.feeder.set(1.0)
-    def feedBackwards(self):
-        self.feeder.set(-1.0)
-    def stopFeed(self):
-        self.feeder.set(0.00)
+    def feed(self, speed):
+        self.feeder.set(speed)
 class Flywheels:
 
     def __init__(self):
