@@ -7,6 +7,7 @@ import vision
 
 from seamonsters.holonomicDrive import HolonomicDrive
 from seamonsters.drive import DriveInterface
+from seamonsters.logging import LogState
 
 class TemplateCommand(wpilib.command.Command):
 
@@ -110,6 +111,8 @@ class StaticRotationCommand(wpilib.command.Command):
     calling ``zero()``, ``offset(amount)``, or ``absolute(value)``.
     """
 
+    log = None
+
     def __init__(self, drive, ahrs, offset=0):
         super().__init__()
         self.drive = drive
@@ -117,6 +120,9 @@ class StaticRotationCommand(wpilib.command.Command):
         self.offsetAmount = offset
         # prevent isFinished() returning True
         self.origin = self._getYawRadians() + math.pi*2
+
+        if StaticRotationCommand.log == None:
+            StaticRotationCommand.log = LogState("Rotation offset")
 
     def zero(self):
         """
@@ -148,7 +154,9 @@ class StaticRotationCommand(wpilib.command.Command):
         return abs(self._getYawRadians() - self.origin) < math.radians(1.5)
 
     def execute(self):
-        turn = (self._getYawRadians() - self.origin) * -.14
+        offset = (self._getYawRadians() - self.origin)
+        StaticRotationCommand.log.update(offset)
+        turn = offset * -.14
         self.drive.drive(0, 0, turn)
     
     def _getYawRadians(self):
