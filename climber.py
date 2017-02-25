@@ -24,7 +24,7 @@ class Climber(Module):
             self.cm.changeControlMode(wpilib.CANTalon.ControlMode.PercentVbus)
 
     def robotInit(self):
-        self.gamepad = seamonsters.gamepad.globalGamepad(port = 1)
+        self.secondaryGamepad = seamonsters.gamepad.globalGamepad(port = 1)
 
         self.cm = wpilib.CANTalon(4)
         #cm stands for climb motor
@@ -45,11 +45,11 @@ class Climber(Module):
         self.enabled = True
 
     def teleopPeriodic(self):
-        if self.gamepad.getRawButton(Gamepad.A):
+        if self.secondaryGamepad.getRawButton(Gamepad.A):
             if not self.lockmode:
                 self.lockmode = True
 
-        if self.gamepad.getRawButton(Gamepad.RJ):
+        if self.secondaryGamepad.getRawButton(Gamepad.RJ):
             if self.lockmode:
                 self.lockmode = False
             self.enabled = True
@@ -62,13 +62,13 @@ class Climber(Module):
         else:
             self.lockLog.update("Off")
 
-        if self.gamepad.getLY()==0 and self.lockmode:
+        if self.secondaryGamepad.getLY()==0 and self.lockmode:
             self.lock()
             if self.enabled:
                 self.statusLog.update("Locked!")
         elif self.enabled:
             self.unlock()
-            self.cm.set(-self.gamepad.getLY())
+            self.cm.set(-self.secondaryGamepad.getLY())
             self.statusLog.update("Unlocked")
 
         if self.pdp.getCurrent(3) >= 20:

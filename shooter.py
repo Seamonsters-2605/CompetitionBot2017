@@ -12,7 +12,7 @@ from seamonsters import dashboard
 class Shooter (Module):
     
     def robotInit(self):
-        self.gamepad = seamonsters.gamepad.globalGamepad(port=1)
+        self.secondaryGamepad = seamonsters.gamepad.globalGamepad(port=1)
         self.flywheels = Flywheels()
         self.ballcontrol = BallControl()
 
@@ -38,29 +38,29 @@ class Shooter (Module):
             self.flywheels.switchSpeedMode()
 
     def teleopPeriodic(self):
-        if self.gamepad.getRawButton(Gamepad.UP):
+        if self.secondaryGamepad.getRawButton(Gamepad.UP):
             self.flywheels.spinFlywheels()
         else:
             self.flywheels.stopFlywheels()
             self.ballcontrol.stopFeed()
-        if self.gamepad.getRawButton(Gamepad.RIGHT):
+        if self.secondaryGamepad.getRawButton(Gamepad.RIGHT):
             self.ballcontrol.intakeForward()
-        elif self.gamepad.getRawButton(Gamepad.LEFT):
+        elif self.secondaryGamepad.getRawButton(Gamepad.LEFT):
             self.ballcontrol.intakeBackward()
         else:
             self.ballcontrol.intakeStop()
 
-        if self.gamepad.getRawButton(Gamepad.DOWN):
+        if self.secondaryGamepad.getRawButton(Gamepad.DOWN):
             self.flywheels.reverseFlywheels()
 
-        if self.gamepad.getRawButton(Gamepad.START):
+        if self.secondaryGamepad.getRawButton(Gamepad.START):
             self.flywheels.switchSpeedMode()
-        elif self.gamepad.getRawButton(Gamepad.BACK):
+        elif self.secondaryGamepad.getRawButton(Gamepad.BACK):
             self.flywheels.switchVoltageMode()
 
-        if self.gamepad.getRawButton(Gamepad.RT):
+        if self.secondaryGamepad.getRawButton(Gamepad.RT):
             self.ballcontrol.feedForwards()
-        elif self.gamepad.getRawButton(Gamepad.LT):
+        elif self.secondaryGamepad.getRawButton(Gamepad.LT):
             self.ballcontrol.feedBackwards()
         else:
             self.ballcontrol.stopFeed()

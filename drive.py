@@ -57,7 +57,7 @@ class DriveBot(Module):
 
         ### END OF CONSTANTS ###
 
-        self.gamepad = Gamepad(port = 0)
+        self.driverGamepad = Gamepad(port = 0)
         
         fl = wpilib.CANTalon(2)
         fr = wpilib.CANTalon(1)
@@ -270,42 +270,42 @@ class DriveBot(Module):
         self.count = self.count + 1
 
         # change drive mode with A, B, and X
-        if   self.gamepad.getRawButton(Gamepad.BACK):
+        if   self.driverGamepad.getRawButton(Gamepad.BACK):
             self.drive.setDriveMode(DriveInterface.DriveMode.VOLTAGE)
-        elif self.gamepad.getRawButton(Gamepad.START):
+        elif self.driverGamepad.getRawButton(Gamepad.START):
             self.drive.setDriveMode(DriveInterface.DriveMode.POSITION)
         self.driveModeLog.update(self._driveModeName(self.drive.getDriveMode()))
 
-        if self.gamepad.getRawButton(Gamepad.A):
+        if self.driverGamepad.getRawButton(Gamepad.A):
             self.drive = self.fieldDrive # field oriented on
-        if self.gamepad.getRawButton(Gamepad.B):
+        if self.driverGamepad.getRawButton(Gamepad.B):
             self.drive = self.filterDrive # field oriented off
 
         scale = self.normalScale
         turnScale = self.normalScale
         exponent = self.joystickExponent
-        if self.gamepad.getRawButton(Gamepad.RT): # faster button
+        if self.driverGamepad.getRawButton(Gamepad.RT): # faster button
             scale = self.fastScale
             exponent = self.fastJoystickExponent
-        if self.gamepad.getRawButton(Gamepad.LT): # slower button
+        if self.driverGamepad.getRawButton(Gamepad.LT): # slower button
             scale = self.slowScale
             turnScale = self.slowScale
             exponent = self.slowJoystickExponent
-        turn = self._joystickPower(-self.gamepad.getRX(), exponent) * turnScale
-        magnitude = self._joystickPower(self.gamepad.getLMagnitude(), exponent) * scale
-        direction = self.gamepad.getLDirection()
+        turn = self._joystickPower(-self.driverGamepad.getRX(), exponent) * turnScale
+        magnitude = self._joystickPower(self.driverGamepad.getLMagnitude(), exponent) * scale
+        direction = self.driverGamepad.getLDirection()
 
         #check if DPad is pressed
-        if self.gamepad.getRawButton(Gamepad.UP):
+        if self.driverGamepad.getRawButton(Gamepad.UP):
             self.upPad = True
             self.dPadCount = 0
-        elif self.gamepad.getRawButton(Gamepad.RIGHT):
+        elif self.driverGamepad.getRawButton(Gamepad.RIGHT):
             self.rightPad = True
             self.dPadCount = 0
-        elif self.gamepad.getRawButton(Gamepad.DOWN):
+        elif self.driverGamepad.getRawButton(Gamepad.DOWN):
             self.downPad = True
             self.dPadCount = 0
-        elif self.gamepad.getRawButton(Gamepad.LEFT):
+        elif self.driverGamepad.getRawButton(Gamepad.LEFT):
             self.leftPad = True
             self.dPadCount = 0
 
@@ -335,7 +335,7 @@ class DriveBot(Module):
         direction = self.roundDirection(direction, 3.0*math.pi/2.0)
         direction = self.roundDirection(direction, math.pi*2)
 
-        if self.gamepad.getRawButton(Gamepad.Y):
+        if self.driverGamepad.getRawButton(Gamepad.Y):
             magnitude=.44
             if self.count%10 >= 5:
                 direction = math.pi
