@@ -22,16 +22,16 @@ class DebugMode(Module):
         self.rtriggerforward = True
 
     def testPeriodic(self):
-        self.driveBot.talons[0].set(self.driveBot.gamepad.getLY())
-        self.driveBot.talons[1].set(self.driveBot.gamepad.getRY())
+        self.driveBot.talons[0].set(self.driveBot.driverGamepad.getLY())
+        self.driveBot.talons[1].set(self.driveBot.driverGamepad.getRY())
 
-        if self.driveBot.gamepad.buttonPressed(Gamepad.UP):
+        if self.driveBot.driverGamepad.buttonPressed(Gamepad.UP):
             self.ltriggerforward = not self.ltriggerforward
-        if self.driveBot.gamepad.buttonPressed(Gamepad.Y):
+        if self.driveBot.driverGamepad.buttonPressed(Gamepad.Y):
             self.rtriggerforward = not self.rtriggerforward
 
-        ltrigger = self.driveBot.gamepad.getLTrigger()
-        rtrigger = self.driveBot.gamepad.getRTrigger()
+        ltrigger = self.driveBot.driverGamepad.getLTrigger()
+        rtrigger = self.driveBot.driverGamepad.getRTrigger()
 
         if self.ltriggerforward:
             self.driveBot.talons[2].set(ltrigger)
@@ -43,7 +43,7 @@ class DebugMode(Module):
         else:
             self.driveBot.talons[3].set(-1 * rtrigger)
 
-        self.driveBot.gamepad.updateButtons()
+        self.driveBot.driverGamepad.updateButtons()
 
 if __name__ == "__main__":
     wpilib.run(DebugMode, physics_enabled=True)
