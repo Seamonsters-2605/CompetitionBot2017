@@ -13,14 +13,13 @@ class Shooter (Module):
     
     def robotInit(self):
         self.secondaryGamepad = seamonsters.gamepad.globalGamepad(port=1)
-        self.flywheels = Flywheels()
-        self.ballcontrol = BallControl()
+        self.ballControl = BallControl()
 
     def autonomousInit(self):
         if dashboard.getSwitch("Flywheel voltage mode", False):
-            self.flywheels.switchVoltageMode()
+            self.ballControl.getFlywheels().switchVoltageMode()
         else:
-            self.flywheels.switchSpeedMode()
+            self.ballControl.getFlywheels().switchSpeedMode()
 
     def teleopInit(self):
         print("  UP: Shoot")
@@ -33,47 +32,56 @@ class Shooter (Module):
         print("  Left Trigger: Feeder backwards")
 
         if dashboard.getSwitch("Flywheel voltage mode", False):
-            self.flywheels.switchVoltageMode()
+            self.ballControl.getFlywheels().switchVoltageMode()
         else:
-            self.flywheels.switchSpeedMode()
+            self.ballControl.getFlywheels().switchSpeedMode()
 
     def teleopPeriodic(self):
         if self.secondaryGamepad.getRawButton(Gamepad.UP):
-            self.flywheels.spinFlywheels()
+            self.ballControl.getFlywheels().spinFlywheels()
+        elif self.secondaryGamepad.getRawButton(Gamepad.DOWN):
+            self.ballControl.getFlywheels().reverseFlywheels()
         else:
-            self.flywheels.stopFlywheels()
-            self.ballcontrol.stopFeed()
-        if self.secondaryGamepad.getRawButton(Gamepad.RIGHT):
-            self.ballcontrol.intakeForward()
-        elif self.secondaryGamepad.getRawButton(Gamepad.LEFT):
-            self.ballcontrol.intakeBackward()
-        else:
-            self.ballcontrol.intakeStop()
+            self.ballControl.getFlywheels().stopFlywheels()
 
-        if self.secondaryGamepad.getRawButton(Gamepad.DOWN):
-            self.flywheels.reverseFlywheels()
+        if self.secondaryGamepad.getRawButton(Gamepad.RIGHT):
+            self.ballControl.intakeForward()
+        elif self.secondaryGamepad.getRawButton(Gamepad.LEFT):
+            self.ballControl.intakeBackward()
+        else:
+            self.ballControl.intakeStop()
 
         if self.secondaryGamepad.getRawButton(Gamepad.START):
-            self.flywheels.switchSpeedMode()
+            self.ballControl.getFlywheels().switchSpeedMode()
         elif self.secondaryGamepad.getRawButton(Gamepad.BACK):
-            self.flywheels.switchVoltageMode()
+            self.ballControl.getFlywheels().switchVoltageMode()
 
-        self.ballcontrol.feed(self.secondaryGamepad.getRTrigger() -
+        self.ballControl.feed(self.secondaryGamepad.getRTrigger() -
                               self.secondaryGamepad.getLTrigger())
 
 
 class BallControl:
+
     def __init__(self):
         self.intake = wpilib.CANTalon(6)
         self.feeder = wpilib.CANTalon(7)
+        self.flywheels = Flywheels()
+
+    def getFlywheels(self):
+        return self.flywheels
+
     def intakeForward(self):
         self.intake.set(0.25)
+
     def intakeBackward(self):
         self.intake.set(-0.25)
+
     def intakeStop(self):
         self.intake.set(0)
+
     def feed(self, speed):
         self.feeder.set(speed)
+
 class Flywheels:
 
     def __init__(self):
