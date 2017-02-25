@@ -12,22 +12,21 @@ class Climber(Module):
     def lock(self):
         if not self.locked:
             self.locked = True
-            self.cm.changeControlMode(wpilib.CANTalon.ControlMode.Position)
-            self.cm.setFeedbackDevice(wpilib.CANTalon.FeedbackDevice.QuadEncoder)
-            self.cm.setPID(1.0, 0.0, 3.0, 0.0)
-            position = self.cm.getPosition()
-            self.cm.set(position)
+            self.climberMotor.changeControlMode(wpilib.CANTalon.ControlMode.Position)
+            self.climberMotor.setFeedbackDevice(wpilib.CANTalon.FeedbackDevice.QuadEncoder)
+            self.climberMotor.setPID(1.0, 0.0, 3.0, 0.0)
+            position = self.climberMotor.getPosition()
+            self.climberMotor.set(position)
 
     def unlock(self):
         if self.locked :
             self.locked = False
-            self.cm.changeControlMode(wpilib.CANTalon.ControlMode.PercentVbus)
+            self.climberMotor.changeControlMode(wpilib.CANTalon.ControlMode.PercentVbus)
 
     def robotInit(self):
         self.gamepad = seamonsters.gamepad.globalGamepad(port = 1)
 
-        self.cm = wpilib.CANTalon(4)
-        #cm stands for climb motor
+        self.climberMotor = wpilib.CANTalon(4)
 
         self.pdp = wpilib.PowerDistributionPanel()
 
@@ -48,11 +47,13 @@ class Climber(Module):
         if self.gamepad.getRawButton(Gamepad.A):
             if not self.lockmode:
                 self.lockmode = True
+                #When the A button is pressed the motor locks, so the robot wont fall down the rope
 
         if self.gamepad.getRawButton(Gamepad.RJ):
             if self.lockmode:
                 self.lockmode = False
             self.enabled = True
+            #When the Right Joystick is pressed down the lockmode is disabled
 
         if not self.enabled:
             self.lockLog.update("Climber disabled!")
@@ -68,7 +69,7 @@ class Climber(Module):
                 self.statusLog.update("Locked!")
         elif self.enabled:
             self.unlock()
-            self.cm.set(-self.gamepad.getLY())
+            self.climberMotor.set(-self.gamepad.getLY())
             self.statusLog.update("Unlocked")
 
         if self.pdp.getCurrent(3) >= 20:
