@@ -439,8 +439,6 @@ class TurnAlignCommand(wpilib.command.Command):
         if targetX == None:
             print("No vision!!")
             return
-        else:
-            print(targetX)
         TurnAlignCommand.log.update(targetX - 0.5)
         turnAmount = (abs(targetX - 0.5) ** 0.6) * 8
 
@@ -483,7 +481,6 @@ class StrafeAlignCommand(wpilib.command.Command):
 
     def execute(self):
         targetX = self._getTargetX()
-        #print(targetX)
 
         if targetX == None:
             print("No vision!!")
