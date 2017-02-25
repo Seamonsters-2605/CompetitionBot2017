@@ -13,8 +13,6 @@ class Shooter (Module):
     
     def robotInit(self):
         self.gamepad = seamonsters.gamepad.globalGamepad(port=1)
-
-        self.flywheelSpinCount = 0
         self.flywheels = Flywheels()
         self.ballcontrol = BallControl()
 
@@ -31,7 +29,9 @@ class Shooter (Module):
         print("  Back: Flywheel voltage mode")
         print("  RIGHT: Intake")
         print("  LEFT: Outtake")
-        
+        print("Right Trigger: Feeder forwards")
+        print("Left Trigger: Feeder backwards")
+
         if dashboard.getSwitch("Flywheel voltage mode", False):
             self.flywheels.switchVoltageMode()
         else:
@@ -40,11 +40,7 @@ class Shooter (Module):
     def teleopPeriodic(self):
         if self.gamepad.getRawButton(Gamepad.UP):
             self.flywheels.spinFlywheels()
-            if self.flywheelSpinCount > 75:
-                self.ballcontrol.feedForwards()
-            self.flywheelSpinCount += 1
         else:
-            self.flywheelSpinCount = 0
             self.flywheels.stopFlywheels()
             self.ballcontrol.stopFeed()
         if self.gamepad.getRawButton(Gamepad.RIGHT):
@@ -61,6 +57,15 @@ class Shooter (Module):
             self.flywheels.switchSpeedMode()
         elif self.gamepad.getRawButton(Gamepad.BACK):
             self.flywheels.switchVoltageMode()
+
+        if self.gamepad.getRawButton(Gamepad.RT):
+            self.ballcontrol.feedForwards()
+        elif self.gamepad.getRawButton(Gamepad.LT):
+            self.ballcontrol.feedBackwards()
+        else:
+            self.ballcontrol.stopFeed()
+
+
 
 class BallControl:
     def __init__(self):
