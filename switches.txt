@@ -1,5 +1,4 @@
 +Field oriented drive
-+Current logging
 -Drive voltage mode
 -Flywheel voltage mode
 +Gear in auto

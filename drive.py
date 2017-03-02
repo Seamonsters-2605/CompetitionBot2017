@@ -136,7 +136,6 @@ class DriveBot(Module):
             self.drive = self.fieldDrive
         else:
             self.drive = self.filterDrive
-        self.currentLogEnabled = dashboard.getSwitch("Current logging", True)
         if dashboard.getSwitch("Drive voltage mode", False):
             self.holoDrive.setDriveMode(DriveInterface.DriveMode.VOLTAGE)
         else:
@@ -361,14 +360,13 @@ class DriveBot(Module):
         else:
             self.drive.drive(magnitude, direction, turn)
 
-        if self.currentLogEnabled:
-            current = 0
-            for talon in self.talons:
-                current += talon.getOutputCurrent()
-            if current > 50:
-                self.currentLog.update(str(current) + "!")
-            else:
-                self.currentLog.update(current)
+        current = 0
+        for talon in self.talons:
+            current += talon.getOutputCurrent()
+        if current > 50:
+            self.currentLog.update(str(current) + "!")
+        else:
+            self.currentLog.update(current)
         if self.encoderLog != None:
             encoderLogText = ""
             for talon in self.talons:
