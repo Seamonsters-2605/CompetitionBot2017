@@ -93,6 +93,8 @@ class DriveBot(Module):
                                              offset=0)
         self.fieldDrive.zero()
 
+        self.fieldDriveLog = LogState("Field oriented")
+
         self.tankFieldMovement = \
             TankFieldMovement(fl, fr, bl, br,
                                             ticksPerWheelRotation, 6 * math.pi,
@@ -128,10 +130,8 @@ class DriveBot(Module):
         self.count = 0
 
         if dashboard.getSwitch("Field oriented drive", True):
-            print("Field oriented on")
             self.drive = self.fieldDrive
         else:
-            print("Field oriented off")
             self.drive = self.filterDrive
         self.currentLogEnabled = dashboard.getSwitch("Current logging", True)
         if dashboard.getSwitch("Drive voltage mode", False):
@@ -285,6 +285,14 @@ class DriveBot(Module):
             self.drive = self.fieldDrive # field oriented on
         if self.driverGamepad.getRawButton(Gamepad.B):
             self.drive = self.filterDrive # field oriented off
+        if self.driverGamepad.getRawButton(Gamepad.RB) \
+                and self.driverGamepad.getRawButton(Gamepad.LB):
+            print("Zero field oriented.")
+            self.fieldDrive.zero()
+        if self.drive is self.fieldDrive:
+            self.fieldDriveLog.update("Enabled")
+        else:
+            self.fieldDriveLog.update("Disabled")
 
         scale = self.normalScale
         turnScale = self.normalScale
