@@ -103,6 +103,9 @@ class DriveBot(Module):
 
         self.encoderLog = None
         #self.encoderLog = LogState("Wheel encoders")
+
+        if self.pdp.getVoltage() < 12:
+            print ("Battery Level below 12 volts!!!")
         
     def teleopInit(self):
         print("DRIVE GAMEPAD:")
