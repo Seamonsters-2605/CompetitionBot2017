@@ -337,7 +337,7 @@ class DriveBot(Module):
         direction = self.roundDirection(direction, math.pi*2)
 
         if self.driverGamepad.getRawButton(Gamepad.Y):
-            magnitude=.44
+            magnitude=1
             if self.count%10 >= 5:
                 direction = math.pi
             else:
