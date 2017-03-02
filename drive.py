@@ -342,8 +342,9 @@ class DriveBot(Module):
                 direction = math.pi
             else:
                 direction = 0
-
-        self.drive.drive(magnitude, direction, turn)
+            self.pidDrive.drive(magnitude, direction, turn)
+        else:
+            self.drive.drive(magnitude, direction, turn)
 
         if self.currentLogEnabled:
             current = 0
