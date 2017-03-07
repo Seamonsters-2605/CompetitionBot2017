@@ -7,6 +7,7 @@ from seamonsters.wpilib_sim import simulate
 from seamonsters.modularRobot import Module
 
 from seamonsters.gamepad import Gamepad
+import seamonsters.gamepad
 from seamonsters.drive import DriveInterface
 from seamonsters.drive import AccelerationFilterDrive
 from seamonsters.drive import FieldOrientedDrive
@@ -57,8 +58,8 @@ class DriveBot(Module):
 
         ### END OF CONSTANTS ###
 
-        self.driverGamepad = Gamepad(port = 0)
-        self.secondaryGamepad = Gamepad(port = 1)
+        self.driverGamepad = seamonsters.gamepad.globalGamepad(port = 0)
+        self.secondaryGamepad = seamonsters.gamepad.globalGamepad(port = 1)
         
         fl = wpilib.CANTalon(2)
         fr = wpilib.CANTalon(1)
