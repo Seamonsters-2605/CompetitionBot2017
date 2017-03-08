@@ -303,7 +303,7 @@ class DriveBot(Module):
             self.readyForGearLight = not self.readyForGearLight
 
         if self.readyForGearLight:
-            # turn on light 
+            # turn on light
             print("Ready for gear drop")
 
         scale = self.normalScale
