@@ -286,25 +286,26 @@ class DriveBot(Module):
         self.driveModeLog.update(self._driveModeName(self.drive.getDriveMode()))
 
         # AUTO COMMANDS ARE CHECKED BEFORE OTHER BUTTON PRESSES
-        if self.strafeToPegTeleop == None and self.secondaryGamepad.getRawButton(Gamepad.B):
-            self.scheduler.enable()
-            print("Strafe activated")
-            self.strafeToPegTeleop = CommandGroup()
-            self.strafeToPegTeleop.addSequential(
-                EnsureFinishedCommand(
-                    StrafeAlignCommand(drive=self.multiDrive,
-                                       vision=self.vision),
-                    25)
-            )
-            self.strafeToPegTeleop.addSequential(
-                PrintCommand("Finished StrafeCommand")
-            )
-            self.scheduler.add(self.strafeToPegTeleop)
+        if self.strafeToPegTeleop == None and self.turnAndDriveToBoilerTeleop == None:
+            if self.secondaryGamepad.getRawButton(Gamepad.B):
+                self.scheduler.enable()
+                print("Strafe activated")
+                self.strafeToPegTeleop = CommandGroup()
+                self.strafeToPegTeleop.addSequential(
+                    EnsureFinishedCommand(
+                        StrafeAlignCommand(drive=self.multiDrive,
+                                           vision=self.vision),
+                        25)
+                )
+                self.strafeToPegTeleop.addSequential(
+                    PrintCommand("Finished StrafeCommand")
+                )
+                self.scheduler.add(self.strafeToPegTeleop)
 
-        if self.turnAndDriveToBoilerTeleop == None and self.secondaryGamepad.getRawButton(Gamepad.Y):
-            self.scheduler.enable()
-            print("Turn and drive activated")
-            #self.teleopAlignToBoilerSequence = CommandGroup()
+            elif self.secondaryGamepad.getRawButton(Gamepad.Y):
+                self.scheduler.enable()
+                print("Turn and drive activated")
+                #self.teleopAlignToBoilerSequence = CommandGroup()
 
         if self.driverGamepad.getRawButton(Gamepad.X) or self.secondaryGamepad.getRawButton(Gamepad.X):
             # Cancel all vision commands if X button pressed on either gamepad
