@@ -278,7 +278,7 @@ class DriveBot(Module):
     def teleopPeriodic(self):
         self.count = self.count + 1
 
-        # change drive mode with A, B, and X
+        # change drive mode with back and start
         if   self.driverGamepad.getRawButton(Gamepad.BACK):
             self.drive.setDriveMode(DriveInterface.DriveMode.VOLTAGE)
         elif self.driverGamepad.getRawButton(Gamepad.START):
@@ -305,7 +305,28 @@ class DriveBot(Module):
             elif self.secondaryGamepad.getRawButton(Gamepad.Y):
                 self.scheduler.enable()
                 print("Turn and drive activated")
-                #self.teleopAlignToBoilerSequence = CommandGroup()
+                """
+                self.teleopAlignToBoilerSequence = CommandGroup()
+                self.teleopAlignToBoilerSequence.addSequential(
+                    EnsureFinishedCommand(
+                        TurnAlignCommand(drive=self.multiDrive,
+                                         vision=self.vision),
+                        25)
+                )
+                self.teleopAlignToBoilerSequence.addSequential(
+                    PrintCommand("Finished TurnCommand")
+                )
+                self.teleopAlignToBoilerSequence.addSequential(
+                    EnsureFinishedCommand(
+                        DriveToBoilerDistanceCommand(drive=self.multiDrive,
+                                                     vision=self.vision),
+                        25)
+                )
+                self.teleopAlignToBoilerSequence.addSequential(
+                    PrintCommand("DriveToBoilerDistance finished")
+                )
+                self.scheduler.add(self.teleopAlignToBoilerSequence)
+                """
 
         if self.driverGamepad.getRawButton(Gamepad.X) or self.secondaryGamepad.getRawButton(Gamepad.X):
             # Cancel all vision commands if X button pressed on either gamepad
