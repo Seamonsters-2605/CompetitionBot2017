@@ -59,6 +59,7 @@ class DriveBot(Module):
         ### END OF CONSTANTS ###
 
         self.driverGamepad = Gamepad(port = 0)
+        self.secondaryGamepad = Gamepad(port = 1)
         
         fl = wpilib.CANTalon(2)
         fr = wpilib.CANTalon(1)
@@ -131,6 +132,8 @@ class DriveBot(Module):
         self.downPad = False
         self.leftPad = False
         self.count = 0
+
+        self.readyForGearLight = False
 
         if dashboard.getSwitch("Field oriented drive", True):
             self.drive = self.fieldDrive
@@ -295,6 +298,13 @@ class DriveBot(Module):
             self.fieldDriveLog.update("Enabled")
         else:
             self.fieldDriveLog.update("Disabled")
+
+        if self.secondaryGamepad.getRawButton(Gamepad.LJ):
+            self.readyForGearLight = not self.readyForGearLight
+
+        if self.readyForGearLight:
+            # turn on light 
+            print("Ready for gear drop")
 
         scale = self.normalScale
         turnScale = self.normalScale
