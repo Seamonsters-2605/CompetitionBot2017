@@ -71,6 +71,7 @@ class DriveBot(Module):
             talon.setFeedbackDevice(wpilib.CANTalon.FeedbackDevice.QuadEncoder)
 
         self.driveModeLog = LogState("Drive mode")
+        self.gearLog = LogState("Gear")
         
         self._setPID(fastPID)
         
@@ -382,6 +383,11 @@ class DriveBot(Module):
             for talon in self.talons:
                 encoderLogText += str(talon.getPosition()) + " "
             self.encoderLog.update(encoderLogText)
+
+        if self.proximitySensor.getVoltage() < 2:
+            self.gearLog.update("Gear removed")
+        else:
+            self.gearLog.update("Gear not removed")
 
     def _driveModeName(self, driveMode):
         if driveMode == DriveInterface.DriveMode.VOLTAGE:
