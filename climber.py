@@ -42,6 +42,7 @@ class Climber(Module):
         self.locked = False
         self.lockmode = False
         self.enabled = True
+        self.climberMotor.changeControlMode(wpilib.CANTalon.ControlMode.PercentVbus)
 
     def teleopPeriodic(self):
         if self.secondaryGamepad.getRawButton(Gamepad.A):
