@@ -44,7 +44,7 @@ class DriveBot(Module):
         self.driveDirectionDeadZone = math.radians(10)
 
         # rate of increase of velocity per 1/50th of a second:
-        accelerationRate = .04
+        accelerationRate = 0.1
 
         # PIDF values for fast driving:
         fastPID = (1.0, 0.0009, 3.0, 0.0)
