@@ -389,6 +389,8 @@ class DriveBot(Module):
         magnitude = self._joystickPower(self.driverGamepad.getLMagnitude(), exponent) * scale
         direction = self.driverGamepad.getLDirection()
 
+        accelFilter = True
+
         #check if DPad is pressed
 
         pov = self.driverGamepad.getPOV()
@@ -400,6 +402,7 @@ class DriveBot(Module):
             magnitude = 0.1
             direction = self.dPadDirection
             self.dPadCount += 1
+            accelFilter = False
 
         # constrain direction to be between 0 and 2pi
         if direction < 0:
@@ -418,9 +421,12 @@ class DriveBot(Module):
                 direction = math.pi
             else:
                 direction = 0
-            self.pidDrive.drive(magnitude, direction, turn)
-        else:
+            accelFilter = False
+
+        if accelFilter:
             self.drive.drive(magnitude, direction, turn)
+        else:
+            self.pidDrive.drive(magnitude, direction, turn)
 
         current = 0
         for talon in self.talons:
