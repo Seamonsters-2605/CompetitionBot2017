@@ -29,11 +29,11 @@ class DriveBot(Module):
         ### CONSTANTS ###
 
         # normal speed scale, out of 1:
-        self.normalScale = 0.44
+        self.normalScale = 0.55
         # speed scale when fast button is pressed:
         self.fastScale = 1.0
         # speed scale when slow button is pressed:
-        self.slowScale = 0.07
+        self.slowScale = 0.1
 
         self.joystickExponent = 2
         self.fastJoystickExponent = .5
