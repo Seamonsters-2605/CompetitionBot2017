@@ -124,6 +124,8 @@ class DriveBot(Module):
         self.leftPad = False
         self.count = 0
 
+        self.vision = vision.Vision()
+
         self.strafeToPegTeleop = None
         self.turnAndDriveToBoilerTeleop = None
 
@@ -293,7 +295,7 @@ class DriveBot(Module):
                 self.strafeToPegTeleop = CommandGroup()
                 self.strafeToPegTeleop.addSequential(
                     EnsureFinishedCommand(
-                        StrafeAlignCommand(drive=self.multiDrive,
+                        StrafeAlignCommand(drive=self.pidDrive,
                                            vision=self.vision),
                         25)
                 )
@@ -301,6 +303,7 @@ class DriveBot(Module):
                     PrintCommand("Finished StrafeCommand")
                 )
                 self.scheduler.add(self.strafeToPegTeleop)
+                return
 
             elif self.secondaryGamepad.getRawButton(Gamepad.Y):
                 self.scheduler.enable()
@@ -327,6 +330,7 @@ class DriveBot(Module):
                 )
                 self.scheduler.add(self.teleopAlignToBoilerSequence)
                 """
+                return
 
         if self.driverGamepad.getRawButton(Gamepad.X) or self.secondaryGamepad.getRawButton(Gamepad.X):
             # Cancel all vision commands if X button pressed on either gamepad
