@@ -456,9 +456,9 @@ class DriveBot(Module):
             self.encoderLog.update(encoderLogText)
 
         if self.proximitySensor.getVoltage() < 2:
-            self.gearLog.update("Gear removed")
+            self.gearLog.update("No gear")
         else:
-            self.gearLog.update("Gear not removed")
+            self.gearLog.update("Gear")
 
     def _driveModeName(self, driveMode):
         if driveMode == DriveInterface.DriveMode.VOLTAGE:
