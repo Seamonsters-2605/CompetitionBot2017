@@ -32,6 +32,8 @@ class Climber(Module):
 
         self.lockLog = LogState("Climber lock mode")
         self.statusLog = LogState("Climber status")
+        #self.encoderLog = LogState("Climber encoder")
+        self.encoderLog = None
 
     def teleopInit(self):
         print("SPECIAL GAMEPAD:")
@@ -75,6 +77,9 @@ class Climber(Module):
         if self.pdp.getCurrent(3) >= 20:
             self.lock()
             self.enabled = False
+
+        if self.encoderLog != None:
+            self.encoderLog.update(self.climberMotor.getPosition())
             
     def disabledInit(self):
         pass
