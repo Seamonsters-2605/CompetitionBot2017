@@ -7,6 +7,7 @@ from seamonsters.modularRobot import Module
 from seamonsters.gamepad import Gamepad
 import seamonsters.gamepad
 from seamonsters.logging import LogState
+import config
 
 class Climber(Module):
     def lock(self):
@@ -14,7 +15,10 @@ class Climber(Module):
             self.locked = True
             self.climberMotor.changeControlMode(wpilib.CANTalon.ControlMode.Position)
             self.climberMotor.setFeedbackDevice(wpilib.CANTalon.FeedbackDevice.QuadEncoder)
-            self.climberMotor.setPID(1.0, 0.0, 3.0, 0.0)
+            if config.PRACTICE_BOT:
+                self.climberMotor.setPID(5.0, 0.0, 3.0, 0.0)
+            else:
+                self.climberMotor.setPID(1.0, 0.0, 3.0, 0.0)
             position = self.climberMotor.getPosition()
             self.climberMotor.set(position)
 
