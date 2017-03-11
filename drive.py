@@ -34,6 +34,8 @@ class DriveBot(Module):
         self.fastScale = 1.0
         # speed scale when slow button is pressed:
         self.slowScale = 0.1
+        # normal turning speed scale:
+        self.normalTurnScale = 0.45
 
         self.joystickExponent = 2
         self.fastJoystickExponent = .5
@@ -398,7 +400,7 @@ class DriveBot(Module):
 
 
         scale = self.normalScale
-        turnScale = self.normalScale
+        turnScale = self.normalTurnScale
         exponent = self.joystickExponent
         if self.driverGamepad.getRawButton(Gamepad.RT): # faster button
             scale = self.fastScale
