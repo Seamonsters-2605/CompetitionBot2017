@@ -124,7 +124,7 @@ class DriveBot(Module):
         print("  Back: Voltage mode")
         print("  Right Joystick: Turn")
         print("  Left Joystick: Strafe/Drive ")
-        print("  Y: Shake Robot")
+        print("  Y: Align to gear target")
         print("  X: Cancel all vision commands")
         self.holoDrive.zeroEncoderTargets()
         self.dPadCount = 1000
@@ -298,7 +298,7 @@ class DriveBot(Module):
 
         # AUTO COMMANDS ARE CHECKED BEFORE OTHER BUTTON PRESSES
         if self.strafeToPegTeleop == None and self.turnAndDriveToBoilerTeleop == None:
-            if self.secondaryGamepad.getRawButton(Gamepad.B):
+            if self.driverGamepad.getRawButton(Gamepad.Y):
                 self.scheduler.enable()
                 print("Strafe activated")
                 self.strafeToPegTeleop = CommandGroup()
@@ -314,10 +314,10 @@ class DriveBot(Module):
                 self.scheduler.add(self.strafeToPegTeleop)
                 return
 
+            """
             elif self.secondaryGamepad.getRawButton(Gamepad.Y):
                 self.scheduler.enable()
                 print("Turn and drive activated")
-                """
                 self.teleopAlignToBoilerSequence = CommandGroup()
                 self.teleopAlignToBoilerSequence.addSequential(
                     EnsureFinishedCommand(
@@ -338,8 +338,9 @@ class DriveBot(Module):
                     PrintCommand("DriveToBoilerDistance finished")
                 )
                 self.scheduler.add(self.teleopAlignToBoilerSequence)
-                """
+
                 return
+            """
 
         if self.driverGamepad.getRawButton(Gamepad.X) or self.secondaryGamepad.getRawButton(Gamepad.X):
             # Cancel all vision commands if X button pressed on either gamepad
@@ -431,7 +432,7 @@ class DriveBot(Module):
         direction = self.roundDirection(direction, 3.0*math.pi/2.0)
         direction = self.roundDirection(direction, math.pi*2)
 
-        if self.driverGamepad.getRawButton(Gamepad.Y):
+        if self.secondaryGamepad.getRawButton(Gamepad.Y):
             magnitude=1
             if self.count%10 >= 5:
                 direction = math.pi

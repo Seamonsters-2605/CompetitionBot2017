@@ -37,9 +37,10 @@ class Climber(Module):
 
     def teleopInit(self):
         print("SPECIAL GAMEPAD:")
+        print("  Y: Shake robot")
         print("  Left Joystick up: Climb")
         print("  Left Joystick down: Descend")
-        print("  Button A: Lock motor")
+        print("  A: Lock motor")
         print("  Press down Right Joystick: Unlock motor")
         self.locked = False
         self.lockmode = False
