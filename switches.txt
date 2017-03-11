@@ -1,4 +1,4 @@
-+Field oriented drive
+-Field oriented drive
 -Drive voltage mode
 -Flywheel voltage mode
 +Gear in auto

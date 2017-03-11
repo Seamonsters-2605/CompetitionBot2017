@@ -141,7 +141,7 @@ class DriveBot(Module):
         self.multiFieldDrive = MultiDrive(self.fieldDrive)
         self.multiDrive = MultiDrive(self.pidDrive)
 
-        if dashboard.getSwitch("Field oriented drive", True):
+        if dashboard.getSwitch("Field oriented drive", False):
             self.drive = self.fieldDrive
         else:
             self.drive = self.filterDrive
