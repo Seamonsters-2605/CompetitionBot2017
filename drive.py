@@ -125,8 +125,7 @@ class DriveBot(Module):
         print("  Back: Voltage mode")
         print("  Right Joystick: Turn")
         print("  Left Joystick: Strafe/Drive ")
-        print("  Y: Align to gear target")
-        print("  X: Cancel all vision commands")
+        print("  Y + Dpad: Vision command")
         self.holoDrive.zeroEncoderTargets()
         self.dPadCount = 1000
         #booleans for DPad steering
@@ -301,10 +300,9 @@ class DriveBot(Module):
                 print("Strafe activated")
                 self.teleopCommand = CommandGroup()
                 self.teleopCommand.addSequential(
-                    EnsureFinishedCommand(
+                    ForeverCommand(
                         StrafeAlignCommand(drive=self.pidDrive,
-                                           vision=self.vision),
-                        25)
+                                           vision=self.vision))
                 )
                 self.teleopCommand.addSequential(
                     PrintCommand("Finished StrafeCommand")
@@ -328,8 +326,8 @@ class DriveBot(Module):
                     angle=self.fieldDrive.origin + rotation)
                 self.teleopCommand = CommandGroup()
                 self.teleopCommand.addSequential(
-                    EnsureFinishedCommand(
-                        staticRotationCommand, 25))
+                    ForeverCommand(
+                        staticRotationCommand))
                 self.teleopCommand.addSequential(
                     PrintCommand("Finished rotating")
                 )
@@ -364,7 +362,9 @@ class DriveBot(Module):
                 return
             """
 
-        if self.driverGamepad.getRawButton(Gamepad.X) or self.secondaryGamepad.getRawButton(Gamepad.X):
+        if self.teleopCommand != None and \
+                (self.driverGamepad.getDPad() == -1 or
+                not self.driverGamepad.getRawButton(Gamepad.Y)):
             # Cancel all vision commands if X button pressed on either gamepad
             self.scheduler.removeAll()
             self.scheduler.disable()
