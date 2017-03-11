@@ -105,7 +105,7 @@ class DriveBot(Module):
         self.proximitySensor = wpilib.AnalogInput(0)
 
         self.pdp = wpilib.PowerDistributionPanel()
-        self.currentLog = LogState("Drive current")
+        self.currentLog = LogState("Drive current", logFrequency=2.0)
 
         self.encoderLog = None
         #self.encoderLog = LogState("Wheel encoders")
