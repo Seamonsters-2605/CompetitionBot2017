@@ -155,7 +155,7 @@ class StaticRotationCommand(wpilib.command.Command):
 
     def execute(self):
         offset = (self._getYawRadians() - self.origin)
-        StaticRotationCommand.log.update(offset)
+        StaticRotationCommand.log.update("{0:.5f}".format(offset))
         turn = offset * -.14
         self.drive.drive(0, 0, turn)
     
@@ -459,7 +459,7 @@ class TurnAlignCommand(wpilib.command.Command):
         if targetX == None:
             print("No vision!!")
             return
-        TurnAlignCommand.log.update(targetX - 0.5)
+        TurnAlignCommand.log.update("{0:.5f}".format(targetX - 0.5))
         turnAmount = (abs(targetX - 0.5) ** 0.6) * 8
 
         if targetX > 0.5:
@@ -506,7 +506,7 @@ class StrafeAlignCommand(wpilib.command.Command):
             print("No vision!!")
             return
 
-        StrafeAlignCommand.log.update(targetX - .5)
+        StrafeAlignCommand.log.update("{0:.5f}".format(targetX - .5))
         speed = -(abs(targetX - .5) ** 1.2) * .5
 
         if targetX > 0.5:
@@ -571,7 +571,7 @@ class DriveToTargetDistanceCommand(wpilib.command.Command):
                                 + vision.Vision.findCentersYDistance(contours)**2)
 
         self.distance = self.pegFocalDistance * self.pegRealTargetDistance / pixelDistance
-        DriveToTargetDistanceCommand.log.update(self.distance - self.buffer)
+        DriveToTargetDistanceCommand.log.update("{0:.5f}".format(self.distance - self.buffer))
 
         speed = (1 - 2.7 ** (-.01 * (self.distance - self.buffer))) * .7
 
@@ -603,6 +603,9 @@ class DriveToBoilerDistanceCommand(wpilib.command.Command):
         # prevent isFinished() from returning True
         self.distance = self.buffer + self.tolerance + 1
 
+        if DriveToTargetDistanceCommand.log == None:
+            DriveToTargetDistanceCommand.log = LogState("Distance offset")
+
     def execute(self):
         contours = self.visionary.getBoilerContours()
         contours = vision.Vision.findTargetContours(contours)
@@ -621,7 +624,7 @@ class DriveToBoilerDistanceCommand(wpilib.command.Command):
 
         self.distance = math.sqrt((self.boilerFocalDistance * self.boilerRealTargetDistance / width)**2
                                    - self.boilerTargetHeight**2)
-        DriveToTargetDistanceCommand.log.update(self.distance - self.buffer)
+        DriveToTargetDistanceCommand.log.update("{0:.5f}".format(self.distance - self.buffer))
 
         speed = (1 - 2.7 ** (-.01 * (self.distance - self.buffer))) * .7
 
