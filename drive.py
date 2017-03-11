@@ -83,6 +83,7 @@ class DriveBot(Module):
         self.holoDrive = HolonomicDrive(fl, fr, bl, br, ticksPerWheelRotation)
         self.holoDrive.invertDrive(True)
         self.holoDrive.setWheelOffset(math.radians(45.0)) #angle of rollers
+        self.holoDrive.setMaxVelocity(400)
 
         self.pidDrive = DynamicPIDDrive(self.holoDrive, self.talons,
                                         slowPID, slowPIDScale,
