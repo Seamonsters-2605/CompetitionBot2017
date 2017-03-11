@@ -35,7 +35,7 @@ class DriveBot(Module):
         # speed scale when slow button is pressed:
         self.slowScale = 0.1
         # normal turning speed scale:
-        self.normalTurnScale = 0.45
+        self.normalTurnScale = 0.5
 
         self.joystickExponent = 2
         self.fastJoystickExponent = .5
