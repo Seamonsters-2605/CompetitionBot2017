@@ -129,10 +129,7 @@ class DriveBot(Module):
         self.holoDrive.zeroEncoderTargets()
         self.dPadCount = 1000
         #booleans for DPad steering
-        self.upPad = False
-        self.rightPad = False
-        self.downPad = False
-        self.leftPad = False
+        self.dPadDirection = 0
         self.count = 0
 
         self.readyForGearLight = wpilib.DigitalOutput(0)
@@ -393,33 +390,16 @@ class DriveBot(Module):
         direction = self.driverGamepad.getLDirection()
 
         #check if DPad is pressed
-        if self.driverGamepad.getRawButton(Gamepad.UP):
-            self.upPad = True
-            self.dPadCount = 0
-        elif self.driverGamepad.getRawButton(Gamepad.RIGHT):
-            self.rightPad = True
-            self.dPadCount = 0
-        elif self.driverGamepad.getRawButton(Gamepad.DOWN):
-            self.downPad = True
-            self.dPadCount = 0
-        elif self.driverGamepad.getRawButton(Gamepad.LEFT):
-            self.leftPad = True
+
+        pov = self.driverGamepad.getPOV()
+        if pov != -1:
+            self.dPadDirection = -math.radians(self.driverGamepad.getPOV() - 90.0)
             self.dPadCount = 0
 
         if(self.dPadCount < 10):
             magnitude = 0.1
+            direction = self.dPadDirection
             self.dPadCount += 1
-        else:
-            self.upPad = self.rightPad = self.downPad = self.leftPad = False
-
-        if(self.upPad):
-            direction = math.pi/2.0
-        elif(self.rightPad):
-            direction = 0
-        elif(self.downPad):
-            direction = 3.0*math.pi/2.0
-        elif(self.leftPad):
-            direction = math.pi
 
         # constrain direction to be between 0 and 2pi
         if direction < 0:
