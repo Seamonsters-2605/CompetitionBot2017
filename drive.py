@@ -7,6 +7,7 @@ from seamonsters.wpilib_sim import simulate
 from seamonsters.modularRobot import Module
 
 from seamonsters.gamepad import Gamepad
+import seamonsters.gamepad
 from seamonsters.drive import DriveInterface
 from seamonsters.drive import AccelerationFilterDrive
 from seamonsters.drive import FieldOrientedDrive
@@ -58,8 +59,8 @@ class DriveBot(Module):
 
         ### END OF CONSTANTS ###
 
-        self.driverGamepad = Gamepad(port = 0)
-        self.secondaryGamepad = Gamepad(port = 1)
+        self.driverGamepad = seamonsters.gamepad.globalGamepad(port = 0)
+        self.secondaryGamepad = seamonsters.gamepad.globalGamepad(port = 1)
         
         fl = wpilib.CANTalon(2)
         fr = wpilib.CANTalon(1)
@@ -135,6 +136,14 @@ class DriveBot(Module):
         self.count = 0
 
         self.readyForGearLight = wpilib.DigitalOutput(0)
+        self.vision = vision.Vision()
+
+        self.strafeToPegTeleop = None
+        self.turnAndDriveToBoilerTeleop = None
+
+        self.scheduler = Scheduler.getInstance()
+        self.multiFieldDrive = MultiDrive(self.fieldDrive)
+        self.multiDrive = MultiDrive(self.pidDrive)
 
         if dashboard.getSwitch("Field oriented drive", True):
             self.drive = self.fieldDrive
@@ -280,12 +289,73 @@ class DriveBot(Module):
     def teleopPeriodic(self):
         self.count = self.count + 1
 
-        # change drive mode with A, B, and X
+        # change drive mode with back and start
         if   self.driverGamepad.getRawButton(Gamepad.BACK):
             self.drive.setDriveMode(DriveInterface.DriveMode.VOLTAGE)
         elif self.driverGamepad.getRawButton(Gamepad.START):
             self.drive.setDriveMode(DriveInterface.DriveMode.POSITION)
         self.driveModeLog.update(self._driveModeName(self.drive.getDriveMode()))
+
+        # AUTO COMMANDS ARE CHECKED BEFORE OTHER BUTTON PRESSES
+        if self.strafeToPegTeleop == None and self.turnAndDriveToBoilerTeleop == None:
+            if self.secondaryGamepad.getRawButton(Gamepad.B):
+                self.scheduler.enable()
+                print("Strafe activated")
+                self.strafeToPegTeleop = CommandGroup()
+                self.strafeToPegTeleop.addSequential(
+                    EnsureFinishedCommand(
+                        StrafeAlignCommand(drive=self.pidDrive,
+                                           vision=self.vision),
+                        25)
+                )
+                self.strafeToPegTeleop.addSequential(
+                    PrintCommand("Finished StrafeCommand")
+                )
+                self.scheduler.add(self.strafeToPegTeleop)
+                return
+
+            elif self.secondaryGamepad.getRawButton(Gamepad.Y):
+                self.scheduler.enable()
+                print("Turn and drive activated")
+                """
+                self.teleopAlignToBoilerSequence = CommandGroup()
+                self.teleopAlignToBoilerSequence.addSequential(
+                    EnsureFinishedCommand(
+                        TurnAlignCommand(drive=self.multiDrive,
+                                         vision=self.vision),
+                        25)
+                )
+                self.teleopAlignToBoilerSequence.addSequential(
+                    PrintCommand("Finished TurnCommand")
+                )
+                self.teleopAlignToBoilerSequence.addSequential(
+                    EnsureFinishedCommand(
+                        DriveToBoilerDistanceCommand(drive=self.multiDrive,
+                                                     vision=self.vision),
+                        25)
+                )
+                self.teleopAlignToBoilerSequence.addSequential(
+                    PrintCommand("DriveToBoilerDistance finished")
+                )
+                self.scheduler.add(self.teleopAlignToBoilerSequence)
+                """
+                return
+
+        if self.driverGamepad.getRawButton(Gamepad.X) or self.secondaryGamepad.getRawButton(Gamepad.X):
+            # Cancel all vision commands if X button pressed on either gamepad
+            self.scheduler.removeAll()
+            self.scheduler.disable()
+            self.strafeToPegTeleop = None
+            self.turnAndDriveToBoilerTeleop = None
+
+        if self.strafeToPegTeleop != None and not self.strafeToPegTeleop.isRunning():
+            self.strafeToPegTeleop = None
+        if self.turnAndDriveToBoilerTeleop != None and not self.turnAndDriveToBoilerTeleop.isRunning():
+            self.turnAndDriveToBoilerTeleop = None
+
+        if self.strafeToPegTeleop != None or self.turnAndDriveToBoilerTeleop != None:
+            # Nothing else is allowed to run if vision is in use
+            return
 
         if self.driverGamepad.getRawButton(Gamepad.A):
             self.drive = self.fieldDrive # field oriented on
@@ -423,6 +493,7 @@ def _testCommand(command):
     command.isFinished()
     command.interrupted()
     print("Done testing", type(command).__name__)
+
 
 if __name__ == "__main__":
     wpilib.run(DriveBot)

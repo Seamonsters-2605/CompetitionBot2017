@@ -59,7 +59,6 @@ class Shooter (Module):
         self.ballControl.feed(self.secondaryGamepad.getRTrigger() -
                               self.secondaryGamepad.getLTrigger())
 
-
 class BallControl:
 
     def __init__(self):
