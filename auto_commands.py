@@ -162,6 +162,26 @@ class StaticRotationCommand(wpilib.command.Command):
     def _getYawRadians(self):
         return -math.radians(self.ahrs.getAngle())
 
+class AngleRotateCommand(StaticRotationCommand):
+
+    def __init__(self, drive, ahrs, angle):
+        super().__init__(drive, ahrs)
+        self.angle = angle
+
+    def initialize(self):
+        current = self._getYawRadians()
+        angle = self.angle
+        if angle > current:
+            angle -= math.floor( (angle - current) / (math.pi*2) ) * math.pi*2
+        else:
+            angle += math.floor( (current - angle) / (math.pi*2) ) * math.pi*2
+        if angle - current > math.pi:
+            angle -= math.pi * 2
+        elif current - angle > math.pi:
+            angle += math.pi * 2
+        print(current, angle)
+        super().absolute(angle)
+
 
 class ResetHoloDriveCommand(wpilib.command.InstantCommand):
     """
