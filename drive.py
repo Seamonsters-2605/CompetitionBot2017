@@ -87,7 +87,6 @@ class DriveBot(Module):
         self.holoDrive = HolonomicDrive(fl, fr, bl, br, ticksPerWheelRotation)
         self.holoDrive.invertDrive(True)
         self.holoDrive.setWheelOffset(math.radians(45.0)) #angle of rollers
-        self.holoDrive.setMaxVelocity(440)
 
         self.pidDrive = DynamicPIDDrive(self.holoDrive, self.talons,
                                         slowPID, slowPIDScale,
@@ -129,6 +128,7 @@ class DriveBot(Module):
         print("  Left Joystick: Strafe/Drive ")
         print("  Y + Dpad: Vision command")
         self.holoDrive.zeroEncoderTargets()
+        self.holoDrive.setMaxVelocity(440)
         self.dPadCount = 1000
         #booleans for DPad steering
         self.dPadDirection = 0
@@ -162,6 +162,7 @@ class DriveBot(Module):
     def autonomousInit(self):
         self.fieldDrive.zero()
         self.holoDrive.zeroEncoderTargets()
+        self.holoDrive.setMaxVelocity(400)
         self._setPID((5.0, 0.0009, 3.0, 0.0))
         
         if dashboard.getSwitch("Drive voltage mode", False):
