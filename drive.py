@@ -61,6 +61,9 @@ class DriveBot(Module):
 
         pidLookBackRange = 10
 
+        self.autoMaxVelocity = 400
+        self.teleopMaxVelocity = 440
+
         ### END OF CONSTANTS ###
 
         self.driverGamepad = seamonsters.gamepad.globalGamepad(port = 0)
@@ -133,7 +136,7 @@ class DriveBot(Module):
         print("  Left Joystick: Strafe/Drive ")
         print("  Y + Dpad: Vision command")
         self.holoDrive.zeroEncoderTargets()
-        self.holoDrive.setMaxVelocity(440)
+        self.holoDrive.setMaxVelocity(self.teleopMaxVelocity)
         self.dPadCount = 1000
         #booleans for DPad steering
         self.dPadDirection = 0
@@ -161,7 +164,7 @@ class DriveBot(Module):
     def autonomousInit(self):
         self.fieldDrive.zero()
         self.holoDrive.zeroEncoderTargets()
-        self.holoDrive.setMaxVelocity(400)
+        self.holoDrive.setMaxVelocity(self.autoMaxVelocity)
         self._setPID((5.0, 0.0009, 3.0, 0.0))
         
         if dashboard.getSwitch("Drive voltage mode", False):
@@ -384,7 +387,10 @@ class DriveBot(Module):
 
         if self.teleopCommand != None:
             # Nothing else is allowed to run if vision is in use
+            self.holoDrive.setMaxVelocity(self.autoMaxVelocity)
             return
+        else:
+            self.holoDrive.setMaxVelocity(self.teleopMaxVelocity)
 
         if self.driverGamepad.getRawButton(Gamepad.A):
             self.drive = self.fieldDrive # field oriented on
