@@ -1,5 +1,10 @@
 -Field oriented drive
 -Drive voltage mode
 -Flywheel voltage mode
-+Gear in auto
-+Shoot in auto
++Auto: Enabled
++Auto: Gear
++Auto: Cross line
++NavX works
++Vision works
++Gear sensor works
+-Encoder logging
