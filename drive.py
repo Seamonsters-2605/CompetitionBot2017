@@ -110,8 +110,10 @@ class DriveBot(Module):
         self.pdp = wpilib.PowerDistributionPanel()
         self.currentLog = LogState("Drive current", logFrequency=2.0)
 
-        self.encoderLog = None
-        #self.encoderLog = LogState("Wheel encoders")
+        if dashboard.getSwitch("Encoder logging", False):
+            self.encoderLog = LogState("Wheel encoders")
+        else:
+            self.encoderLog = None
 
         if self.pdp.getVoltage() < 12:
             print ("Battery Level below 12 volts!!!")
