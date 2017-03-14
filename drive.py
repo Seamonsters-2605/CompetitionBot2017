@@ -110,11 +110,6 @@ class DriveBot(Module):
         self.pdp = wpilib.PowerDistributionPanel()
         self.currentLog = LogState("Drive current", logFrequency=2.0)
 
-        if dashboard.getSwitch("Encoder logging", False):
-            self.encoderLog = LogState("Wheel encoders")
-        else:
-            self.encoderLog = None
-
         if self.pdp.getVoltage() < 12:
             print ("Battery Level below 12 volts!!!")
         
@@ -153,6 +148,13 @@ class DriveBot(Module):
             self.holoDrive.setDriveMode(DriveInterface.DriveMode.VOLTAGE)
         else:
             self.holoDrive.setDriveMode(DriveInterface.DriveMode.POSITION)
+
+        if dashboard.getSwitch("Encoder logging", False):
+            self.encoderLog = LogState("Wheel encoders")
+            self.speedLog = LogState("Wheel speeds")
+        else:
+            self.encoderLog = None
+            self.speedLog = None
 
     def autonomousInit(self):
         self.fieldDrive.zero()
@@ -466,6 +468,11 @@ class DriveBot(Module):
             for talon in self.talons:
                 encoderLogText += str(talon.getPosition()) + " "
             self.encoderLog.update(encoderLogText)
+        if self.speedLog != None:
+            speedLogText = ""
+            for talon in self.talons:
+                speedLogText += str(talon.getEncVelocity()) + " "
+            self.speedLog.update(speedLogText)
 
         if self.proximitySensor.getVoltage() < 2:
             self.gearLog.update("No gear")
