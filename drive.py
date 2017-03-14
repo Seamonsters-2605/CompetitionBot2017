@@ -34,6 +34,8 @@ class DriveBot(Module):
         self.fastScale = 1.0
         # speed scale when slow button is pressed:
         self.slowScale = 0.1
+        # speed scale when max speed button is pressed
+        self.maxScale = 1.0
         # normal turning speed scale:
         self.normalTurnScale = 0.5
 
@@ -117,6 +119,7 @@ class DriveBot(Module):
         print("DRIVE GAMEPAD:")
         print("  Left Trigger: Slower")
         print("  Right Trigger: Faster")
+        print("  Left Joystick Button: Max Speed!")
         print("  A: Enable Field Orientation")
         print("  B: Disable Field Orientation")
         print("  Dpad: Move in small increments")
@@ -413,6 +416,10 @@ class DriveBot(Module):
             scale = self.slowScale
             turnScale = self.slowScale
             exponent = self.slowJoystickExponent
+        if self.driverGamepad.getRawButton(Gamepad.LJ): # max speed button
+            scale = self.maxScale
+            turnScale = self.normalTurnScale
+            exponent = self.fastJoystickExponent
         turn = self._joystickPower(-self.driverGamepad.getRX(), exponent) * turnScale
         magnitude = self._joystickPower(self.driverGamepad.getLMagnitude(), exponent) * scale
         direction = self.driverGamepad.getLDirection()
