@@ -109,8 +109,13 @@ class DriveBot(Module):
                                             invertDrive=True, driveSpeed=100)
         self.proximitySensor = wpilib.AnalogInput(0)
 
+        self.readyForGearLight = wpilib.DigitalOutput(0)
+
         self.pdp = wpilib.PowerDistributionPanel()
         self.currentLog = LogState("Drive current", logFrequency=2.0)
+
+        self.encoderLog = LogState("Wheel encoders")
+        self.speedLog = LogState("Wheel speeds")
 
         if self.pdp.getVoltage() < 12:
             print ("Battery Level below 12 volts!!!")
@@ -134,7 +139,6 @@ class DriveBot(Module):
         self.dPadDirection = 0
         self.count = 0
 
-        self.readyForGearLight = wpilib.DigitalOutput(0)
         self.vision = vision.Vision()
 
         self.teleopCommand = None
@@ -152,12 +156,7 @@ class DriveBot(Module):
         else:
             self.holoDrive.setDriveMode(DriveInterface.DriveMode.POSITION)
 
-        if dashboard.getSwitch("Encoder logging", False):
-            self.encoderLog = LogState("Wheel encoders")
-            self.speedLog = LogState("Wheel speeds")
-        else:
-            self.encoderLog = None
-            self.speedLog = None
+        self.encoderLoggingEnabled = dashboard.getSwitch("Encoder logging", False)
 
     def autonomousInit(self):
         self.fieldDrive.zero()
@@ -470,12 +469,11 @@ class DriveBot(Module):
             self.currentLog.update(str(current) + "!")
         else:
             self.currentLog.update(current)
-        if self.encoderLog != None:
+        if self.encoderLoggingEnabled:
             encoderLogText = ""
             for talon in self.talons:
                 encoderLogText += str(talon.getPosition()) + " "
             self.encoderLog.update(encoderLogText)
-        if self.speedLog != None:
             speedLogText = ""
             for talon in self.talons:
                 speedLogText += str(talon.getEncVelocity()) + " "
