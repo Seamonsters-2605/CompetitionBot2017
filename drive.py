@@ -225,11 +225,11 @@ class DriveBot(Module):
 
         if not placeGearAuto:
             if crossLineAuto:
-                # not placing gear, but are crossing line from the sides so just going forward 8 feet
+                # not placing gear, but are crossing line from the sides so just going forward 12 feet
                 finalSequence.addSequential(
                     SetPidCommand(self.talons, 5.0, 0.0009, 3.0, 0.0))
                 finalSequence.addSequential(
-                    self.tankFieldMovement.driveCommand(84, speed=200))
+                    self.tankFieldMovement.driveCommand(144, speed=200))
                 finalSequence.addSequential(ResetHoloDriveCommand(self.holoDrive))
                 finalSequence.addSequential(WaitCommand(0.5))
                 finalSequence.addSequential(StopDriveCommand(self.holoDrive))
