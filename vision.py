@@ -5,6 +5,7 @@ class Vision:
 
     WIDTH = 640
     HEIGHT = 480
+    CENTER = 0.5 # fraction of width
 
     def __init__(self):
         self.contoursTable = NetworkTables.getTable('contours')

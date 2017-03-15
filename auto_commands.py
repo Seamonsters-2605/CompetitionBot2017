@@ -459,10 +459,11 @@ class TurnAlignCommand(wpilib.command.Command):
         if targetX == None:
             print("No vision!!")
             return
-        TurnAlignCommand.log.update("{0:.5f}".format(targetX - 0.5))
-        turnAmount = (abs(targetX - 0.5) ** 0.6) * 8
+        centerDistance = targetX - vision.Vision.CENTER
+        TurnAlignCommand.log.update("{0:.5f}".format(centerDistance))
+        turnAmount = (abs(centerDistance) ** 0.6) * 8
 
-        if targetX > 0.5:
+        if centerDistance > 0:
             turnAmount = -turnAmount
         self.drive.drive(0, 0, turnAmount)
 
@@ -478,7 +479,7 @@ class TurnAlignCommand(wpilib.command.Command):
         targetX = self._getTargetX()
         if targetX == None:
             return False
-        distance = abs(targetX - 0.5)
+        distance = abs(targetX - vision.Vision.CENTER)
         return distance <= 0.02
 
 
@@ -506,14 +507,15 @@ class StrafeAlignCommand(wpilib.command.Command):
             print("No vision!!")
             return
 
-        StrafeAlignCommand.log.update("{0:.5f}".format(targetX - .5))
-        speed = -(abs(targetX - .5) ** 1.2) * .5
+        centerDistance = targetX - vision.Vision.CENTER
+        StrafeAlignCommand.log.update("{0:.5f}".format(centerDistance))
+        speed = -(abs(centerDistance) ** 1.2) * .5
 
-        if targetX > 0.5:
+        if centerDistance > 0:
             # move left
             self.drive.drive(speed, math.pi, 0)
 
-        elif targetX < 0.5:
+        elif centerDistance < 0:
             # move right
             self.drive.drive(speed, 0, 0)
 
@@ -522,7 +524,7 @@ class StrafeAlignCommand(wpilib.command.Command):
         if targetX == None:
             return False
         # when peg within tolerance of center (on x axis)
-        return abs(.5 - targetX) <= self.tolerance
+        return abs(vision.Vision.CENTER - targetX) <= self.tolerance
 
     def end(self):
         self.drive.drive(0, 0, 0)
