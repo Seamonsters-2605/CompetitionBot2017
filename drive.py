@@ -113,7 +113,8 @@ class DriveBot(Module):
                                             invertDrive=True, driveSpeed=100)
         self.proximitySensor = wpilib.AnalogInput(0)
 
-        self.readyForGearLight = wpilib.DigitalOutput(0)
+        self.readyForGearLight1 = wpilib.DigitalOutput(9)
+        self.readyForGearLight2 = wpilib.DigitalOutput(8)
 
         self.pdp = wpilib.PowerDistributionPanel()
         self.currentLog = LogState("Drive current", logFrequency=2.0)
@@ -137,6 +138,7 @@ class DriveBot(Module):
         print("  Right Joystick: Turn")
         print("  Left Joystick: Strafe/Drive ")
         print("  Y + Dpad: Vision command")
+        print("  Right Joystick Button: Gear light")
         self.holoDrive.zeroEncoderTargets()
         self.holoDrive.setMaxVelocity(self.teleopMaxVelocity)
         self.dPadCount = 1000
@@ -299,6 +301,13 @@ class DriveBot(Module):
     def teleopPeriodic(self):
         self.count = self.count + 1
 
+        if self.driverGamepad.getRawButton(Gamepad.RJ):
+            self.readyForGearLight1.set(self.count % 10 >= 5)
+            self.readyForGearLight2.set(self.count % 10 < 5)
+        else:
+            self.readyForGearLight1.set(False)
+            self.readyForGearLight2.set(False)
+
         # change drive mode with back and start
         if   self.driverGamepad.getRawButton(Gamepad.BACK):
             self.drive.setDriveMode(DriveInterface.DriveMode.VOLTAGE)
@@ -406,12 +415,6 @@ class DriveBot(Module):
             self.fieldDriveLog.update("Enabled")
         else:
             self.fieldDriveLog.update("Disabled")
-
-        if self.secondaryGamepad.getRawButton(Gamepad.LJ):
-            self.readyForGearLight.set(True)
-            print("Ready for gear drop")
-        else:
-            self.readyForGearLight.set(False)
 
 
         scale = self.normalScale
