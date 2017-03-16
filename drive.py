@@ -124,7 +124,10 @@ class DriveBot(Module):
 
         if self.pdp.getVoltage() < 12:
             print ("Battery Level below 12 volts!!!")
-        
+
+        # set to true if station numbers are mirrored, will make autonomous work correctly
+        self.stationNumbersAreMirrored = False
+
     def teleopInit(self):
         print("DRIVE GAMEPAD:")
         print("  Left Trigger: Slower")
@@ -196,11 +199,10 @@ class DriveBot(Module):
             print("Unknown startPos value")
 
         # ONLY USE IF STARTING POSITIONS ARE MIRRORED INSTEAD OF ROTATIONALLY SYMMETRICAL
-        """
-        alliance = wpilib.DriverStation.getInstance().getAlliance() # red = 0, blue = 1, invalid = 2
-        if alliance == 1: # we are blue, WHERE 1 IS THE RIGHT AND 3 IS THE LEFT
-            startAngle = -startAngle
-        """
+        if self.stationNumbersAreMirrored:
+            alliance = wpilib.DriverStation.getInstance().getAlliance() # red = 0, blue = 1, invalid = 2
+            if alliance == 1: # we are blue, WHERE 1 IS THE RIGHT AND 3 IS THE LEFT
+                startAngle = -startAngle
 
         finalSequence = CommandGroup()
 
