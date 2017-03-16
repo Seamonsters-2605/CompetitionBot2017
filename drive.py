@@ -170,11 +170,38 @@ class DriveBot(Module):
         self.holoDrive.zeroEncoderTargets()
         self.holoDrive.setMaxVelocity(self.autoMaxVelocity)
         self._setPID((5.0, 0.0009, 3.0, 0.0))
-        
+
         if dashboard.getSwitch("Drive voltage mode", False):
             self.holoDrive.setDriveMode(DriveInterface.DriveMode.VOLTAGE)
         else:
             self.holoDrive.setDriveMode(DriveInterface.DriveMode.POSITION)
+
+        if not dashboard.getSwitch("Auto: Enabled", False):
+            # if false, we do nothing in autonomous
+            return
+
+        # if false, we don't place a gear
+        placeGearAuto = dashboard.getSwitch("Auto: Gear", False)
+
+        # if false, we don't cross the line
+        crossLineAuto = dashboard.getSwitch("Auto: Cross line", False)
+
+        # if false, we should all panic because we're borked
+        navXWorking = dashboard.getSwitch("NavX works", False)
+
+        # if false, we don't place the gear
+        if not dashboard.getSwitch("Vision works", False):
+            placeGearAuto = False
+
+        # if false, we wait in place after placing the gear until the end of autonomous
+        gearProximitySensorWorking = dashboard.getSwitch("Gear sensor works", False)
+
+        # if sensor doesn't detect a gear at start (is broken), don't proximity sensing
+        if self.proximitySensor.getVoltage() < 2:
+            print("Error: proximity sensor didn't detect gear")
+            gearProximitySensorWorking = False
+
+        flippedStationNumbers = dashboard.getSwitch("Flip station numbers", False)
 
         self.vision = vision.Vision()
 
@@ -187,114 +214,144 @@ class DriveBot(Module):
 
         if startPos == 1: # left
             startAngle = -math.radians(60) # can be opposite or 0 based on start position
+            if not navXWorking:
+                # without the NavX, we don't place the gear from the sides
+                placeGearAuto = False
         elif startPos == 2: # center
             startAngle = 0
+            if not placeGearAuto:
+                # if we're not placing the gear and we are in center position, we just abort autonomous
+                return
         elif startPos == 3: # right
             startAngle = math.radians(60)
+            if not navXWorking:
+                # without the NavX, we don't place the gear from the sides
+                placeGearAuto = False
         else:
             startAngle = 0
             print("Unknown startPos value")
 
+        # ONLY USE IF STARTING POSITIONS ARE MIRRORED INSTEAD OF ROTATIONALLY SYMMETRICAL
+        if flippedStationNumbers:
+            startAngle = -startAngle
+
         finalSequence = CommandGroup()
 
-        startSequence = CommandGroup()
-        if startPos != 2: # left or right:
-            startSequence.addParallel(
+        if not placeGearAuto:
+            if crossLineAuto:
+                # not placing gear, but are crossing line from the sides so just going forward 12 feet
+                finalSequence.addSequential(
+                    SetPidCommand(self.talons, 5.0, 0.0009, 3.0, 0.0))
+                finalSequence.addSequential(
+                    self.tankFieldMovement.driveCommand(144, speed=200))
+                finalSequence.addSequential(ResetHoloDriveCommand(self.holoDrive))
+                finalSequence.addSequential(WaitCommand(0.5))
+                finalSequence.addSequential(StopDriveCommand(self.holoDrive))
+        else:
+            startSequence = CommandGroup()
+            if startPos != 2: # left or right:
+                startSequence.addParallel(
+                    EnsureFinishedCommand(
+                        MoveToPegCommand(multiFieldDrive, self.vision),
+                        25))
+                startSequence.addSequential(
+                    WaitCommand(0.5))
+                startSequence.addParallel(
+                    EnsureFinishedCommand(
+                        StaticRotationCommand(multiFieldDrive, self.ahrs, startAngle),
+                        30))
+                finalSequence.addParallel(
+                    WhileRunningCommand(
+                        UpdateMultiDriveCommand(multiFieldDrive),
+                        startSequence))
+            else:
+                print("Center sequence")
+                if navXWorking:
+                    storeRotationCommand = StoreRotationCommand(self.ahrs)
+                    startSequence.addSequential(storeRotationCommand)
+                startSequence.addSequential(
+                    self.tankFieldMovement.driveCommand(60, speed=250))
+                startSequence.addSequential(ResetHoloDriveCommand(self.holoDrive))
+                startSequence.addSequential(WaitCommand(0.5))
+                if navXWorking:
+                    startSequence.addSequential(
+                        PrintCommand("Recalling rotation..."))
+                    startSequence.addSequential(
+                        EnsureFinishedCommand(
+                            RecallRotationCommand(storeRotationCommand,
+                                                  self.pidDrive, self.ahrs),
+                            30))
+
+            finalSequence.addSequential(startSequence)
+            finalSequence.addSequential(PrintCommand("Start sequence finished!"))
+
+            approachPegSequence = CommandGroup()
+            approachPegSequence.addSequential(
                 EnsureFinishedCommand(
-                    MoveToPegCommand(multiFieldDrive, self.vision),
-                    25))
-            startSequence.addSequential(
-                WaitCommand(0.5))
-            startSequence.addParallel(
+                    StrafeAlignCommand(drive=multiDrive,
+                                       vision=self.vision),
+                    25)
+            )
+            approachPegSequence.addSequential(
+                PrintCommand("Aligned with peg"))
+            approachPegSequence.addSequential(
                 EnsureFinishedCommand(
-                    StaticRotationCommand(multiFieldDrive, self.ahrs, startAngle),
-                    30))
+                    DriveToTargetDistanceCommand(drive=multiDrive,
+                                                 vision=self.vision,
+                                                 buffer=18.0),
+                    10)
+            )
+
             finalSequence.addParallel(
                 WhileRunningCommand(
-                    UpdateMultiDriveCommand(multiFieldDrive),
-                    startSequence))
-        else:
-            print("Center sequence")
-            storeRotationCommand = StoreRotationCommand(self.ahrs)
-            startSequence.addSequential(storeRotationCommand)
-            startSequence.addSequential(
-                self.tankFieldMovement.driveCommand(60, speed=250))
-            startSequence.addSequential(ResetHoloDriveCommand(self.holoDrive))
-            startSequence.addSequential(WaitCommand(0.5))
-            startSequence.addSequential(
-                PrintCommand("Recalling rotation..."))
-            startSequence.addSequential(
-                EnsureFinishedCommand(
-                    RecallRotationCommand(storeRotationCommand,
-                                          self.pidDrive, self.ahrs),
-                    30))
-        finalSequence.addSequential(startSequence)
-        finalSequence.addSequential(PrintCommand("Start sequence finished!"))
+                    ForeverCommand(
+                        StaticRotationCommand(multiDrive, self.ahrs)),
+                    approachPegSequence))
+            finalSequence.addParallel(
+                WhileRunningCommand(
+                    UpdateMultiDriveCommand(multiDrive),
+                    approachPegSequence))
 
-        approachPegSequence = CommandGroup()
-        approachPegSequence.addSequential(
-            EnsureFinishedCommand(
-                StrafeAlignCommand(drive=multiDrive,
-                                   vision=self.vision),
-                25)
-        )
-        approachPegSequence.addSequential(
-            PrintCommand("Aligned with peg"))
-        approachPegSequence.addSequential(
-            EnsureFinishedCommand(
-                DriveToTargetDistanceCommand(drive=multiDrive,
-                                             vision=self.vision,
-                                             buffer=18.0),
-                10)
-        )
+            finalSequence.addSequential(approachPegSequence)
 
-        finalSequence.addParallel(
-            WhileRunningCommand(
-                ForeverCommand(
-                    StaticRotationCommand(multiDrive, self.ahrs)),
-                approachPegSequence))
-        finalSequence.addParallel(
-            WhileRunningCommand(
-                UpdateMultiDriveCommand(multiDrive),
-                approachPegSequence))
-
-        finalSequence.addSequential(approachPegSequence)
-
-        finalSequence.addSequential(
-            PrintCommand("Driving to the peg..."))
-        finalSequence.addSequential(
-            SetPidCommand(self.talons, 5.0, 0.0009, 3.0, 0.0))
-        if startPos == 2:
             finalSequence.addSequential(
-                self.tankFieldMovement.driveCommand(11, speed=150))
-        else:
+                PrintCommand("Driving to the peg..."))
             finalSequence.addSequential(
-                self.tankFieldMovement.driveCommand(10.5, speed=150))
-        finalSequence.addSequential(
-            PrintCommand("The gear is on the peg."))
-        finalSequence.addSequential(ResetHoloDriveCommand(self.holoDrive))
-        finalSequence.addSequential(StopDriveCommand(self.holoDrive))
-        finalSequence.addSequential(
-            PrintCommand("Waiting for gear..."))
-        finalSequence.addSequential(
-            EnsureFinishedCommand(
-                GearWaitCommand(self.proximitySensor),
-                75))
-        finalSequence.addSequential(
-            PrintCommand("Gear removed!"))
-        finalSequence.addSequential(
-            SetPidCommand(self.talons, 5.0, 0.0009, 3.0, 0.0))
-        finalSequence.addSequential(
-            self.tankFieldMovement.driveCommand(-20, speed=200))
-        finalSequence.addSequential(ResetHoloDriveCommand(self.holoDrive))
-        finalSequence.addSequential(WaitCommand(0.5))
-        #finalSequence.addParallel(
-        #    EnsureFinishedCommand(
-        #        StaticRotationCommand(self.pidDrive, self.ahrs,
-        #                              math.radians(180)),
-        #        10))
-        #finalSequence.addSequential(WaitCommand(1))
-        finalSequence.addSequential(StopDriveCommand(self.holoDrive))
+                SetPidCommand(self.talons, 5.0, 0.0009, 3.0, 0.0))
+            if startPos == 2:
+                finalSequence.addSequential(
+                    self.tankFieldMovement.driveCommand(11, speed=150))
+            else:
+                finalSequence.addSequential(
+                    self.tankFieldMovement.driveCommand(11, speed=150))
+            finalSequence.addSequential(
+                PrintCommand("The gear is on the peg."))
+            finalSequence.addSequential(ResetHoloDriveCommand(self.holoDrive))
+            finalSequence.addSequential(StopDriveCommand(self.holoDrive))
+            finalSequence.addSequential(
+                PrintCommand("Waiting for gear..."))
+            if gearProximitySensorWorking:
+                finalSequence.addSequential(
+                    EnsureFinishedCommand(
+                        GearWaitCommand(self.proximitySensor),
+                        75))
+                finalSequence.addSequential(
+                    PrintCommand("Gear removed!"))
+                finalSequence.addSequential(
+                    SetPidCommand(self.talons, 5.0, 0.0009, 3.0, 0.0))
+                finalSequence.addSequential(
+                    self.tankFieldMovement.driveCommand(-20, speed=200))
+                finalSequence.addSequential(ResetHoloDriveCommand(self.holoDrive))
+                finalSequence.addSequential(WaitCommand(0.5))
+                """
+                finalSequence.addParallel(
+                    EnsureFinishedCommand(
+                        StaticRotationCommand(self.pidDrive, self.ahrs,
+                                              math.radians(180)),
+                        10))
+                finalSequence.addSequential(WaitCommand(1))
+                """
+            finalSequence.addSequential(StopDriveCommand(self.holoDrive))
 
         scheduler.add(finalSequence)
 
@@ -492,10 +549,11 @@ class DriveBot(Module):
                 speedLogText += str(talon.getEncVelocity()) + " "
             self.speedLog.update(speedLogText)
 
+        gearVolts = self.proximitySensor.getVoltage()
         if self.proximitySensor.getVoltage() < 2:
-            self.gearLog.update("No gear")
+            self.gearLog.update("No gear (" + str(gearVolts) + ")")
         else:
-            self.gearLog.update("Gear")
+            self.gearLog.update("Gear (" + str(gearVolts) + ")")
 
     def _driveModeName(self, driveMode):
         if driveMode == DriveInterface.DriveMode.VOLTAGE:
