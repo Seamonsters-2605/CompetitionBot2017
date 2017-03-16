@@ -314,7 +314,7 @@ class DriveBot(Module):
                     self.tankFieldMovement.driveCommand(11, speed=150))
             else:
                 finalSequence.addSequential(
-                    self.tankFieldMovement.driveCommand(10.5, speed=150))
+                    self.tankFieldMovement.driveCommand(11, speed=150))
             finalSequence.addSequential(
                 PrintCommand("The gear is on the peg."))
             finalSequence.addSequential(ResetHoloDriveCommand(self.holoDrive))
@@ -539,10 +539,11 @@ class DriveBot(Module):
                 speedLogText += str(talon.getEncVelocity()) + " "
             self.speedLog.update(speedLogText)
 
+        gearVolts = self.proximitySensor.getVoltage()
         if self.proximitySensor.getVoltage() < 2:
-            self.gearLog.update("No gear")
+            self.gearLog.update("No gear (" + str(gearVolts) + ")")
         else:
-            self.gearLog.update("Gear")
+            self.gearLog.update("Gear (" + str(gearVolts) + ")")
 
     def _driveModeName(self, driveMode):
         if driveMode == DriveInterface.DriveMode.VOLTAGE:
