@@ -19,8 +19,8 @@ class Climber(Module):
                 self.climberMotor.setPID(5.0, 0.0, 3.0, 0.0)
             else:
                 self.climberMotor.setPID(1.0, 0.0, 3.0, 0.0)
-            position = self.climberMotor.getPosition()
-            self.climberMotor.set(position)
+            self.lockPosition = self.climberMotor.getPosition()
+        self.climberMotor.set(self.lockPosition)
 
     def unlock(self):
         if self.locked :
@@ -32,10 +32,9 @@ class Climber(Module):
 
         self.climberMotor = wpilib.CANTalon(4)
 
-        self.pdp = wpilib.PowerDistributionPanel()
-
         self.lockLog = LogState("Climber lock mode")
         self.statusLog = LogState("Climber status")
+        self.currentLog = LogState("Climber current")
         #self.encoderLog = LogState("Climber encoder")
         self.encoderLog = None
 
@@ -44,11 +43,13 @@ class Climber(Module):
         print("  Y: Shake robot")
         print("  Left Joystick up: Climb")
         print("  Left Joystick down: Descend")
+        print("  Right Joystick: Slow mode (lock mode only)")
         print("  A: Lock motor")
         print("  Press down Right Joystick: Unlock motor")
         self.locked = False
         self.lockmode = False
         self.enabled = True
+        self.lockPosition = None
         self.climberMotor.changeControlMode(wpilib.CANTalon.ControlMode.PercentVbus)
 
     def teleopPeriodic(self):
@@ -75,14 +76,16 @@ class Climber(Module):
             self.lock()
             if self.enabled:
                 self.statusLog.update("Locked!")
+                self.lockPosition += self.secondaryGamepad.getRY() * 1000
         elif self.enabled:
             self.unlock()
-            self.climberMotor.set(-self.secondaryGamepad.getLY())
+            self.climberMotor.set(self.secondaryGamepad.getLY())
             self.statusLog.update("Unlocked")
 
-        if self.pdp.getCurrent(3) >= 20:
-            self.lock()
-            self.enabled = False
+        self.currentLog.update(self.climberMotor.getOutputCurrent())
+        #if self.climberMotor.getOutputCurrent() >= 200:
+        #    self.lock()
+        #    self.enabled = False
 
         if self.encoderLog != None:
             self.encoderLog.update(self.climberMotor.getPosition())

@@ -1,3 +1,3 @@
 __author__ = "seamonsters"
 
-PRACTICE_BOT = True
+PRACTICE_BOT = False
