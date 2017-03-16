@@ -203,6 +203,8 @@ class DriveBot(Module):
 
         flippedStationNumbers = dashboard.getSwitch("Flip station numbers", False)
 
+        crossLineGoLeft = dashboard.getSwitch("Cross line left", False)
+
         self.vision = vision.Vision()
 
         multiFieldDrive = MultiDrive(self.fieldDrive)
@@ -219,9 +221,6 @@ class DriveBot(Module):
                 placeGearAuto = False
         elif startPos == 2: # center
             startAngle = 0
-            if not placeGearAuto:
-                # if we're not placing the gear and we are in center position, we just abort autonomous
-                return
         elif startPos == 3: # right
             startAngle = math.radians(60)
             if not navXWorking:
@@ -239,14 +238,40 @@ class DriveBot(Module):
 
         if not placeGearAuto:
             if crossLineAuto:
-                # not placing gear, but are crossing line from the sides so just going forward 12 feet
-                finalSequence.addSequential(
-                    SetPidCommand(self.talons, 5.0, 0.0009, 3.0, 0.0))
-                finalSequence.addSequential(
-                    self.tankFieldMovement.driveCommand(144, speed=200))
-                finalSequence.addSequential(ResetHoloDriveCommand(self.holoDrive))
-                finalSequence.addSequential(WaitCommand(0.5))
-                finalSequence.addSequential(StopDriveCommand(self.holoDrive))
+                if startPos == 2:
+                    # not placing gear, but are slowly crossing line from the middle
+                    initDist = 36
+                    strafeDist = 72
+                    crossLineDist = 54
+                    if crossLineGoLeft:
+                        strafeDist = -strafeDist
+
+                    # drive forward initDist before strafing
+                    finalSequence.addSequential(
+                        self.tankFieldMovement.driveCommand(initDist, speed=100))
+                    # finalSequence.addSequential(WaitCommand(0.5))
+                    # try uncommenting line above if it doesn't work
+
+                    # strafe to the right 6 feet
+                    finalSequence.addSequential(
+                        SetPidCommand(self.talons, 5.0, 0.0009, 3.0, 0.0))
+                    finalSequence.addSequential(
+                        self.tankFieldMovement.strafeCommand(strafeDist, speed=100))
+                    # finalSequence.addSequential(WaitCommand(0.5))
+                    # drive forward, if problems try uncommenting the line above
+                    finalSequence.addSequential(
+                        self.tankFieldMovement.driveCommand(crossLineDist, speed=100))
+                    finalSequence.addSequential(ResetHoloDriveCommand(self.holoDrive))
+                    finalSequence.addSequential(WaitCommand(0.5))
+                else:
+                    # not placing gear, but are crossing line from the sides so just going forward 12 feet
+                    finalSequence.addSequential(
+                        SetPidCommand(self.talons, 5.0, 0.0009, 3.0, 0.0))
+                    finalSequence.addSequential(
+                        self.tankFieldMovement.driveCommand(144, speed=200))
+                    finalSequence.addSequential(ResetHoloDriveCommand(self.holoDrive))
+                    finalSequence.addSequential(WaitCommand(0.5))
+                    finalSequence.addSequential(StopDriveCommand(self.holoDrive))
         else:
             startSequence = CommandGroup()
             if startPos != 2: # left or right:
@@ -339,8 +364,11 @@ class DriveBot(Module):
                     PrintCommand("Gear removed!"))
                 finalSequence.addSequential(
                     SetPidCommand(self.talons, 5.0, 0.0009, 3.0, 0.0))
+                backupDist = -20
+                if startPos == 2:
+                    backupDist = -36
                 finalSequence.addSequential(
-                    self.tankFieldMovement.driveCommand(-20, speed=200))
+                    self.tankFieldMovement.driveCommand(backupDist, speed=200))
                 finalSequence.addSequential(ResetHoloDriveCommand(self.holoDrive))
                 finalSequence.addSequential(WaitCommand(0.5))
                 """
@@ -351,6 +379,23 @@ class DriveBot(Module):
                         10))
                 finalSequence.addSequential(WaitCommand(1))
                 """
+                if startPos == 2 and crossLineAuto: # if we're in the middle and want to cross the line
+                    strafeDist = 72
+                    crossLineDist = 48
+                    if crossLineGoLeft:
+                        strafeDist = -strafeDist
+                    # strafe to the right 6 feet
+                    finalSequence.addSequential(
+                        SetPidCommand(self.talons, 5.0, 0.0009, 3.0, 0.0))
+                    finalSequence.addSequential(
+                        self.tankFieldMovement.strafeCommand(strafeDist, speed=100))
+                    #finalSequence.addSequential(WaitCommand(0.5))
+                    # drive forward, if problems try uncommenting the line above
+                    finalSequence.addSequential(
+                        self.tankFieldMovement.driveCommand(crossLineDist, speed=100))
+                    finalSequence.addSequential(ResetHoloDriveCommand(self.holoDrive))
+                    finalSequence.addSequential(WaitCommand(0.5))
+
             finalSequence.addSequential(StopDriveCommand(self.holoDrive))
 
         scheduler.add(finalSequence)
