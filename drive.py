@@ -125,9 +125,6 @@ class DriveBot(Module):
         if self.pdp.getVoltage() < 12:
             print ("Battery Level below 12 volts!!!")
 
-        # set to true if "right" is 1, will make autonomous work correctly
-        self.rightIs1 = False
-
     def teleopInit(self):
         print("DRIVE GAMEPAD:")
         print("  Left Trigger: Slower")
@@ -197,10 +194,6 @@ class DriveBot(Module):
         else:
             startAngle = 0
             print("Unknown startPos value")
-
-        # ONLY USE IF STARTING POSITIONS ARE MIRRORED INSTEAD OF ROTATIONALLY SYMMETRICAL
-        if self.rightIs1:
-            startAngle = -startAngle
 
         finalSequence = CommandGroup()
 
