@@ -116,7 +116,7 @@ class DriveBot(Module):
 
         if self.pdp.getVoltage() < 12:
             print ("Battery Level below 12 volts!!!")
-        
+
     def teleopInit(self):
         print("DRIVE GAMEPAD:")
         print("  Left Trigger: Slower")
@@ -198,6 +198,8 @@ class DriveBot(Module):
             print("Error: proximity sensor didn't detect gear")
             gearProximitySensorWorking = False
 
+        flippedStationNumbers = dashboard.getSwitch("Flip station numbers", False)
+
         self.vision = vision.Vision()
 
         multiFieldDrive = MultiDrive(self.fieldDrive)
@@ -225,6 +227,10 @@ class DriveBot(Module):
         else:
             startAngle = 0
             print("Unknown startPos value")
+
+        # ONLY USE IF STARTING POSITIONS ARE MIRRORED INSTEAD OF ROTATIONALLY SYMMETRICAL
+        if flippedStationNumbers:
+            startAngle = -startAngle
 
         finalSequence = CommandGroup()
 
