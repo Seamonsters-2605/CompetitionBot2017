@@ -184,10 +184,10 @@ class DriveBot(Module):
         crossLineAuto = dashboard.getSwitch("Auto: Cross line", False)
 
         # if false, we should all panic because we're borked
-        navXWorking = dashboard.getSwitch("NavX working", False)
+        navXWorking = dashboard.getSwitch("NavX works", False)
 
         # if false, we don't place the gear
-        if dashboard.getSwitch("Vision working", False):
+        if not dashboard.getSwitch("Vision works", False):
             placeGearAuto = False
 
         # if false, we wait in place after placing the gear until the end of autonomous
