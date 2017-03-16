@@ -195,6 +195,13 @@ class DriveBot(Module):
             startAngle = 0
             print("Unknown startPos value")
 
+        # ONLY USE IF STARTING POSITIONS ARE MIRRORED INSTEAD OF ROTATIONALLY SYMMETRICAL
+        """
+        alliance = wpilib.DriverStation.getInstance().getAlliance() # red = 0, blue = 1, invalid = 2
+        if alliance == 1: # we are blue, WHERE 1 IS THE RIGHT AND 3 IS THE LEFT
+            startAngle = -startAngle
+        """
+
         finalSequence = CommandGroup()
 
         startSequence = CommandGroup()
