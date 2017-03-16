@@ -113,8 +113,8 @@ class DriveBot(Module):
                                             invertDrive=True, driveSpeed=100)
         self.proximitySensor = wpilib.AnalogInput(0)
 
-        self.readyForGearLight1 = wpilib.DigitalOutput(9)
-        self.readyForGearLight2 = wpilib.DigitalOutput(8)
+        self.readyForGearLight1 = wpilib.DigitalOutput(0)
+        self.readyForGearLight2 = wpilib.DigitalOutput(1)
 
         self.pdp = wpilib.PowerDistributionPanel()
         self.currentLog = LogState("Drive current", logFrequency=2.0)
