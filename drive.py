@@ -193,6 +193,11 @@ class DriveBot(Module):
         # if false, we wait in place after placing the gear until the end of autonomous
         gearProximitySensorWorking = dashboard.getSwitch("Gear sensor works", False)
 
+        # if sensor doesn't detect a gear at start (is broken), don't proximity sensing
+        if self.proximitySensor.getVoltage() < 2:
+            print("Error: proximity sensor didn't detect gear")
+            gearProximitySensorWorking = False
+
         self.vision = vision.Vision()
 
         multiFieldDrive = MultiDrive(self.fieldDrive)
