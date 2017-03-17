@@ -262,6 +262,17 @@ class TankFieldMovement:
         return TankDriveCommand(self.wheelMotors, speed,
             distance / self.wheelCircumference * self.ticksPerWheelRotation)
 
+    def strafeCommand(self, distance, speed=None):
+        """
+        Copying driveCommand
+        """
+        if speed == None:
+            speed = self.defaultSpeed
+        if self.invertDrive:
+            distance = -distance
+        return TankStrafeCommand(self.wheelMotors, speed,
+            distance / self.wheelCircumference * self.ticksPerWheelRotation)
+
 class TankDriveCommand(wpilib.command.Command):
     """
     Drive forward a certain amount by setting the position of each wheel and
@@ -316,6 +327,61 @@ class TankDriveCommand(wpilib.command.Command):
                 return False
         return True
 
+# I hope this works, no checking or though being done
+class TankStrafeCommand(wpilib.command.Command):
+    """
+    Strafe sideways a certain amount by setting the position of each wheel and
+    tracking encoder values. You should use a TankFieldMovement to create this.
+    I literally copied and pasted TankDriveCommand and changed which wheels spin which way.
+    """
+
+    def __init__(self, wheelMotors, speed, ticks):
+        super().__init__()
+        self.wheelMotors = wheelMotors
+        self.speed = speed * .25
+        self.ticks = ticks
+        self.currentTargets = [0.0, 0.0, 0.0, 0.0]
+
+    def initialize(self):
+        self.targetPositions = [0.0, 0.0, 0.0, 0.0]
+        self.currentTargets = [0.0, 0.0, 0.0, 0.0]
+        for i in range(0, 4):
+            motor = self.wheelMotors[i]
+            motor.enable()
+            motor.changeControlMode(wpilib.CANTalon.ControlMode.Position)
+            if i == HolonomicDrive.BACK_LEFT \
+                    or i == HolonomicDrive.BACK_RIGHT:
+                targetOffset = self.ticks
+            else:
+                targetOffset = -self.ticks
+            self.currentTargets[i] = motor.getPosition()
+            self.targetPositions[i] = motor.getPosition() + targetOffset
+
+    def execute(self):
+        for i in range(0, 4):
+            motor = self.wheelMotors[i]
+            target = self.targetPositions[i]
+            current = self.currentTargets[i]
+            if abs(target - current) < self.speed:
+                current = target
+            else:
+                if target > current:
+                    current += self.speed
+                else:
+                    current -= self.speed
+            self.currentTargets[i] = current
+            motor.set(current)
+
+    def isFinished(self):
+        for i in range(0, 4):
+            motor = self.wheelMotors[i]
+            target = self.targetPositions[i]
+            current = self.currentTargets[i]
+            if target != current:
+                return False
+            if abs(motor.getPosition() - target) > self.speed * 2:
+                return False
+        return True
 
 class StoreRotationCommand(wpilib.command.InstantCommand):
     """
