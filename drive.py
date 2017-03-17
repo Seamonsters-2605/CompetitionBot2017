@@ -270,7 +270,7 @@ class DriveBot(Module):
                     storeRotationCommand = StoreRotationCommand(self.ahrs)
                     startSequence.addSequential(storeRotationCommand)
                 startSequence.addSequential(
-                    self.tankFieldMovement.driveCommand(60, speed=250))
+                    self.tankFieldMovement.driveCommand(60, speed=225))
                 startSequence.addSequential(ResetHoloDriveCommand(self.holoDrive))
                 startSequence.addSequential(WaitCommand(0.5))
                 if navXWorking:
