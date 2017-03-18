@@ -595,10 +595,11 @@ class DriveBot(Module):
             self.speedLog.update(speedLogText)
 
         gearVolts = self.proximitySensor.getVoltage()
+        gearVoltsStr = "{0:.5f}".format(gearVolts)
         if self.proximitySensor.getVoltage() < 2:
-            self.gearLog.update("No gear (" + str(gearVolts) + ")")
+            self.gearLog.update("No gear (" + gearVoltsStr + ")")
         else:
-            self.gearLog.update("Gear (" + str(gearVolts) + ")")
+            self.gearLog.update("Gear (" + gearVoltsStr + ")")
 
     def _driveModeName(self, driveMode):
         if driveMode == DriveInterface.DriveMode.VOLTAGE:
