@@ -41,6 +41,8 @@ class DriveBot(Module):
         self.normalTurnScale = 0.25
         # turning speed scale when fast button is pressed
         self.fastTurnScale = 0.34
+        # turning speed scale when max speed button is pressed
+        self.maxTurnScale = 1.0
 
         self.joystickExponent = 2
         self.fastJoystickExponent = .5
@@ -443,12 +445,18 @@ class DriveBot(Module):
 
             elif self.driverGamepad.getRawButton(Gamepad.DOWN) \
                     or self.driverGamepad.getRawButton(Gamepad.LEFT) \
-                    or self.driverGamepad.getRawButton(Gamepad.RIGHT):
+                    or self.driverGamepad.getRawButton(Gamepad.RIGHT) \
+                    or self.driverGamepad.getRawButton(Gamepad.LB) \
+                    or self.driverGamepad.getRawButton(Gamepad.RB):
                 rotation = 0
                 if self.driverGamepad.getRawButton(Gamepad.LEFT):
                     rotation = -math.radians(60)
                 elif self.driverGamepad.getRawButton(Gamepad.RIGHT):
                     rotation = math.radians(60)
+                elif self.driverGamepad.getRawButton(Gamepad.LB):
+                    rotation = math.radians(63.36)
+                elif self.driverGamepad.getRawButton(Gamepad.RB):
+                    rotation = -math.radians(63.36)
 
                 self.scheduler.enable()
                 print("Rotate to center activated")
@@ -494,8 +502,12 @@ class DriveBot(Module):
             """
 
         if self.teleopCommand != None and \
-                (self.driverGamepad.getDPad() == -1 or
-                not self.driverGamepad.getRawButton(Gamepad.Y))\
+                (
+                    (self.driverGamepad.getDPad() == -1 and
+                    (not self.driverGamepad.getRawButton(Gamepad.LB))
+                    and not self.driverGamepad.getRawButton(Gamepad.RB)) or
+                    not self.driverGamepad.getRawButton(Gamepad.Y)
+                ) \
                 and not self.driverGamepad.getRawButton(Gamepad.X):
             # cancel auto commands if button not held
             self.scheduler.removeAll()
@@ -540,7 +552,7 @@ class DriveBot(Module):
             exponent = self.slowJoystickExponent
         if self.driverGamepad.getRawButton(Gamepad.LJ): # max speed button
             scale = self.maxScale
-            turnScale = self.fastTurnScale
+            turnScale = self.maxTurnScale
             exponent = self.fastJoystickExponent
         turn = self._joystickPower(-self.driverGamepad.getRX(), exponent) * turnScale
         magnitude = self._joystickPower(self.driverGamepad.getLMagnitude(), exponent) * scale
