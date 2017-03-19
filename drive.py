@@ -19,6 +19,7 @@ from seamonsters import dashboard
 import vision
 from auto_commands import *
 from command_utils import *
+import config
 
 from robotpy_ext.common_drivers.navx import AHRS
 import math
@@ -31,7 +32,7 @@ class DriveBot(Module):
         # normal speed scale, out of 1:
         self.normalScale = 0.37
         # speed scale when fast button is pressed:
-        self.fastScale = 0.68
+        self.fastScale = 1.0
         # speed scale when slow button is pressed:
         self.slowScale = 0.07
         # speed scale when max speed button is pressed
@@ -176,18 +177,18 @@ class DriveBot(Module):
         else:
             self.holoDrive.setDriveMode(DriveInterface.DriveMode.POSITION)
 
-        if not dashboard.getSwitch("Auto: Enabled", False):
+        if not dashboard.getSwitch("Auto: Enabled", True):
             # if false, we do nothing in autonomous
             return
 
         # if false, we don't place a gear
-        placeGearAuto = dashboard.getSwitch("Auto: Gear", False)
+        placeGearAuto = dashboard.getSwitch("Auto: Gear", True)
 
         # if false, we don't cross the line
         crossLineAuto = dashboard.getSwitch("Auto: Cross line", False)
 
         # if false, we should all panic because we're borked
-        navXWorking = dashboard.getSwitch("NavX works", False)
+        navXWorking = dashboard.getSwitch("NavX works", True)
 
         # if false, we don't place the gear
         if not dashboard.getSwitch("Vision works", False):
@@ -201,8 +202,6 @@ class DriveBot(Module):
             print("Error: proximity sensor didn't detect gear")
             gearProximitySensorWorking = False
 
-        flippedStationNumbers = dashboard.getSwitch("Flip station numbers", False)
-
         crossLineGoLeft = dashboard.getSwitch("Cross line left", False)
 
         self.vision = vision.Vision()
@@ -213,6 +212,19 @@ class DriveBot(Module):
         scheduler = Scheduler.getInstance()
 
         startPos = wpilib.DriverStation.getInstance().getLocation() # left = 1, center = 2, right = 3
+
+        if dashboard.getSwitch("Left start", False):
+            startPos = 1
+        elif dashboard.getSwitch("Center start", False):
+            startPos = 2
+        elif dashboard.getSwitch("Right start", False):
+            startPos = 3
+
+        print("placeGearAuto", placeGearAuto)
+        print("crossLineAuto", crossLineAuto)
+        print("navX working", navXWorking)
+        print("gearProximitySensorWorking", gearProximitySensorWorking)
+        print("Start pos", startPos)
 
         if startPos == 1: # left
             startAngle = -math.radians(60) # can be opposite or 0 based on start position
@@ -229,10 +241,6 @@ class DriveBot(Module):
         else:
             startAngle = 0
             print("Unknown startPos value")
-
-        # ONLY USE IF STARTING POSITIONS ARE MIRRORED INSTEAD OF ROTATIONALLY SYMMETRICAL
-        if flippedStationNumbers:
-            startAngle = -startAngle
 
         finalSequence = CommandGroup()
 
@@ -343,14 +351,16 @@ class DriveBot(Module):
                 PrintCommand("Driving to the peg..."))
             finalSequence.addSequential(
                 SetPidCommand(self.talons, 5.0, 0.0009, 3.0, 0.0))
-            if startPos == 2:
+            if config.REAL_FIELD:
                 finalSequence.addSequential(
-                    self.tankFieldMovement.driveCommand(11, speed=150))
+                    self.tankFieldMovement.driveCommand(11.5, speed=150))
             else:
                 finalSequence.addSequential(
                     self.tankFieldMovement.driveCommand(11, speed=150))
             finalSequence.addSequential(
                 PrintCommand("The gear is on the peg."))
+            if config.REAL_FIELD:
+                finalSequence.addSequential(WaitCommand(0.5))
             finalSequence.addSequential(ResetHoloDriveCommand(self.holoDrive))
             finalSequence.addSequential(StopDriveCommand(self.holoDrive))
             finalSequence.addSequential(
@@ -379,22 +389,6 @@ class DriveBot(Module):
                         10))
                 finalSequence.addSequential(WaitCommand(1))
                 """
-                if startPos == 2 and crossLineAuto: # if we're in the middle and want to cross the line
-                    strafeDist = 72
-                    crossLineDist = 48
-                    if crossLineGoLeft:
-                        strafeDist = -strafeDist
-                    # strafe to the right 6 feet
-                    finalSequence.addSequential(
-                        SetPidCommand(self.talons, 5.0, 0.0009, 3.0, 0.0))
-                    finalSequence.addSequential(
-                        self.tankFieldMovement.strafeCommand(strafeDist, speed=100))
-                    #finalSequence.addSequential(WaitCommand(0.5))
-                    # drive forward, if problems try uncommenting the line above
-                    finalSequence.addSequential(
-                        self.tankFieldMovement.driveCommand(crossLineDist, speed=100))
-                    finalSequence.addSequential(ResetHoloDriveCommand(self.holoDrive))
-                    finalSequence.addSequential(WaitCommand(0.5))
 
             finalSequence.addSequential(StopDriveCommand(self.holoDrive))
 
@@ -418,6 +412,18 @@ class DriveBot(Module):
         self.driveModeLog.update(self._driveModeName(self.drive.getDriveMode()))
 
         # AUTO COMMANDS ARE CHECKED BEFORE OTHER BUTTON PRESSES
+        if self.driverGamepad.getRawButton(Gamepad.X) and self.teleopCommand == None:
+            self.scheduler.enable()
+
+            self.teleopCommand = CommandGroup()
+            self.teleopCommand.addSequential(SetPidCommand(self.talons, 10.0, 0.0009, 3.0, 0.0))
+            self.teleopCommand.addSequential(self.tankFieldMovement.driveCommand(
+                -3.308, speed=150))
+            self.teleopCommand.addSequential(ForeverCommand(WaitCommand(1.0)))
+
+            self.scheduler.add(self.teleopCommand)
+            return
+
         if self.teleopCommand == None \
                 and self.driverGamepad.getRawButton(Gamepad.Y):
             if self.driverGamepad.getRawButton(Gamepad.UP):
@@ -489,11 +495,13 @@ class DriveBot(Module):
 
         if self.teleopCommand != None and \
                 (self.driverGamepad.getDPad() == -1 or
-                not self.driverGamepad.getRawButton(Gamepad.Y)):
-            # Cancel all vision commands if X button pressed on either gamepad
+                not self.driverGamepad.getRawButton(Gamepad.Y))\
+                and not self.driverGamepad.getRawButton(Gamepad.X):
+            # cancel auto commands if button not held
             self.scheduler.removeAll()
             self.scheduler.disable()
             self.teleopCommand = None
+            self.holoDrive.zeroEncoderTargets()
 
         if self.teleopCommand != None and not self.teleopCommand.isRunning():
             self.teleopCommand = None

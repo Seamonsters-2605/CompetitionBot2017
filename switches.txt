@@ -8,5 +8,7 @@
 +Vision works
 -Gear sensor works
 -Encoder logging
--Flip station numbers
+-Left start
+-Center start
+-Right start
 +Cross line left
