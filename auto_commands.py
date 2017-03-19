@@ -437,7 +437,8 @@ class MoveToPegCommand(wpilib.command.Command):
         self.count = 0
 
     def execute(self):
-        self.drive.drive(.3, math.pi/2, 0)
+        if self.count < 300:
+            self.drive.drive(.3, math.pi/2, 0)
         self.count += 1
 
     def isFinished(self):
