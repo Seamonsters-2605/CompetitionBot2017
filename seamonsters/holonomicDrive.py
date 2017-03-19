@@ -147,7 +147,16 @@ class HolonomicDrive(DriveInterface):
             self.zeroEncoderTargets()
         self._calcWheels(magnitude, direction, turn)
         self._scaleToMaxJeffMode()
-        self._incrementEncoderTargets()
+        error = False
+        for i in range(0, 4):
+            if abs(self.wheelMotors[i].getPosition() \
+                    - self.encoderTargets[i]) > self.ticksPerWheelRotation * 1.5:
+                error = True
+        if error:
+            print("Holonomic wheel error!")
+            self.zeroEncoderTargets()
+        else:
+            self._incrementEncoderTargets()
         self._setWheelsJeffMode()
         self.previousDriveMode = DriveInterface.DriveMode.POSITION
         
