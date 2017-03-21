@@ -130,18 +130,23 @@ class DriveBot(Module):
 
     def teleopInit(self):
         print("DRIVE GAMEPAD:")
+        print("  Left Joystick: Strafe/Drive")
+        print("  Right Joystick: Turn")
         print("  Left Trigger: Slower")
         print("  Right Trigger: Faster")
         print("  Left Joystick Button: Max Speed!")
+        print("  Dpad: Move in small increments")
         print("  A: Enable Field Orientation")
         print("  B: Disable Field Orientation")
-        print("  Dpad: Move in small increments")
+        print("  Both Bumpers: Reset Field Orientation")
         print("  Start: Position Mode")
         print("  Back: Voltage mode")
-        print("  Right Joystick: Turn")
-        print("  Left Joystick: Strafe/Drive ")
-        print("  Y + Dpad: Vision command")
+        print("  X: Drive back to collect gear")
+        print("  Y + Dpad up: Align to peg")
+        print("  Y + Dpad: Rotate to peg")
+        print("  Y + Bumper: Rotate to feeder station")
         print("  Right Joystick Button: Gear light")
+
         self.holoDrive.zeroEncoderTargets()
         self.holoDrive.setMaxVelocity(self.teleopMaxVelocity)
         self.dPadCount = 1000

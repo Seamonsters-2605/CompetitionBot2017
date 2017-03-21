@@ -22,14 +22,12 @@ class Shooter (Module):
             self.ballControl.getFlywheels().switchSpeedMode()
 
     def teleopInit(self):
-        print("  UP: Shoot")
-        print("  DOWN: Reverse Flywheel")
-        print("  Start: Flywheel speed mode")
-        print("  Back: Flywheel voltage mode")
-        print("  RIGHT: Intake")
-        print("  LEFT: Outtake")
+        print("  Dpad up: Spin flywheel")
+        print("  Dpad down: Reverse flywheel")
         print("  Right Trigger: Feeder forwards")
         print("  Left Trigger: Feeder backwards")
+        print("  Start: Flywheel speed mode")
+        print("  Back: Flywheel voltage mode")
 
         if dashboard.getSwitch("Flywheel voltage mode", False):
             self.ballControl.getFlywheels().switchVoltageMode()
