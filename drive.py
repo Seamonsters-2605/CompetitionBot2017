@@ -144,7 +144,7 @@ class DriveBot(Module):
         print("  X: Drive back to collect gear")
         print("  Y + Dpad up: Align to peg")
         print("  Y + Dpad: Rotate to peg")
-        print("  Y + Bumper: Rotate to feeder station")
+        print("  Bumper: Rotate to feeder station")
         print("  Right Joystick Button: Gear light")
 
         self.holoDrive.zeroEncoderTargets()
@@ -175,7 +175,7 @@ class DriveBot(Module):
 
     def autonomousInit(self):
         self._initLogging()
-        
+
         self.fieldDrive.zero()
         self.holoDrive.zeroEncoderTargets()
         self.holoDrive.setMaxVelocity(self.autoMaxVelocity)
@@ -427,24 +427,30 @@ class DriveBot(Module):
         self.driveModeLog.update(self._driveModeName(self.drive.getDriveMode()))
 
         # AUTO COMMANDS ARE CHECKED BEFORE OTHER BUTTON PRESSES
-        if self.driverGamepad.getRawButton(Gamepad.X) and self.teleopCommand == None:
+
+        autoButtonPressed = \
+            self.driverGamepad.getRawButton(Gamepad.LB) or \
+            self.driverGamepad.getRawButton(Gamepad.RB) or \
+            self.driverGamepad.getRawButton(Gamepad.X) or \
+            ( self.driverGamepad.getRawButton(Gamepad.Y) and
+                self.driverGamepad.getDPad() != -1 )
+
+        if self.teleopCommand == None and autoButtonPressed:
             self.scheduler.enable()
-
             self.teleopCommand = CommandGroup()
-            self.teleopCommand.addSequential(SetPidCommand(self.talons, 10.0, 0.0009, 3.0, 0.0))
-            self.teleopCommand.addSequential(self.tankFieldMovement.driveCommand(
-                -3.308, speed=150))
-            self.teleopCommand.addSequential(ForeverCommand(WaitCommand(1.0)))
 
-            self.scheduler.add(self.teleopCommand)
-            return
+            if self.driverGamepad.getRawButton(Gamepad.X):
+                print("Drive backwards activated")
+                self.teleopCommand.addSequential(SetPidCommand(self.talons, 10.0, 0.0009, 3.0, 0.0))
+                self.teleopCommand.addSequential(self.tankFieldMovement.driveCommand(
+                    -3.308, speed=150))
+                self.teleopCommand.addSequential(ForeverCommand(WaitCommand(1.0)))
+                self.teleopCommand.addSequential(
+                    PrintCommand("Finished driving backwards")
+                )
 
-        if self.teleopCommand == None \
-                and self.driverGamepad.getRawButton(Gamepad.Y):
-            if self.driverGamepad.getRawButton(Gamepad.UP):
-                self.scheduler.enable()
+            elif self.driverGamepad.getRawButton(Gamepad.UP):
                 print("Strafe activated")
-                self.teleopCommand = CommandGroup()
                 self.teleopCommand.addSequential(
                     ForeverCommand(
                         StrafeAlignCommand(drive=self.pidDrive,
@@ -453,8 +459,6 @@ class DriveBot(Module):
                 self.teleopCommand.addSequential(
                     PrintCommand("Finished StrafeCommand")
                 )
-                self.scheduler.add(self.teleopCommand)
-                return
 
             elif self.driverGamepad.getRawButton(Gamepad.DOWN) \
                     or self.driverGamepad.getRawButton(Gamepad.LEFT) \
@@ -471,29 +475,21 @@ class DriveBot(Module):
                 elif self.driverGamepad.getRawButton(Gamepad.RB):
                     rotation = -math.radians(63.36)
 
-                self.scheduler.enable()
                 print("Rotate to center activated")
                 staticRotationCommand = AngleRotateCommand(
                     drive=self.pidDrive, ahrs=self.ahrs,
                     angle=self.fieldDrive.origin + rotation)
-                self.teleopCommand = CommandGroup()
                 self.teleopCommand.addSequential(
                     ForeverCommand(
                         staticRotationCommand))
                 self.teleopCommand.addSequential(
                     PrintCommand("Finished rotating")
                 )
-                self.scheduler.add(self.teleopCommand)
-                return
 
-        if self.teleopCommand != None and \
-                (
-                    (self.driverGamepad.getDPad() == -1 and
-                    (not self.driverGamepad.getRawButton(Gamepad.LB))
-                    and not self.driverGamepad.getRawButton(Gamepad.RB)) or
-                    not self.driverGamepad.getRawButton(Gamepad.Y)
-                ) \
-                and not self.driverGamepad.getRawButton(Gamepad.X):
+            self.scheduler.add(self.teleopCommand)
+            return
+
+        if self.teleopCommand != None and not autoButtonPressed:
             # cancel auto commands if button not held
             self.scheduler.removeAll()
             self.scheduler.disable()
