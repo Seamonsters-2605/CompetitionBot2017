@@ -171,9 +171,11 @@ class DriveBot(Module):
         else:
             self.holoDrive.setDriveMode(DriveInterface.DriveMode.POSITION)
 
-        self.encoderLoggingEnabled = dashboard.getSwitch("Encoder logging", False)
+        self._initLogging()
 
     def autonomousInit(self):
+        self._initLogging()
+        
         self.fieldDrive.zero()
         self.holoDrive.zeroEncoderTargets()
         self.holoDrive.setMaxVelocity(self.autoMaxVelocity)
@@ -401,8 +403,14 @@ class DriveBot(Module):
 
         scheduler.add(finalSequence)
 
+    def autonomousPeriodic(self):
+        super().autonomousPeriodic()
+        self._logging()
+
     def teleopPeriodic(self):
         self.count = self.count + 1
+
+        self._logging()
 
         if self.driverGamepad.getRawButton(Gamepad.RJ):
             self.readyForGearLight1.set(self.count % 10 >= 5)
@@ -574,6 +582,10 @@ class DriveBot(Module):
         else:
             self.pidDrive.drive(magnitude, direction, turn)
 
+    def _initLogging(self):
+        self.encoderLoggingEnabled = dashboard.getSwitch("Encoder logging", False)
+
+    def _logging(self):
         current = 0
         for talon in self.talons:
             current += talon.getOutputCurrent()
