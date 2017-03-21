@@ -10,6 +10,7 @@ from drive import DriveBot
 from debugmode import DebugMode
 from climber import Climber
 from shooter import Shooter
+from gear_light import GearLightBot
 import cscore_camera
 
 class CompetitionBot2017(Module):
@@ -19,6 +20,7 @@ class CompetitionBot2017(Module):
         robot = DriveBot(initSuper=False)
         self.addModule(robot)
         self.addModule(DebugMode(robot))
+        self.addModule(GearLightBot(initSuper=False))
         self.addModule(Climber(initSuper=False))
         self.addModule(Shooter(initSuper=False))
 

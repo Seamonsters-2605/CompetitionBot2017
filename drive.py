@@ -116,9 +116,6 @@ class DriveBot(Module):
                                             invertDrive=True, driveSpeed=100)
         self.proximitySensor = wpilib.AnalogInput(0)
 
-        self.readyForGearLight1 = wpilib.DigitalOutput(0)
-        self.readyForGearLight2 = wpilib.DigitalOutput(1)
-
         self.pdp = wpilib.PowerDistributionPanel()
         self.currentLog = LogState("Drive current", logFrequency=2.0)
 
@@ -143,7 +140,6 @@ class DriveBot(Module):
         print("  Y + Dpad up: Align to peg")
         print("  Y + Dpad: Rotate to peg")
         print("  Bumper: Rotate to feeder station")
-        print("  Right Joystick Button: Gear light")
 
         self.holoDrive.zeroEncoderTargets()
         self.holoDrive.setMaxVelocity(self.teleopMaxVelocity)
@@ -411,13 +407,6 @@ class DriveBot(Module):
         self.count = self.count + 1
 
         self._logging()
-
-        if self.driverGamepad.getRawButton(Gamepad.RJ):
-            self.readyForGearLight1.set(self.count % 10 >= 5)
-            self.readyForGearLight2.set(self.count % 10 < 5)
-        else:
-            self.readyForGearLight1.set(False)
-            self.readyForGearLight2.set(False)
 
         # change drive mode with back and start
         if   self.driverGamepad.getRawButton(Gamepad.BACK):
