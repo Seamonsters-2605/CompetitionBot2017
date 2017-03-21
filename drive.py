@@ -136,6 +136,7 @@ class DriveBot(Module):
         print("  Right Trigger: Faster")
         print("  Left Joystick Button: Max Speed!")
         print("  Dpad: Move in small increments")
+        print("  A: Brake")
         print("  Start: Position Mode")
         print("  Back: Voltage mode")
         print("  X: Drive back to collect gear")
@@ -167,6 +168,8 @@ class DriveBot(Module):
             self.holoDrive.setDriveMode(DriveInterface.DriveMode.VOLTAGE)
         else:
             self.holoDrive.setDriveMode(DriveInterface.DriveMode.POSITION)
+
+        self.wheelsLocked = False
 
         self._initLogging()
 
@@ -502,6 +505,19 @@ class DriveBot(Module):
             return
         else:
             self.holoDrive.setMaxVelocity(self.teleopMaxVelocity)
+
+        if self.driverGamepad.getRawButton(Gamepad.A) and \
+                self.driverGamepad.getLMagnitude() == 0 and \
+                self.driverGamepad.getRX() == 0:
+            # lock wheels and don't allow driving
+            if not self.wheelsLocked:
+                for talon in self.talons:
+                    talon.changeControlMode(wpilib.CANTalon.ControlMode.Position)
+                    talon.set(talon.getPosition())
+                self.wheelsLocked = True
+            return
+        else:
+            self.wheelsLocked = False
 
         if self.secondaryGamepad.getRawButton(Gamepad.B):
             self.drive = self.fieldDrive # field oriented on
