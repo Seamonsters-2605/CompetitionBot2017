@@ -136,9 +136,6 @@ class DriveBot(Module):
         print("  Right Trigger: Faster")
         print("  Left Joystick Button: Max Speed!")
         print("  Dpad: Move in small increments")
-        print("  A: Enable Field Orientation")
-        print("  B: Disable Field Orientation")
-        print("  Both Bumpers: Reset Field Orientation")
         print("  Start: Position Mode")
         print("  Back: Voltage mode")
         print("  X: Drive back to collect gear")
@@ -506,12 +503,12 @@ class DriveBot(Module):
         else:
             self.holoDrive.setMaxVelocity(self.teleopMaxVelocity)
 
-        if self.driverGamepad.getRawButton(Gamepad.A):
+        if self.secondaryGamepad.getRawButton(Gamepad.B):
             self.drive = self.fieldDrive # field oriented on
-        if self.driverGamepad.getRawButton(Gamepad.B):
+        if self.secondaryGamepad.getRawButton(Gamepad.X):
             self.drive = self.filterDrive # field oriented off
-        if self.driverGamepad.getRawButton(Gamepad.RB) \
-                and self.driverGamepad.getRawButton(Gamepad.LB):
+        if self.secondaryGamepad.getRawButton(Gamepad.RB) \
+                and self.secondaryGamepad.getRawButton(Gamepad.LB):
             print("Zero field oriented.")
             self.fieldDrive.zero()
         if self.drive is self.fieldDrive:

@@ -40,6 +40,9 @@ class Climber(Module):
 
     def teleopInit(self):
         print("SPECIAL GAMEPAD:")
+        print("  B: Enable Field Orientation")
+        print("  X: Disable Field Orientation")
+        print("  Both Bumpers: Reset Field Orientation")
         print("  Y: Shake robot")
         print("  Left Joystick: Spin climber")
         print("  Right Joystick: Slow mode (lock mode only)")
