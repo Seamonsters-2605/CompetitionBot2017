@@ -11,5 +11,4 @@ try:
     otherMjpegServer = cscore.MjpegServer("httpserver-boiler", 1188)
     otherMjpegServer.setSource(otherCamera)
 except BaseException as e:
-    print("cscore error")
-    print(e)
+    print("cscore error (ignore this if you're testing/deploying):", e)
