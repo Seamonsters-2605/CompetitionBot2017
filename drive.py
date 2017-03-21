@@ -478,34 +478,6 @@ class DriveBot(Module):
                 self.scheduler.add(self.teleopCommand)
                 return
 
-            """
-            elif self.secondaryGamepad.getRawButton(Gamepad.Y):
-                self.scheduler.enable()
-                print("Turn and drive activated")
-                self.teleopCommand = CommandGroup()
-                self.teleopCommand.addSequential(
-                    EnsureFinishedCommand(
-                        TurnAlignCommand(drive=self.multiDrive,
-                                         vision=self.vision),
-                        25)
-                )
-                self.teleopCommand.addSequential(
-                    PrintCommand("Finished TurnCommand")
-                )
-                self.teleopCommand.addSequential(
-                    EnsureFinishedCommand(
-                        DriveToBoilerDistanceCommand(drive=self.multiDrive,
-                                                     vision=self.vision),
-                        25)
-                )
-                self.teleopCommand.addSequential(
-                    PrintCommand("DriveToBoilerDistance finished")
-                )
-                self.scheduler.add(self.teleopCommand)
-
-                return
-            """
-
         if self.teleopCommand != None and \
                 (
                     (self.driverGamepad.getDPad() == -1 and
