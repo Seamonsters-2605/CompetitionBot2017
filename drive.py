@@ -310,7 +310,7 @@ class DriveBot(Module):
                 startSequence.addSequential(
                     self.tankFieldMovement.driveCommand(60, speed=225))
                 startSequence.addSequential(ResetHoloDriveCommand(self.holoDrive))
-                startSequence.addSequential(WaitCommand(0.5))
+                startSequence.addSequential(WaitCommand(0.1))
                 if navXWorking:
                     startSequence.addSequential(
                         PrintCommand("Recalling rotation..."))
