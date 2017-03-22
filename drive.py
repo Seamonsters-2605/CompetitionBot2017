@@ -304,6 +304,7 @@ class DriveBot(Module):
                         startSequence))
             else:
                 print("Center sequence")
+                """
                 if navXWorking:
                     storeRotationCommand = StoreRotationCommand(self.ahrs)
                     startSequence.addSequential(storeRotationCommand)
@@ -319,6 +320,7 @@ class DriveBot(Module):
                             RecallRotationCommand(storeRotationCommand,
                                                   self.pidDrive, self.ahrs),
                             30))
+                """
 
             finalSequence.addSequential(startSequence)
             finalSequence.addSequential(PrintCommand("Start sequence finished!"))
@@ -328,7 +330,7 @@ class DriveBot(Module):
                 EnsureFinishedCommand(
                     StrafeAlignCommand(drive=multiDrive,
                                        vision=self.vision),
-                    25)
+                    10)
             )
             approachPegSequence.addSequential(
                 PrintCommand("Aligned with peg"))
