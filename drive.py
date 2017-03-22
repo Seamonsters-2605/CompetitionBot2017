@@ -333,17 +333,20 @@ class DriveBot(Module):
             approachPegSequence.addSequential(
                 PrintCommand("Aligned with peg"))
             approachPegSequence.addSequential(
-                EnsureFinishedCommand(
-                    DriveToTargetDistanceCommand(drive=multiDrive,
-                                                 vision=self.vision,
-                                                 buffer=18.0),
-                    10)
-            )
+                DrivePastTargetDistanceCommand(drive=multiDrive,
+                                               vision=self.vision,
+                                               buffer=18.0))
 
             finalSequence.addParallel(
                 WhileRunningCommand(
                     ForeverCommand(
                         StaticRotationCommand(multiDrive, self.ahrs)),
+                    approachPegSequence))
+            finalSequence.addParallel(
+                WhileRunningCommand(
+                    ForeverCommand(
+                        StrafeAlignCommand(drive=multiDrive,
+                                           vision=self.vision)),
                     approachPegSequence))
             finalSequence.addParallel(
                 WhileRunningCommand(
