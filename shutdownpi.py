@@ -1,6 +1,6 @@
 import os
 
-def main(self):
+def main():
     #shuts down the pi, requires putty in PATH
     os.system("plink.exe -ssh pi@raspberrypi -pw sehome \"sudo shutdown -h now\"")
 
