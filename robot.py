@@ -17,12 +17,21 @@ class CompetitionBot2017(Module):
     
     def __init__(self):
         super().__init__()
-        robot = DriveBot(initSuper=False)
-        self.addModule(robot)
-        self.addModule(DebugMode(robot))
-        self.addModule(GearLightBot(initSuper=False))
-        self.addModule(Climber(initSuper=False))
-        self.addModule(Shooter(initSuper=False))
+
+        self.driveBot = DriveBot(initSuper=False)
+        self.addModule(self.driveBot)
+
+        self.debugModeBot = DebugMode(self.driveBot)
+        self.addModule(self.debugModeBot)
+
+        self.gearLightBot = GearLightBot(initSuper=False)
+        self.addModule(self.gearLightBot)
+
+        self.climberBot = Climber(initSuper=False)
+        self.addModule(self.climberBot)
+
+        self.shooterBot = Shooter(initSuper=False)
+        self.addModule(self.shooterBot)
 
     def autonomousPeriodic(self):
         super().autonomousPeriodic()
