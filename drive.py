@@ -53,7 +53,7 @@ class DriveBot(Module):
         self.driveDirectionDeadZone = math.radians(10)
 
         # rate of increase of velocity per 1/50th of a second:
-        accelerationRate = 0.1
+        accelerationRate = 1.0
 
         # PIDF values for fast driving:
         fastPID = (1.0, 0.0009, 3.0, 0.0)
@@ -84,7 +84,7 @@ class DriveBot(Module):
             talon.setFeedbackDevice(wpilib.CANTalon.FeedbackDevice.QuadEncoder)
 
         self.driveModeLog = LogState("Drive mode")
-        self.gearLog = LogState("Gear")
+        self.gearLog = LogState("Gear", logFrequency=2.0)
         
         self._setPID(fastPID)
         
@@ -432,7 +432,7 @@ class DriveBot(Module):
                 print("Drive backwards activated")
                 self.teleopCommand.addSequential(SetPidCommand(self.talons, 10.0, 0.0009, 3.0, 0.0))
                 self.teleopCommand.addSequential(self.tankFieldMovement.driveCommand(
-                    -3.308, speed=150))
+                    -5, speed=150))
                 self.teleopCommand.addSequential(ForeverCommand(WaitCommand(1.0)))
                 self.teleopCommand.addSequential(
                     PrintCommand("Finished driving backwards")
@@ -500,9 +500,12 @@ class DriveBot(Module):
                 self.driverGamepad.getRX() == 0:
             # lock wheels and don't allow driving
             if not self.wheelsLocked:
+                print("Locking wheels")
                 for talon in self.talons:
+                    talon.enable()
                     talon.changeControlMode(wpilib.CANTalon.ControlMode.Position)
                     talon.set(talon.getPosition())
+                    talon.setPID(30.0, 0.0009, 3.0, 0.0)
                 self.wheelsLocked = True
             return
         else:
