@@ -652,6 +652,40 @@ class DriveToTargetDistanceCommand(wpilib.command.Command):
     def isFinished(self):
         return abs(self.distance - self.buffer) < self.tolerance
 
+class DrivePastTargetDistanceCommand(wpilib.command.Command):
+
+    def __init__(self, drive, vision, buffer=21.0):
+        super().__init__()
+        self.drive = drive
+        self.visionary = vision
+        self.buffer = buffer #inches
+
+        self.pegFocalDistance = 661.96
+        self.pegRealTargetDistance = 8.25
+
+        # prevent isFinished() from returning True
+        self.distance = self.buffer + 1
+
+    def execute(self):
+        # find distance to targets
+        contours = self.visionary.getContours()
+        if len(contours) < 2:
+            print("No vision!!")
+            return
+
+        pixelDistance = math.sqrt(vision.Vision.findCentersXDistance(contours)**2
+                                + vision.Vision.findCentersYDistance(contours)**2)
+
+        self.distance = self.pegFocalDistance * self.pegRealTargetDistance / pixelDistance
+
+        self.drive.drive(.3, math.pi / 2, 0)
+
+    def end(self):
+        self.drive.drive(0, 0, 0)
+
+    def isFinished(self):
+        return self.distance < self.buffer
+
 class DriveToBoilerDistanceCommand(wpilib.command.Command):
     """
     Calculates distance to boiler using vision

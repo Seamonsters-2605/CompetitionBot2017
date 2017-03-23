@@ -304,13 +304,14 @@ class DriveBot(Module):
                         startSequence))
             else:
                 print("Center sequence")
+                """
                 if navXWorking:
                     storeRotationCommand = StoreRotationCommand(self.ahrs)
                     startSequence.addSequential(storeRotationCommand)
                 startSequence.addSequential(
                     self.tankFieldMovement.driveCommand(60, speed=225))
                 startSequence.addSequential(ResetHoloDriveCommand(self.holoDrive))
-                startSequence.addSequential(WaitCommand(0.5))
+                startSequence.addSequential(WaitCommand(0.1))
                 if navXWorking:
                     startSequence.addSequential(
                         PrintCommand("Recalling rotation..."))
@@ -319,6 +320,7 @@ class DriveBot(Module):
                             RecallRotationCommand(storeRotationCommand,
                                                   self.pidDrive, self.ahrs),
                             30))
+                """
 
             finalSequence.addSequential(startSequence)
             finalSequence.addSequential(PrintCommand("Start sequence finished!"))
@@ -328,22 +330,25 @@ class DriveBot(Module):
                 EnsureFinishedCommand(
                     StrafeAlignCommand(drive=multiDrive,
                                        vision=self.vision),
-                    25)
+                    10)
             )
             approachPegSequence.addSequential(
                 PrintCommand("Aligned with peg"))
             approachPegSequence.addSequential(
-                EnsureFinishedCommand(
-                    DriveToTargetDistanceCommand(drive=multiDrive,
-                                                 vision=self.vision,
-                                                 buffer=18.0),
-                    10)
-            )
+                DrivePastTargetDistanceCommand(drive=multiDrive,
+                                               vision=self.vision,
+                                               buffer=18.0))
 
             finalSequence.addParallel(
                 WhileRunningCommand(
                     ForeverCommand(
                         StaticRotationCommand(multiDrive, self.ahrs)),
+                    approachPegSequence))
+            finalSequence.addParallel(
+                WhileRunningCommand(
+                    ForeverCommand(
+                        StrafeAlignCommand(drive=multiDrive,
+                                           vision=self.vision)),
                     approachPegSequence))
             finalSequence.addParallel(
                 WhileRunningCommand(
