@@ -664,7 +664,7 @@ class DrivePastTargetDistanceCommand(wpilib.command.Command):
         self.pegRealTargetDistance = 8.25
 
         # prevent isFinished() from returning True
-        self.distance = self.buffer + self.tolerance + 1
+        self.distance = self.buffer + 1
 
     def execute(self):
         # find distance to targets
@@ -678,7 +678,7 @@ class DrivePastTargetDistanceCommand(wpilib.command.Command):
 
         self.distance = self.pegFocalDistance * self.pegRealTargetDistance / pixelDistance
 
-        self.drive.drive(.5, math.pi / 2, 0)
+        self.drive.drive(.3, math.pi / 2, 0)
 
     def end(self):
         self.drive.drive(0, 0, 0)
