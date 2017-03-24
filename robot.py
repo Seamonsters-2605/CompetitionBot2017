@@ -13,6 +13,8 @@ from shooter import Shooter
 from gear_light import GearLightBot
 import cscore_camera
 
+from networktables import NetworkTables
+
 class CompetitionBot2017(Module):
     
     def __init__(self):
@@ -33,13 +35,37 @@ class CompetitionBot2017(Module):
         self.shooterBot = Shooter(initSuper=False)
         self.addModule(self.shooterBot)
 
+        self.commandTable = NetworkTables.getTable('commands')
+
     def autonomousPeriodic(self):
         super().autonomousPeriodic()
         seamonsters.logging.sendLogStates()
 
+    def teleopInit(self):
+        super().teleopInit()
+        self.commandTable.putString('command', "")
+        self.commandTable.putNumber('id', 0)
+        self.lastCommandId = 0
+
     def teleopPeriodic(self):
         super().teleopPeriodic()
         seamonsters.logging.sendLogStates()
+
+        try:
+            commandId = self.commandTable.getNumber('id')
+            if commandId != self.lastCommandId:
+                command = self.commandTable.getString('command')
+                command = command.strip()
+                if command != "":
+                    print("Running command", command)
+                    try:
+                        exec(command)
+                    except BaseException as e:
+                        print("Error!")
+                        print(e)
+                self.lastCommandId = commandId
+        except BaseException:
+            print("Command connection error!")
 
 if __name__ == "__main__":
     wpilib.run(CompetitionBot2017, physics_enabled=True)
