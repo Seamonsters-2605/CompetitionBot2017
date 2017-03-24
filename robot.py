@@ -37,6 +37,12 @@ class CompetitionBot2017(Module):
 
         self.commandTable = NetworkTables.getTable('commands')
 
+    # extension to Module
+    def removeModule(self, robot):
+        self.Modules.remove(robot)
+        if isinstance(robot, Module):
+            robot.setParent(None)
+
     def autonomousPeriodic(self):
         super().autonomousPeriodic()
         seamonsters.logging.sendLogStates()
