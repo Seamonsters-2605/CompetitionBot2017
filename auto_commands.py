@@ -506,7 +506,7 @@ class FlywheelsWaitCommand(wpilib.command.Command):
 
 class ShootForFixedTimeCommand(wpilib.command.Command):
     """
-    Spins agitator for 50 ticks, then spins agitator and flywheels for a number of ticks
+    Spins flywheels for 25 ticks, then spins agitator and flywheels for a number of ticks
     """
 
     def __init__(self, ballControl, maxTicks, feedSpeed = 1):
@@ -519,10 +519,10 @@ class ShootForFixedTimeCommand(wpilib.command.Command):
     def execute(self):
         self.count = self.count + 1
 
-        self.ballControl.feed(self.feedSpeed)
+        self.ballControl.getFlywheels().spinFlywheels()
 
         if self.count >= 50:
-            self.ballControl.getFlywheels().spinFlywheels()
+            self.ballControl.feed(self.feedSpeed)
 
     def isFinished(self):
         self.count >= self.maxTicks
