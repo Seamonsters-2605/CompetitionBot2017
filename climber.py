@@ -78,7 +78,7 @@ class Climber(Module):
             self.lock()
             if self.enabled:
                 self.statusLog.update("Locked!")
-                self.lockPosition += self.secondaryGamepad.getRY() * 1000
+                self.lockPosition += self.secondaryGamepad.getRY() * 1500
         elif self.enabled:
             self.unlock()
             self.climberMotor.set(self.secondaryGamepad.getLY())
