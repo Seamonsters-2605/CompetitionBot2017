@@ -42,9 +42,9 @@ class CompetitionBot2017(Module):
 
     def robotInit(self):
         self.ballControl = shooter.BallControl()
-        super().robotInit()
         self.driveBot.setBallControl(self.ballControl)
         self.shooterBot.setBallControl(self.ballControl)
+        super().robotInit()
 
     def autonomousPeriodic(self):
         super().autonomousPeriodic()

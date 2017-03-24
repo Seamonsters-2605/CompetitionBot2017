@@ -261,17 +261,33 @@ class DriveBot(Module):
         finalSequence = CommandGroup()
 
         if shootingInAuto:
+
+            print("Should be shooting")
+
             # spin flywheel and agitator
-            shootTime = 5 # in seconds
-            finalSequence.addSequential(ShootForFixedTimeCommand(self.ballControl, shootTime * 6))
+            shootTime = 6 # in seconds
+
+            finalSequence.addParallel(ShootForFixedTimeCommand(self.ballControl, shootTime * 50))
 
             # rotate towards peg
             finalSequence.addSequential(
                 SetPidCommand(self.talons, 5.0, 0.0009, 3.0, 0.0))
             finalSequence.addSequential(
-                self.tankFieldMovement.strafeCommand(12, speed=100))
+                self.tankFieldMovement.driveCommand(12, speed=100))
             finalSequence.addSequential(ResetHoloDriveCommand(self.holoDrive))
-            finalSequence.addSequential(AngleRotateCommand(self.multiDrive, self.ahrs, self.fieldDrive.origin))
+
+            startRotationToBoiler = StaticRotationCommand(multiDrive, self.ahrs, math.radians(101.63))
+
+            finalSequence.addParallel(startRotationToBoiler)
+            finalSequence.addSequential(WhileRunningCommand(
+                UpdateMultiDriveCommand(multiDrive),
+                startRotationToBoiler))
+
+            rotateBack = StaticRotationCommand(multiDrive, self.ahrs, math.radians(-101.63))
+            finalSequence.addParallel(rotateBack)
+            finalSequence.addSequential(WhileRunningCommand(
+                UpdateMultiDriveCommand(multiDrive),
+                rotateBack))
 
             # should continue with center autonomous
 
