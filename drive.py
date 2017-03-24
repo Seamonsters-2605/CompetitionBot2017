@@ -19,6 +19,7 @@ from seamonsters import dashboard
 import vision
 from auto_commands import *
 from command_utils import *
+from shooter import *
 import config
 
 from robotpy_ext.common_drivers.navx import AHRS
@@ -125,6 +126,9 @@ class DriveBot(Module):
         if self.pdp.getVoltage() < 12:
             print ("Battery Level below 12 volts!!!")
 
+    def setBallControl(self, ballControl):
+        self.ballControl = ballControl
+
     def teleopInit(self):
         print("DRIVE GAMEPAD:")
         print("  Left Joystick: Strafe/Drive")
@@ -202,6 +206,9 @@ class DriveBot(Module):
         # if false, we wait in place after placing the gear until the end of autonomous
         gearProximitySensorWorking = dashboard.getSwitch("Gear sensor works", False)
 
+        # shooting in auto (ONLY STAYS TRUE IF IN THE CENTER)
+        shootingInAuto = dashboard.getSwitch("Shoot in auto", False)
+
         # if sensor doesn't detect a gear at start (is broken), don't proximity sensing
         if self.proximitySensor.getVoltage() < 2:
             print("Error: proximity sensor didn't detect gear")
@@ -231,6 +238,10 @@ class DriveBot(Module):
         print("gearProximitySensorWorking", gearProximitySensorWorking)
         print("Start pos", startPos)
 
+        # if we're not in the middle, do not shoot
+        if not startPos == 2:
+            shootingInAuto = False
+
         if startPos == 1: # left
             startAngle = -math.radians(60) # can be opposite or 0 based on start position
             if not navXWorking:
@@ -248,6 +259,21 @@ class DriveBot(Module):
             print("Unknown startPos value")
 
         finalSequence = CommandGroup()
+
+        if shootingInAuto:
+            # spin flywheel and agitator
+            shootTime = 5 # in seconds
+            finalSequence.addSequential(ShootForFixedTimeCommand(self.ballControl, shootTime * 6))
+
+            # rotate towards peg
+            finalSequence.addSequential(
+                SetPidCommand(self.talons, 5.0, 0.0009, 3.0, 0.0))
+            finalSequence.addSequential(
+                self.tankFieldMovement.strafeCommand(12, speed=100))
+            finalSequence.addSequential(ResetHoloDriveCommand(self.holoDrive))
+            finalSequence.addSequential(AngleRotateCommand(self.multiDrive, self.ahrs, self.fieldDrive.origin))
+
+            # should continue with center autonomous
 
         if not placeGearAuto:
             if crossLineAuto:

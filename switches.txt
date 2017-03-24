@@ -3,7 +3,7 @@
 -Flywheel voltage mode
 +Auto: Enabled
 +Auto: Gear
-+Auto: Cross line
+-Auto: Cross line
 +NavX works
 +Vision works
 -Gear sensor works
@@ -12,3 +12,4 @@
 -Center start
 -Right start
 +Cross line left
+-Shoot in auto
