@@ -266,9 +266,9 @@ class DriveBot(Module):
             print("Should be shooting")
 
             # spin flywheel and agitator
-            shootTime = 6 # in seconds
+            shootTime = 8.5 # in seconds
 
-            turnAngle = 101.63 if shootLeft else -101.63
+            turnAngle = 103.63 if shootLeft else -103.63
 
             finalSequence.addParallel(ShootForFixedTimeCommand(self.ballControl, shootTime * 50))
 
@@ -338,7 +338,7 @@ class DriveBot(Module):
                         MoveToPegCommand(multiFieldDrive, self.vision),
                         25))
                 startSequence.addSequential(
-                    WaitCommand(0.5))
+                    WaitCommand(0.25))
                 startSequence.addParallel(
                     EnsureFinishedCommand(
                         StaticRotationCommand(multiFieldDrive, self.ahrs, startAngle),
@@ -375,25 +375,25 @@ class DriveBot(Module):
                 EnsureFinishedCommand(
                     StrafeAlignCommand(drive=multiDrive,
                                        vision=self.vision),
-                    10)
+                    20)
             )
             approachPegSequence.addSequential(
                 PrintCommand("Aligned with peg"))
-            approachPegSequence.addSequential(
-                DrivePastTargetDistanceCommand(drive=multiDrive,
-                                               vision=self.vision,
-                                               buffer=18.0))
+            driveToDistance = DrivePastTargetDistanceCommand(drive=multiDrive,
+                                                            vision=self.vision,
+                                                            buffer=18.0)
+            approachPegSequence.addParallel(
+                WhileRunningCommand(
+                    ForeverCommand(
+                        StrafeAlignCommand(drive=multiDrive,
+                                           vision=self.vision)),
+                    driveToDistance))
+            approachPegSequence.addSequential(driveToDistance)
 
             finalSequence.addParallel(
                 WhileRunningCommand(
                     ForeverCommand(
                         StaticRotationCommand(multiDrive, self.ahrs)),
-                    approachPegSequence))
-            finalSequence.addParallel(
-                WhileRunningCommand(
-                    ForeverCommand(
-                        StrafeAlignCommand(drive=multiDrive,
-                                           vision=self.vision)),
                     approachPegSequence))
             finalSequence.addParallel(
                 WhileRunningCommand(
