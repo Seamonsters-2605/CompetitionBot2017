@@ -13,7 +13,6 @@ class Shooter (Module):
     
     def robotInit(self):
         self.secondaryGamepad = seamonsters.gamepad.globalGamepad(port=1)
-        self.ballControl = BallControl()
 
     def autonomousInit(self):
         if dashboard.getSwitch("Flywheel voltage mode", False):
@@ -56,6 +55,9 @@ class Shooter (Module):
 
         self.ballControl.feed(self.secondaryGamepad.getRTrigger() -
                               self.secondaryGamepad.getLTrigger())
+
+    def setBallControl(self, ballControl):
+        self.ballControl = ballControl
 
 class BallControl:
 

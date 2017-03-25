@@ -13,6 +13,9 @@ from shooter import Shooter
 from gear_light import GearLightBot
 import cscore_camera
 
+import shooter
+import drive
+
 from networktables import NetworkTables
 
 class CompetitionBot2017(Module):
@@ -37,11 +40,19 @@ class CompetitionBot2017(Module):
 
         self.commandTable = NetworkTables.getTable('commands')
 
+
     # extension to Module
     def removeModule(self, robot):
         self.Modules.remove(robot)
         if isinstance(robot, Module):
             robot.setParent(None)
+
+    def robotInit(self):
+        self.ballControl = shooter.BallControl()
+        self.driveBot.setBallControl(self.ballControl)
+        self.shooterBot.setBallControl(self.ballControl)
+        super().robotInit()
+
 
     def autonomousPeriodic(self):
         super().autonomousPeriodic()
