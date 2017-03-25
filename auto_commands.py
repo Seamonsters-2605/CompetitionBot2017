@@ -521,7 +521,7 @@ class ShootForFixedTimeCommand(wpilib.command.Command):
 
         self.ballControl.getFlywheels().spinFlywheels()
 
-        if self.count >= 150:
+        if self.count >= 250:
             self.ballControl.feed(self.feedSpeed)
 
     def isFinished(self):
