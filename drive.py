@@ -208,6 +208,7 @@ class DriveBot(Module):
 
         # shooting in auto (ONLY STAYS TRUE IF IN THE CENTER)
         shootingInAuto = dashboard.getSwitch("Shoot in auto", False)
+        shootLeft = dashboard.getSwitch("Shoot left", False)
 
         # if sensor doesn't detect a gear at start (is broken), don't proximity sensing
         if self.proximitySensor.getVoltage() < 2:
@@ -267,6 +268,8 @@ class DriveBot(Module):
             # spin flywheel and agitator
             shootTime = 6 # in seconds
 
+            turnAngle = 101.63 if shootLeft else -101.63
+
             finalSequence.addParallel(ShootForFixedTimeCommand(self.ballControl, shootTime * 50))
 
             # rotate towards peg
@@ -276,14 +279,14 @@ class DriveBot(Module):
                 self.tankFieldMovement.driveCommand(12, speed=100))
             finalSequence.addSequential(ResetHoloDriveCommand(self.holoDrive))
 
-            startRotationToBoiler = StaticRotationCommand(multiDrive, self.ahrs, math.radians(101.63))
+            startRotationToBoiler = StaticRotationCommand(multiDrive, self.ahrs, math.radians(turnAngle))
 
             finalSequence.addParallel(startRotationToBoiler)
             finalSequence.addSequential(WhileRunningCommand(
                 UpdateMultiDriveCommand(multiDrive),
                 startRotationToBoiler))
 
-            rotateBack = StaticRotationCommand(multiDrive, self.ahrs, math.radians(-101.63))
+            rotateBack = StaticRotationCommand(multiDrive, self.ahrs, math.radians(-turnAngle))
             finalSequence.addParallel(rotateBack)
             finalSequence.addSequential(WhileRunningCommand(
                 UpdateMultiDriveCommand(multiDrive),

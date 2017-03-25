@@ -13,3 +13,4 @@
 -Right start
 +Cross line left
 -Shoot in auto
+-Shoot left
