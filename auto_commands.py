@@ -603,7 +603,7 @@ class StrafeAlignCommand(wpilib.command.Command):
 
         centerDistance = targetX - vision.Vision.CENTER
         StrafeAlignCommand.log.update("{0:.5f}".format(centerDistance))
-        speed = -(abs(centerDistance) ** 1.2) * .5
+        speed = -(abs(centerDistance) ** 1.2) * .65
 
         if centerDistance > 0:
             # move left

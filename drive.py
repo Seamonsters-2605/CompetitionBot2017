@@ -342,7 +342,7 @@ class DriveBot(Module):
                 startSequence.addParallel(
                     EnsureFinishedCommand(
                         StaticRotationCommand(multiFieldDrive, self.ahrs, startAngle),
-                        30))
+                        15))
                 finalSequence.addParallel(
                     WhileRunningCommand(
                         UpdateMultiDriveCommand(multiFieldDrive),
