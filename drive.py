@@ -31,17 +31,17 @@ class DriveBot(Module):
         ### CONSTANTS ###
 
         # normal speed scale, out of 1:
-        self.normalScale = 0.37
+        self.normalScale = 0.25
         # speed scale when fast button is pressed:
         self.fastScale = 1.0
         # speed scale when slow button is pressed:
-        self.slowScale = 0.07
+        self.slowScale = 0.05
         # speed scale when max speed button is pressed
         self.maxScale = 1.0
         # normal turning speed scale:
-        self.normalTurnScale = 0.25
+        self.normalTurnScale = 0.17
         # turning speed scale when fast button is pressed
-        self.fastTurnScale = 0.34
+        self.fastTurnScale = 0.23
         # turning speed scale when max speed button is pressed
         self.maxTurnScale = 1.0
 
@@ -59,7 +59,7 @@ class DriveBot(Module):
         # PIDF values for fast driving:
         fastPID = (1.0, 0.0009, 3.0, 0.0)
         # speed at which fast PID's should be used:
-        fastPIDScale = 0.09
+        fastPIDScale = 0.06
         # PIDF values for slow driving:
         slowPID = (30.0, 0.0009, 3.0, 0.0)
         # speed at which slow PID's should be used:
@@ -67,7 +67,7 @@ class DriveBot(Module):
 
         pidLookBackRange = 10
 
-        self.autoMaxVelocity = 400
+        self.autoMaxVelocity = 267
         self.teleopMaxVelocity = 650
 
         ### END OF CONSTANTS ###
@@ -91,8 +91,8 @@ class DriveBot(Module):
         
         # encoder has 100 raw ticks -- with a QuadEncoder that makes 400 ticks
         # the motor gear has 12 teeth and the wheel has 85 teeth
-        # 85 / 12 * 400 = 2833.333 = ~2833
-        ticksPerWheelRotation = 2833
+        # 85 / 18 * 400 = 1888.889 = ~1889
+        ticksPerWheelRotation = 1889
         self.holoDrive = HolonomicDrive(fl, fr, bl, br, ticksPerWheelRotation)
         self.holoDrive.invertDrive(True)
         self.holoDrive.setWheelOffset(math.radians(45.0)) #angle of rollers
