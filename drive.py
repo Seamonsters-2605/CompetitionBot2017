@@ -18,7 +18,7 @@ from seamonsters import dashboard
 
 import vision
 from auto_commands import *
-from command_utils import *
+from seamonsters.commands import *
 from shooter import *
 import config
 
