@@ -1,7 +1,7 @@
 __author__ = "seamonsters"
 
 import wpilib
-import seamonsters.fix2017
+import ctre
 from seamonsters.wpilib_sim import simulate
 from seamonsters.modularRobot import Module
 from seamonsters.gamepad import Gamepad
@@ -62,8 +62,8 @@ class Shooter (Module):
 class BallControl:
 
     def __init__(self):
-        self.intake = wpilib.CANTalon(6)
-        self.feeder = wpilib.CANTalon(7)
+        self.intake = ctre.CANTalon(6)
+        self.feeder = ctre.CANTalon(7)
         self.flywheels = Flywheels()
 
     def getFlywheels(self):
@@ -84,18 +84,18 @@ class BallControl:
 class Flywheels:
 
     def __init__(self):
-        self.flywheelMotor = wpilib.CANTalon(5)
+        self.flywheelMotor = ctre.CANTalon(5)
         self.speedVoltage = .76
         self.speedSpeed = 21000
 
         # encoder resolution is 512 (* 4)
         self.flywheelMotor.setPID(0.15, 0.0, 5.0, 0)
         self.flywheelMotor.setFeedbackDevice(
-            wpilib.CANTalon.FeedbackDevice.QuadEncoder)
+            ctre.CANTalon.FeedbackDevice.QuadEncoder)
 
         self.switchSpeedMode()
         self.flywheelMotor.changeControlMode(
-                wpilib.CANTalon.ControlMode.PercentVbus)
+                ctre.CANTalon.ControlMode.PercentVbus)
         self.talonSpeedModeEnabled = False
 
         self.voltageModeStartupCount = 0
@@ -116,13 +116,13 @@ class Flywheels:
         if not self.talonSpeedModeEnabled:
             self.talonSpeedModeEnabled = True
             self.flywheelMotor.changeControlMode(
-                wpilib.CANTalon.ControlMode.Speed)
+                ctre.CANTalon.ControlMode.Speed)
 
     def _talonVoltageMode(self):
         if self.talonSpeedModeEnabled:
             self.talonSpeedModeEnabled = False
             self.flywheelMotor.changeControlMode(
-                wpilib.CANTalon.ControlMode.PercentVbus)
+                ctre.CANTalon.ControlMode.PercentVbus)
 
     def _updateLogs(self):
         self.speedLog.update(-self.flywheelMotor.getEncVelocity())

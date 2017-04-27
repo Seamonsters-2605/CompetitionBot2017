@@ -1,7 +1,6 @@
 __author__ = "tadeuszpforte"
 
 import wpilib
-import seamonsters.fix2017
 from seamonsters.wpilib_sim import simulate
 from seamonsters.modularRobot import Module
 from seamonsters.gamepad import Gamepad

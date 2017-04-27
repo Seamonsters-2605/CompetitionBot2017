@@ -1,6 +1,7 @@
 __author__ = "seamonsters"
 
 import wpilib
+import ctre
 import wpilib.command
 import math
 import vision
@@ -292,7 +293,7 @@ class TankDriveCommand(wpilib.command.Command):
         for i in range(0, 4):
             motor = self.wheelMotors[i]
             motor.enable()
-            motor.changeControlMode(wpilib.CANTalon.ControlMode.Position)
+            motor.changeControlMode(ctre.CANTalon.ControlMode.Position)
             if i == HolonomicDrive.FRONT_RIGHT \
                     or i == HolonomicDrive.BACK_RIGHT:
                 targetOffset = self.ticks
@@ -348,7 +349,7 @@ class TankStrafeCommand(wpilib.command.Command):
         for i in range(0, 4):
             motor = self.wheelMotors[i]
             motor.enable()
-            motor.changeControlMode(wpilib.CANTalon.ControlMode.Position)
+            motor.changeControlMode(ctre.CANTalon.ControlMode.Position)
             if i == HolonomicDrive.BACK_LEFT \
                     or i == HolonomicDrive.BACK_RIGHT:
                 targetOffset = self.ticks

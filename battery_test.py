@@ -1,17 +1,17 @@
 __author__ = "seamonsters"
 
 import wpilib
-import seamonsters.fix2017
+import ctre
 from seamonsters.wpilib_sim import simulate
 from seamonsters.modularRobot import Module
 
 class BatteryTest(wpilib.IterativeRobot):
 
     def robotInit(self):
-        bl = wpilib.CANTalon(1)
-        fl = wpilib.CANTalon(3)
-        fr = wpilib.CANTalon(0)
-        br = wpilib.CANTalon(2)
+        bl = ctre.CANTalon(1)
+        fl = ctre.CANTalon(3)
+        fr = ctre.CANTalon(0)
+        br = ctre.CANTalon(2)
         self.talons = [bl,fl,fr,br]
         self.pdp = wpilib.PowerDistributionPanel()
 

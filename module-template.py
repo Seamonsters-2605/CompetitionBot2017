@@ -1,7 +1,7 @@
 __author__ = "seamonsters"
 
 import wpilib
-import seamonsters.fix2017
+import ctre
 from seamonsters.wpilib_sim import simulate
 from seamonsters.modularRobot import Module
 

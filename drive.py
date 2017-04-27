@@ -1,8 +1,8 @@
 __author__ = "seamonsters"
 
 import wpilib
+import ctre
 from wpilib.command import *
-import seamonsters.fix2017
 from seamonsters.wpilib_sim import simulate
 from seamonsters.modularRobot import Module
 
@@ -75,14 +75,14 @@ class DriveBot(Module):
         self.driverGamepad = seamonsters.gamepad.globalGamepad(port = 0)
         self.secondaryGamepad = seamonsters.gamepad.globalGamepad(port = 1)
         
-        fl = wpilib.CANTalon(2)
-        fr = wpilib.CANTalon(1)
-        bl = wpilib.CANTalon(0)
-        br = wpilib.CANTalon(3)
+        fl = ctre.CANTalon(2)
+        fr = ctre.CANTalon(1)
+        bl = ctre.CANTalon(0)
+        br = ctre.CANTalon(3)
         self.talons = [fl, fr, bl, br]
         
         for talon in self.talons:
-            talon.setFeedbackDevice(wpilib.CANTalon.FeedbackDevice.QuadEncoder)
+            talon.setFeedbackDevice(ctre.CANTalon.FeedbackDevice.QuadEncoder)
 
         self.driveModeLog = LogState("Drive mode")
         self.gearLog = LogState("Gear", logFrequency=2.0)
@@ -553,7 +553,7 @@ class DriveBot(Module):
                 print("Locking wheels")
                 for talon in self.talons:
                     talon.enable()
-                    talon.changeControlMode(wpilib.CANTalon.ControlMode.Position)
+                    talon.changeControlMode(ctre.CANTalon.ControlMode.Position)
                     talon.set(talon.getPosition())
                     talon.setPID(30.0, 0.0009, 3.0, 0.0)
                 self.wheelsLocked = True

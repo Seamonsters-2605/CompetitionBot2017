@@ -1,7 +1,7 @@
 __author__ = "seamonsters"
 
 import wpilib
-import seamonsters.fix2017
+import ctre
 from seamonsters.wpilib_sim import simulate
 from seamonsters.modularRobot import Module
 from seamonsters.gamepad import Gamepad
@@ -13,8 +13,8 @@ class Climber(Module):
     def lock(self):
         if not self.locked:
             self.locked = True
-            self.climberMotor.changeControlMode(wpilib.CANTalon.ControlMode.Position)
-            self.climberMotor.setFeedbackDevice(wpilib.CANTalon.FeedbackDevice.QuadEncoder)
+            self.climberMotor.changeControlMode(ctre.CANTalon.ControlMode.Position)
+            self.climberMotor.setFeedbackDevice(ctre.CANTalon.FeedbackDevice.QuadEncoder)
             if config.PRACTICE_BOT:
                 self.climberMotor.setPID(5.0, 0.0, 3.0, 0.0)
             else:
@@ -25,12 +25,12 @@ class Climber(Module):
     def unlock(self):
         if self.locked :
             self.locked = False
-            self.climberMotor.changeControlMode(wpilib.CANTalon.ControlMode.PercentVbus)
+            self.climberMotor.changeControlMode(ctre.CANTalon.ControlMode.PercentVbus)
 
     def robotInit(self):
         self.secondaryGamepad = seamonsters.gamepad.globalGamepad(port = 1)
 
-        self.climberMotor = wpilib.CANTalon(4)
+        self.climberMotor = ctre.CANTalon(4)
 
         self.lockLog = LogState("Climber lock mode")
         self.statusLog = LogState("Climber status")
@@ -52,7 +52,7 @@ class Climber(Module):
         self.lockmode = False
         self.enabled = True
         self.lockPosition = None
-        self.climberMotor.changeControlMode(wpilib.CANTalon.ControlMode.PercentVbus)
+        self.climberMotor.changeControlMode(ctre.CANTalon.ControlMode.PercentVbus)
 
     def teleopPeriodic(self):
         if self.secondaryGamepad.getRawButton(Gamepad.A):
